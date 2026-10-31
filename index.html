@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071014">
+<title>ATLAS BOT — Cloud Cockpit</title>
+<style>
+:root{--bg:#050b0f;--panel:#09151b;--line:#16313b;--text:#d9edf0;--muted:#63828a;--mint:#48e0bd;--green:#18dca3;--red:#ff5f73;--amber:#ffca66}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+header{height:54px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:18px;position:sticky;top:0;background:#050b0ff2;backdrop-filter:blur(12px);z-index:5}
+.brand{font-size:17px;font-weight:800;letter-spacing:1px;color:var(--mint)}.badge{border:1px solid #1f7766;border-radius:999px;padding:6px 10px;color:var(--mint)}
+.wrap{max-width:1600px;margin:auto;padding:10px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:8px}
+.panel{border:1px solid var(--line);background:var(--panel);min-height:96px}.panel h3{font-size:11px;margin:0;padding:10px 12px;border-bottom:1px solid var(--line);letter-spacing:.7px}
+.kpis{grid-column:span 12;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.kpi{padding:12px;border:1px solid var(--line);background:var(--panel)}.kpi small{color:var(--muted)}.kpi b{font-size:22px;display:block;margin-top:6px}
+.scanner{grid-column:span 7}.gate{grid-column:span 5}.positions{grid-column:span 7}.perf{grid-column:span 5}.log{grid-column:span 12}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #10262e;white-space:nowrap}th{color:var(--muted);font-size:10px}.pass{color:var(--green)}.wait{color:var(--amber)}.neg{color:var(--red)}.pos{color:var(--green)}
+.scroll{overflow:auto;max-height:460px}.bar{height:5px;background:#0d252d;margin-top:6px}.fill{height:100%;background:var(--mint)}
+.empty{padding:24px;color:var(--muted);text-align:center}.footer{padding:12px;color:var(--muted);text-align:center}
+@media(max-width:850px){.kpis{grid-template-columns:repeat(2,1fr)}.scanner,.gate,.positions,.perf{grid-column:span 12}header{gap:8px;padding:0 10px}.brand{font-size:14px}}
+</style>
+</head>
+<body>
+<header><div class="brand">△ ATLAS BOT</div><div class="badge">CLOUD PAPER</div><div id="status" class="badge">LOADING</div><div style="margin-left:auto;color:var(--muted)" id="updated">—</div></header>
+<div class="wrap"><div class="grid">
+<section class="kpis">
+<div class="kpi"><small>WALLET / EQUITY</small><b id="equity">—</b><span id="cash"></span></div>
+<div class="kpi"><small>NET P&L</small><b id="pnl">—</b><span id="trades"></span></div>
+<div class="kpi"><small>POSITIONS</small><b id="positionsCount">—</b><span>max 2</span></div>
+<div class="kpi"><small>MAX DRAWDOWN</small><b id="dd">—</b><span id="wr"></span></div>
+</section>
+
+<section class="panel scanner"><h3>MARKET SCANNER — KRAKEN EUR LIQUID UNIVERSE</h3><div class="scroll"><table><thead><tr><th>ASSET</th><th>PRICE</th><th>VOL 24H</th><th>SLOPE</th><th>ADX</th><th>ATR%</th><th>GATE</th></tr></thead><tbody id="markets"></tbody></table></div></section>
+<section class="panel gate"><h3>ENTRY GATE — TOP CANDIDATES</h3><div id="gate" class="scroll"></div></section>
+<section class="panel positions"><h3>POSITION MANAGER</h3><div id="positions"></div></section>
+<section class="panel perf"><h3>FORWARD PERFORMANCE</h3><div style="padding:12px" id="performance"></div></section>
+<section class="panel log"><h3>RECENT TRADES / ACTIVITY</h3><div id="tradeLog"></div></section>
+</div><div class="footer">ATLAS CLOUD · PAPER ONLY · nessun ordine reale</div></div>
+<script>
+const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:4}).format(n||0);
+const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(n||0);
+async function load(){
+ const r=await fetch('./state.json?ts='+Date.now(),{cache:'no-store'}); if(!r.ok) throw new Error('state');
+ const d=await r.json(), b=d.bot;
+ document.getElementById('status').textContent=b.status;
+ document.getElementById('updated').textContent=new Date(d.generated_at).toLocaleString('it-IT');
+ document.getElementById('equity').textContent=euro(b.equity); document.getElementById('cash').textContent='cash '+euro(b.cash);
+ const pnl=document.getElementById('pnl'); pnl.textContent=(b.realized_pnl>=0?'+':'')+euro(b.realized_pnl); pnl.className=b.realized_pnl>=0?'pos':'neg';
+ document.getElementById('trades').textContent=b.closed_trades+' trade chiusi';
+ document.getElementById('positionsCount').textContent=b.open_positions+' / '+b.max_positions;
+ document.getElementById('dd').textContent=num(b.max_drawdown_pct)+'%'; document.getElementById('wr').textContent='win rate '+num(b.win_rate)+'%';
+ document.getElementById('markets').innerHTML=d.markets.map(m=>`<tr><td><b>${m.symbol}</b></td><td>${euro(m.price)}</td><td>${euro(m.volume_eur_24h)}</td><td class="${m.slope_pct>=0?'pos':'neg'}">${num(m.slope_pct)}%</td><td>${num(m.adx)}</td><td>${num(m.atr_pct)}%</td><td class="${m.gate==='PASS'?'pass':'wait'}">${m.gate}</td></tr>`).join('');
+ const top=d.markets.slice().sort((a,b)=>(b.gate==='PASS')-(a.gate==='PASS')||b.adx-a.adx).slice(0,10);
+ document.getElementById('gate').innerHTML='<table><thead><tr><th>ASSET</th><th>SMA200</th><th>BREAKOUT</th><th>GATE</th></tr></thead><tbody>'+top.map(m=>`<tr><td>${m.symbol}</td><td>${euro(m.sma200)}</td><td>${euro(m.breakout_level)}</td><td class="${m.gate==='PASS'?'pass':'wait'}">${m.gate}</td></tr>`).join('')+'</tbody></table>';
+ document.getElementById('positions').innerHTML=d.positions.length?'<table><thead><tr><th>ASSET</th><th>ENTRY</th><th>QTY</th><th>TRAILING</th></tr></thead><tbody>'+d.positions.map(p=>`<tr><td>${p.symbol}</td><td>${euro(p.entry_price)}</td><td>${p.qty.toFixed(8)}</td><td>${euro(p.trailing_stop)}</td></tr>`).join('')+'</tbody></table>':'<div class="empty">NESSUNA POSIZIONE APERTA · waiting for valid setup</div>';
+ document.getElementById('performance').innerHTML=`CICLI CLOUD <b>${b.cycles}</b><br><br>TRADE CHIUSI <b>${b.closed_trades}</b><br><br>WIN RATE <b>${num(b.win_rate)}%</b><br><br>REALIZED <b class="${b.realized_pnl>=0?'pos':'neg'}">${euro(b.realized_pnl)}</b><br><br>MAX DD <b>${num(b.max_drawdown_pct)}%</b>`;
+ document.getElementById('tradeLog').innerHTML=d.trades.length?'<table><thead><tr><th>ASSET</th><th>PNL</th><th>REASON</th><th>EXIT</th></tr></thead><tbody>'+d.trades.map(t=>`<tr><td>${t.symbol}</td><td class="${t.pnl>=0?'pos':'neg'}">${euro(t.pnl)}</td><td>${t.reason}</td><td>${new Date(t.exit_ts).toLocaleString('it-IT')}</td></tr>`).join('')+'</tbody></table>':'<div class="empty">NESSUN TRADE CHIUSO</div>';
+}
+load().catch(()=>document.getElementById('status').textContent='STATE ERROR'); setInterval(load,60000);
+</script>
+</body></html>
