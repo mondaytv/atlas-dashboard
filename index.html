@@ -50,8 +50,18 @@ async function load(){
  document.getElementById('positionsCount').textContent=b.open_positions+' / '+b.max_positions;
  document.getElementById('dd').textContent=num(b.max_drawdown_pct)+'%'; document.getElementById('wr').textContent='win rate '+num(b.win_rate)+'%';
  document.getElementById('markets').innerHTML=d.markets.map(m=>`<tr><td><b>${m.symbol}</b></td><td>${euro(m.price)}</td><td>${euro(m.volume_eur_24h)}</td><td class="${m.slope_pct>=0?'pos':'neg'}">${num(m.slope_pct)}%</td><td>${num(m.adx)}</td><td>${num(m.atr_pct)}%</td><td class="${m.gate==='PASS'?'pass':'wait'}">${m.gate}</td></tr>`).join('');
- const top=d.markets.slice().sort((a,b)=>(b.gate==='PASS')-(a.gate==='PASS')||b.adx-a.adx).slice(0,10);
- document.getElementById('gate').innerHTML='<table><thead><tr><th>ASSET</th><th>SMA200</th><th>BREAKOUT</th><th>GATE</th></tr></thead><tbody>'+top.map(m=>`<tr><td>${m.symbol}</td><td>${euro(m.sma200)}</td><td>${euro(m.breakout_level)}</td><td class="${m.gate==='PASS'?'pass':'wait'}">${m.gate}</td></tr>`).join('')+'</tbody></table>';
+ const gateScore=m=>{
+   let s=0;
+   if(m.price>m.sma200)s++;
+   if(m.slope_pct>=0)s++;
+   if(m.adx>=18)s++;
+   if(m.atr_pct>=1)s++;
+   if(m.price>m.breakout_level)s++;
+   return s;
+ };
+ const distance=m=>m.breakout_level?Math.abs((m.breakout_level-m.price)/m.breakout_level):999;
+ const top=d.markets.slice().sort((a,b)=>gateScore(b)-gateScore(a)||distance(a)-distance(b)||b.volume_eur_24h-a.volume_eur_24h).slice(0,10);
+ document.getElementById('gate').innerHTML='<table><thead><tr><th>ASSET</th><th>CHECK</th><th>SMA200</th><th>BREAKOUT</th><th>GATE</th></tr></thead><tbody>'+top.map(m=>`<tr><td>${m.symbol}</td><td>${gateScore(m)}/5</td><td>${euro(m.sma200)}</td><td>${euro(m.breakout_level)}</td><td class="${m.gate==='PASS'?'pass':'wait'}">${m.gate}</td></tr>`).join('')+'</tbody></table>';
  document.getElementById('positions').innerHTML=d.positions.length?'<table><thead><tr><th>ASSET</th><th>ENTRY</th><th>QTY</th><th>TRAILING</th></tr></thead><tbody>'+d.positions.map(p=>`<tr><td>${p.symbol}</td><td>${euro(p.entry_price)}</td><td>${p.qty.toFixed(8)}</td><td>${euro(p.trailing_stop)}</td></tr>`).join('')+'</tbody></table>':'<div class="empty">NESSUNA POSIZIONE APERTA · waiting for valid setup</div>';
  document.getElementById('performance').innerHTML=`CICLI CLOUD <b>${b.cycles}</b><br><br>TRADE CHIUSI <b>${b.closed_trades}</b><br><br>WIN RATE <b>${num(b.win_rate)}%</b><br><br>REALIZED <b class="${b.realized_pnl>=0?'pos':'neg'}">${euro(b.realized_pnl)}</b><br><br>MAX DD <b>${num(b.max_drawdown_pct)}%</b>`;
  document.getElementById('tradeLog').innerHTML=d.trades.length?'<table><thead><tr><th>ASSET</th><th>PNL</th><th>REASON</th><th>EXIT</th></tr></thead><tbody>'+d.trades.map(t=>`<tr><td>${t.symbol}</td><td class="${t.pnl>=0?'pos':'neg'}">${euro(t.pnl)}</td><td>${t.reason}</td><td>${new Date(t.exit_ts).toLocaleString('it-IT')}</td></tr>`).join('')+'</tbody></table>':'<div class="empty">NESSUN TRADE CHIUSO</div>';
