@@ -1,0 +1,113 @@
+name: ATLAS cloud heartbeat
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/atlas-heartbeat.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: atlas-cloud-heartbeat
+  cancel-in-progress: false
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 260
+    env:
+      BOT_REPOSITORY: mondaytv/atlas-bot
+      BOT_WORKFLOW: atlas.yml
+      PULSE_SECONDS: "600"
+      TEST_UNTIL: "2026-11-04T10:00:00Z"
+      WINDOW_SECONDS: "14400"
+    steps:
+      - name: Dispatch an ATLAS paper cycle every ten minutes
+        id: relay
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.ATLAS_TRIGGER_TOKEN }}
+        run: |
+          set -u
+
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "::error::ATLAS_TRIGGER_TOKEN is not configured"
+            exit 1
+          fi
+
+          echo "safe_restart=true" >> "$GITHUB_OUTPUT"
+          end_epoch="$(date -u -d "$TEST_UNTIL" +%s)"
+          window_end="$(( $(date -u +%s) + WINDOW_SECONDS ))"
+          failures=0
+
+          dispatch_atlas() {
+            for attempt in 1 2 3; do
+              if gh workflow run "$BOT_WORKFLOW" \
+                --repo "$BOT_REPOSITORY" \
+                --ref main; then
+                echo "ATLAS paper cycle dispatched at $(date -u --iso-8601=seconds)"
+                return 0
+              fi
+              if (( attempt < 3 )); then
+                echo "Dispatch attempt $attempt failed; retrying in 20 seconds"
+                sleep 20
+              fi
+            done
+            echo "::error::Unable to dispatch ATLAS after three attempts"
+            return 1
+          }
+
+          while :; do
+            now="$(date -u +%s)"
+
+            if (( now >= end_epoch )); then
+              echo "Intensive test deadline reached; sending the final cleanup cycle"
+              dispatch_atlas || failures=$((failures + 1))
+              break
+            fi
+
+            dispatch_atlas || failures=$((failures + 1))
+
+            next_pulse="$((now + PULSE_SECONDS))"
+            if (( next_pulse >= window_end )); then
+              echo "Relay window complete; a fresh runner will take over"
+              break
+            fi
+
+            sleep_for="$PULSE_SECONDS"
+            if (( now + sleep_for > end_epoch )); then
+              sleep_for="$((end_epoch - now))"
+            fi
+            if (( sleep_for > 0 )); then
+              sleep "$sleep_for"
+            fi
+          done
+
+          if (( failures > 0 )); then
+            echo "::error::$failures ATLAS dispatches failed in this relay window"
+            exit 1
+          fi
+
+      - name: Start the next free relay window
+        if: ${{ always() && steps.relay.outputs.safe_restart == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          now="$(date -u +%s)"
+          end_epoch="$(date -u -d "$TEST_UNTIL" +%s)"
+          if (( now < end_epoch )); then
+            gh workflow run atlas-heartbeat.yml \
+              --repo "$GITHUB_REPOSITORY" \
+              --ref main
+            echo "Next ATLAS relay window queued"
+          else
+            echo "Intensive test finished; relay stopped"
+          fi
+
