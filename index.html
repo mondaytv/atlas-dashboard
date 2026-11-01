@@ -91,9 +91,9 @@ const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:1}).format(Num
 const shortDate=value=>new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value));
 let dashboardData=null,activityView='open';
 async function fetchState(){
- const name='strategies.json',api=`https://api.github.com/repos/mondaytv/atlas-dashboard/contents/${name}?ref=data`;
- try{const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});if(!r.ok)throw new Error('GitHub API');const p=await r.json();const bytes=Uint8Array.from(atob(p.content.replace(/\s/g,'')),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}
- catch(error){const r=await fetch('./'+name,{cache:'reload'});if(!r.ok)throw error;return r.json();}
+ const name='strategies.json',raw=`https://raw.githubusercontent.com/mondaytv/atlas-dashboard/data/${name}?t=${Date.now()}`,api=`https://api.github.com/repos/mondaytv/atlas-dashboard/contents/${name}?ref=data`;
+ try{const r=await fetch(raw,{cache:'no-store'});if(!r.ok)throw new Error('raw state');return r.json();}
+ catch(rawError){try{const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});if(!r.ok)throw new Error('GitHub API');const p=await r.json();const bytes=Uint8Array.from(atob(p.content.replace(/\s/g,'')),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}catch(apiError){const r=await fetch('./'+name,{cache:'reload'});if(!r.ok)throw apiError;return r.json();}}
 }
 function pnlClass(value){return Number(value)>=0?'pos':'neg'}
 function renderActivity(strategies){
