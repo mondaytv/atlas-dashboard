@@ -39,9 +39,21 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px
 <script>
 const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:4}).format(n||0);
 const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(n||0);
+async function fetchState(){
+ const api='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/state.json?ref=main';
+ try{
+  const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}}); if(!r.ok) throw new Error('api state');
+  const payload=await r.json();
+  const compact=payload.content.replace(/\\s/g,'');
+  const bytes=Uint8Array.from(atob(compact),c=>c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+ }catch(error){
+  const r=await fetch('./state.json',{cache:'reload'}); if(!r.ok) throw new Error('pages state');
+  return r.json();
+ }
+}
 async function load(){
- const r=await fetch('./state.json?ts='+Date.now(),{cache:'no-store'}); if(!r.ok) throw new Error('state');
- const d=await r.json(), b=d.bot;
+ const d=await fetchState(), b=d.bot;
  document.getElementById('status').textContent=b.status;
  document.getElementById('updated').textContent=new Date(d.generated_at).toLocaleString('it-IT');
  document.getElementById('equity').textContent=euro(b.equity); document.getElementById('cash').textContent='cash '+euro(b.cash);
@@ -66,6 +78,6 @@ async function load(){
  document.getElementById('performance').innerHTML=`CICLI CLOUD <b>${b.cycles}</b><br><br>TRADE CHIUSI <b>${b.closed_trades}</b><br><br>WIN RATE <b>${num(b.win_rate)}%</b><br><br>REALIZED <b class="${b.realized_pnl>=0?'pos':'neg'}">${euro(b.realized_pnl)}</b><br><br>MAX DD <b>${num(b.max_drawdown_pct)}%</b>`;
  document.getElementById('tradeLog').innerHTML=d.trades.length?'<table><thead><tr><th>ASSET</th><th>PNL</th><th>REASON</th><th>EXIT</th></tr></thead><tbody>'+d.trades.map(t=>`<tr><td>${t.symbol}</td><td class="${t.pnl>=0?'pos':'neg'}">${euro(t.pnl)}</td><td>${t.reason}</td><td>${new Date(t.exit_ts).toLocaleString('it-IT')}</td></tr>`).join('')+'</tbody></table>':'<div class="empty">NESSUN TRADE CHIUSO</div>';
 }
-load().catch(()=>document.getElementById('status').textContent='STATE ERROR'); setInterval(load,60000);
+load().catch(()=>document.getElementById('status').textContent='STATE ERROR'); setInterval(load,120000);
 </script>
 </body></html>
