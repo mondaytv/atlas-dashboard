@@ -3,62 +3,129 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071014">
-<title>ATLAS — 10 Strategy Lab</title>
+<meta name="theme-color" content="#07090d">
+<title>ATLAS · Paper Lab</title>
 <style>
-:root{--bg:#050b0f;--panel:#09151b;--line:#16313b;--text:#d9edf0;--muted:#63828a;--mint:#48e0bd;--green:#18dca3;--red:#ff5f73;--amber:#ffca66}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
-header{height:54px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:14px;position:sticky;top:0;background:#050b0ff2;backdrop-filter:blur(12px);z-index:5}
-.brand{font-size:17px;font-weight:800;letter-spacing:1px;color:var(--mint)}.badge{border:1px solid #1f7766;border-radius:999px;padding:6px 10px;color:var(--mint)}
-.wrap{max-width:1600px;margin:auto;padding:10px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:8px}.panel{border:1px solid var(--line);background:var(--panel)}
-.panel h3{font-size:11px;margin:0;padding:10px 12px;border-bottom:1px solid var(--line);letter-spacing:.7px}.kpis{grid-column:span 12;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.kpi{padding:12px;border:1px solid var(--line);background:var(--panel)}.kpi small{color:var(--muted)}.kpi b{font-size:22px;display:block;margin-top:6px}
-.comparison{grid-column:span 12}.positions{grid-column:span 7}.method{grid-column:span 5}.scanner,.log{grid-column:span 12}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #10262e;white-space:nowrap}th{color:var(--muted);font-size:10px}
-.pass,.pos{color:var(--green)}.wait{color:var(--amber)}.neg{color:var(--red)}.scroll{overflow:auto;max-height:520px}.empty{padding:24px;color:var(--muted);text-align:center}.footer{padding:12px;color:var(--muted);text-align:center}
-.rank{color:var(--mint);font-weight:800}.note{padding:14px;line-height:1.65;color:var(--muted)}.note b{color:var(--text)}
-@media(max-width:850px){.kpis{grid-template-columns:repeat(2,1fr)}.positions,.method{grid-column:span 12}header{gap:7px;padding:0 9px}.brand{font-size:13px}.updated{display:none}}
+:root{
+ --bg:#07090d;--surface:#11141a;--surface2:#171b22;--line:rgba(255,255,255,.08);
+ --text:#f5f7fa;--muted:#8d95a3;--blue:#5ac8fa;--mint:#54e1b2;--red:#ff6678;
+ --amber:#ffcc66;--shadow:0 18px 50px rgba(0,0,0,.28);--radius:22px
+}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;background:var(--bg);overflow-x:hidden}
+body{margin:0;background:radial-gradient(circle at 50% -15%,#182433 0,#0b0e13 35%,var(--bg) 68%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button,summary{font:inherit;color:inherit}button{cursor:pointer}
+.shell{width:min(1080px,100%);margin:auto;padding:0 20px calc(48px + env(safe-area-inset-bottom))}
+.topbar{height:66px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:20;background:rgba(7,9,13,.78);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--line);padding:0 max(20px,calc((100vw - 1080px)/2 + 20px))}
+.mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#203441,#111a21);color:var(--blue);font-size:17px;font-weight:800;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.brand{font-weight:720;letter-spacing:-.02em}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.live{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 5px rgba(84,225,178,.1)}.dot.stale{background:var(--amber);box-shadow:0 0 0 5px rgba(255,204,102,.1)}
+.hero{padding:32px 2px 16px}.eyebrow{color:var(--muted);font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.08em}.hero-value{font-size:clamp(42px,11vw,72px);font-weight:730;letter-spacing:-.055em;line-height:1;margin:9px 0 10px}.hero-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}.pill{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid var(--line)}.pill.pos{color:var(--mint);background:rgba(84,225,178,.09)}.pill.neg{color:var(--red);background:rgba(255,102,120,.09)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 26px}.stat{padding:16px;background:rgba(17,20,26,.86);border:1px solid var(--line);border-radius:18px}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:7px;font-size:24px;letter-spacing:-.03em}
+.section{scroll-margin-top:84px;margin-top:28px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:0 2px 13px}.section-head h2{font-size:22px;letter-spacing:-.035em;margin:0}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.section-link{border:0;background:transparent;color:var(--blue);font-size:13px;padding:5px 0}
+.spotlight{display:grid;grid-template-columns:1.25fr .75fr;gap:12px}.feature,.activity-card,.strategy-card,.market-panel{background:linear-gradient(155deg,rgba(25,31,39,.96),rgba(15,18,24,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.feature{padding:22px;position:relative;overflow:hidden}.feature:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-80px;top:-95px;background:rgba(90,200,250,.12);filter:blur(5px)}
+.feature-label{font-size:11px;color:var(--blue);font-weight:750;text-transform:uppercase;letter-spacing:.08em}.feature-name{font-size:26px;font-weight:720;letter-spacing:-.035em;margin:11px 0 5px}.feature-desc{color:var(--muted);font-size:13px;line-height:1.45;max-width:75%}.feature-bottom{display:flex;align-items:end;justify-content:space-between;margin-top:24px;gap:12px}.feature-equity span{display:block;color:var(--muted);font-size:11px}.feature-equity strong{font-size:28px;letter-spacing:-.04em}.feature-rank{color:var(--muted);font-size:13px}.feature-rank b{color:var(--text);font-size:22px}
+.activity-card{padding:20px}.activity-card .icon{width:38px;height:38px;border-radius:12px;background:rgba(84,225,178,.1);color:var(--mint);display:grid;place-items:center;font-size:18px}.activity-card h3{font-size:16px;margin:18px 0 4px}.activity-card p{color:var(--muted);font-size:13px;line-height:1.45;margin:0}.activity-card strong{display:block;font-size:30px;margin-top:17px;letter-spacing:-.04em}
+.strategy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.strategy-card{overflow:hidden}.strategy-card[open]{border-color:rgba(90,200,250,.24)}.strategy-card summary{list-style:none;padding:19px 20px;cursor:pointer}.strategy-card summary::-webkit-details-marker{display:none}.strategy-top{display:flex;gap:12px;align-items:center}.rank{width:32px;height:32px;flex:0 0 auto;border-radius:11px;background:rgba(255,255,255,.06);display:grid;place-items:center;color:var(--muted);font-weight:750}.rank.top{color:#071014;background:linear-gradient(135deg,var(--mint),var(--blue))}.strategy-title{font-size:16px;font-weight:700;letter-spacing:-.02em}.strategy-sub{color:var(--muted);font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chevron{margin-left:auto;color:var(--muted);transition:transform .2s}.strategy-card[open] .chevron{transform:rotate(180deg)}
+.strategy-balance{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:20px}.strategy-balance span{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.strategy-balance strong{font-size:25px;letter-spacing:-.035em}.strategy-positions{font-size:12px;color:var(--muted);text-align:right}.strategy-positions b{color:var(--text)}
+.strategy-detail{padding:0 20px 20px;border-top:1px solid var(--line)}.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding-top:16px}.detail{background:rgba(255,255,255,.035);border-radius:12px;padding:11px}.detail span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}.detail b{display:block;font-size:14px;margin-top:5px}.setup{color:var(--muted);font-size:12px;line-height:1.45;margin:14px 2px 0}
+.segmented{display:flex;padding:4px;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:14px;width:max-content;max-width:100%}.segmented button{border:0;background:transparent;color:var(--muted);border-radius:10px;padding:8px 13px;font-size:12px;font-weight:650}.segmented button.active{background:var(--surface2);color:var(--text);box-shadow:0 3px 12px rgba(0,0,0,.2)}
+.activity-list{display:grid;gap:9px}.trade-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:14px 15px;background:rgba(17,20,26,.88);border:1px solid var(--line);border-radius:17px}.asset{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:rgba(90,200,250,.1);color:var(--blue);font-weight:800;font-size:11px}.trade-main b{display:block;font-size:14px}.trade-main span{display:block;color:var(--muted);font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trade-value{text-align:right}.trade-value b{display:block;font-size:14px}.trade-value span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.empty{padding:32px 18px;text-align:center;color:var(--muted);background:rgba(17,20,26,.7);border:1px solid var(--line);border-radius:18px;font-size:13px;line-height:1.5}
+.market-panel{overflow:hidden}.market-panel summary{list-style:none;padding:18px 20px;display:flex;align-items:center;cursor:pointer}.market-panel summary::-webkit-details-marker{display:none}.market-panel summary b{font-size:15px}.market-panel summary span{color:var(--muted);font-size:12px;margin-left:auto}.market-list{border-top:1px solid var(--line)}.market-row{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:13px 20px;border-bottom:1px solid var(--line);align-items:center}.market-row:last-child{border:0}.market-price{font-size:13px}.market-meta{color:var(--muted);font-size:11px;margin-top:3px}.gate{font-size:10px;font-weight:800;padding:5px 8px;border-radius:999px;background:rgba(255,204,102,.08);color:var(--amber)}.gate.pass{background:rgba(84,225,178,.09);color:var(--mint)}
+.bottom-nav{display:none}.loading{animation:pulse 1.5s infinite}@keyframes pulse{50%{opacity:.45}}
+@media(max-width:700px){
+ body{background:radial-gradient(circle at 50% -5%,#15212d 0,#090c11 28%,var(--bg) 58%)}
+ .shell{padding:0 14px calc(92px + env(safe-area-inset-bottom))}.topbar{height:58px;padding:0 14px}.brand small{display:none}.live span:last-child{display:none}
+ .hero{padding:27px 2px 13px}.hero-value{font-size:48px}.hero-meta{font-size:12px}.stats{gap:8px;margin-bottom:24px}.stat{padding:13px 11px;border-radius:16px}.stat strong{font-size:21px}.stat span{font-size:10px}
+ .section{margin-top:25px;scroll-margin-top:70px}.section-head h2{font-size:21px}.section-head p{font-size:12px}.spotlight{grid-template-columns:1fr}.feature{padding:20px}.feature-name{font-size:24px}.feature-desc{max-width:88%}.activity-card{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:15px}.activity-card .icon{width:36px;height:36px}.activity-card h3{margin:0;font-size:14px}.activity-card p{margin-top:3px;font-size:11px}.activity-card strong{font-size:23px;margin:0}
+ .strategy-grid{grid-template-columns:1fr;gap:9px}.strategy-card summary{padding:16px}.strategy-detail{padding:0 16px 16px}.detail-grid{grid-template-columns:repeat(2,1fr)}.strategy-balance{margin-top:16px}.strategy-balance strong{font-size:23px}
+ .trade-row{padding:12px}.asset{width:36px;height:36px;border-radius:11px}.trade-main b,.trade-value b{font-size:13px}.trade-main span{max-width:48vw}
+ .market-row{padding:12px 15px}.bottom-nav{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;z-index:30;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));padding:6px;background:rgba(20,24,31,.9);border:1px solid rgba(255,255,255,.11);border-radius:19px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+ .bottom-nav a{text-decoration:none;color:var(--muted);text-align:center;font-size:10px;font-weight:650;padding:7px 2px;border-radius:13px}.bottom-nav a span{display:block;font-size:18px;height:20px;color:var(--text)}.bottom-nav a:active{background:rgba(255,255,255,.07)}
+}
+@media(max-width:370px){.shell{padding-left:11px;padding-right:11px}.hero-value{font-size:43px}.stat strong{font-size:19px}.stat{padding:12px 8px}.feature-desc{max-width:100%}.trade-main span{max-width:42vw}}
 </style>
 </head>
 <body>
-<header><div class="brand">△ ATLAS 10 STRATEGY LAB</div><div class="badge">PAPER ONLY</div><div id="status" class="badge">LOADING</div><div class="updated" style="margin-left:auto;color:var(--muted)" id="updated">—</div></header>
-<div class="wrap"><div class="grid">
-<section class="kpis">
- <div class="kpi"><small>CONTI PAPER</small><b id="accounts">—</b><span>€1.000 ciascuno</span></div>
- <div class="kpi"><small>EQUITY TOTALE</small><b id="equity">—</b><span id="pnl">—</span></div>
- <div class="kpi"><small>POSIZIONI APERTE</small><b id="open">—</b><span>max 2 per strategia</span></div>
- <div class="kpi"><small>TRADE CHIUSI</small><b id="closed">—</b><span id="wins">—</span></div>
-</section>
-<section class="panel comparison"><h3>CLASSIFICA FORWARD TEST — 10 STRATEGIE, CONTABILITÀ SEPARATA</h3><div id="comparison" class="scroll"></div></section>
-<section class="panel positions"><h3>POSITION MANAGER — TUTTE LE STRATEGIE</h3><div id="positions" class="scroll"></div></section>
-<section class="panel method"><h3>REGOLE DEL TEST</h3><div class="note"><b>10 conti isolati da €1.000</b><br>Size per operazione: €100 · massimo 2 posizioni<br>Fee Kraken 0,26% + slippage simulato 0,05%<br>Stop capitale: −10% per singolo conto<br><br><b>Sprint Momentum</b> chiude al ciclo successivo: serve anche a verificare concretamente BUY, SELL, fee e persistenza cloud.<br><br>Nessuna chiave exchange, nessun ordine reale.</div></section>
-<section class="panel scanner"><h3>MARKET SCANNER — PROFILO BASELINE</h3><div id="markets" class="scroll"></div></section>
-<section class="panel log"><h3>ULTIMI TRADE CHIUSI — TUTTE LE STRATEGIE</h3><div id="tradeLog" class="scroll"></div></section>
-</div><div class="footer">ATLAS CLOUD · dati Kraken pubblici · refresh dashboard 60 secondi</div></div>
+<header class="topbar">
+ <div class="mark">△</div><div class="brand">ATLAS <small>10 Strategy Paper Lab</small></div>
+ <div class="live"><i id="liveDot" class="dot"></i><span id="liveLabel">Sincronizzazione</span><span id="updated"></span></div>
+</header>
+<main class="shell">
+ <section id="overview" class="hero">
+  <div class="eyebrow">Patrimonio paper complessivo</div>
+  <div id="totalEquity" class="hero-value loading">€ —</div>
+  <div class="hero-meta"><span id="totalPnl" class="pill">P&L —</span><span>10 conti indipendenti · €1.000 ciascuno</span></div>
+ </section>
+ <section class="stats" aria-label="Riepilogo">
+  <div class="stat"><span>Aperte</span><strong id="openCount">—</strong></div>
+  <div class="stat"><span>Chiuse</span><strong id="closedCount">—</strong></div>
+  <div class="stat"><span>Strategie attive</span><strong id="activeCount">—</strong></div>
+ </section>
+ <section class="section">
+  <div class="section-head"><div><h2>In evidenza</h2><p>La situazione più utile, senza rumore.</p></div></div>
+  <div class="spotlight">
+   <article id="bestStrategy" class="feature"><div class="loading">Calcolo classifica…</div></article>
+   <article id="latestActivity" class="activity-card"><div class="loading">Caricamento attività…</div></article>
+  </div>
+ </section>
+ <section id="strategies" class="section">
+  <div class="section-head"><div><h2>Strategie</h2><p>Ordinate per equity. Tocca una scheda per i dettagli.</p></div><button id="collapseAll" class="section-link" type="button">Chiudi tutte</button></div>
+  <div id="strategyGrid" class="strategy-grid"></div>
+ </section>
+ <section id="activity" class="section">
+  <div class="section-head"><div><h2>Attività</h2><p>Operazioni paper, separate dal rumore di mercato.</p></div><div class="segmented"><button type="button" class="active" data-view="open">Aperte</button><button type="button" data-view="closed">Chiuse</button></div></div>
+  <div id="activityList" class="activity-list"></div>
+ </section>
+ <section class="section">
+  <details class="market-panel"><summary><b>Scanner di mercato</b><span id="marketSummary">Mostra asset</span></summary><div id="marketList" class="market-list"></div></details>
+ </section>
+</main>
+<nav class="bottom-nav" aria-label="Navigazione principale">
+ <a href="#overview"><span>⌂</span>Riepilogo</a><a href="#strategies"><span>◫</span>Strategie</a><a href="#activity"><span>↕</span>Attività</a>
+</nav>
 <script>
-const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(Number(n)||0);
-const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(Number(n)||0);
+const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0);
+const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:1}).format(Number(n)||0);
+const shortDate=value=>new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value));
+let dashboardData=null,activityView='open';
 async function fetchState(){
- const filename='strategies.json',api=`https://api.github.com/repos/mondaytv/atlas-dashboard/contents/${filename}?ref=data`;
- try{const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});if(!r.ok)throw new Error('api');const p=await r.json();const bytes=Uint8Array.from(atob(p.content.replace(/\s/g,'')),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}
- catch(error){const r=await fetch('./'+filename,{cache:'reload'});if(!r.ok)throw error;return r.json();}
+ const name='strategies.json',api=`https://api.github.com/repos/mondaytv/atlas-dashboard/contents/${name}?ref=data`;
+ try{const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});if(!r.ok)throw new Error('GitHub API');const p=await r.json();const bytes=Uint8Array.from(atob(p.content.replace(/\s/g,'')),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}
+ catch(error){const r=await fetch('./'+name,{cache:'reload'});if(!r.ok)throw error;return r.json();}
 }
-function table(headers,rows){return `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`}
-async function load(){
- const d=await fetchState(), strategies=(d.strategies||[]).slice().sort((a,b)=>b.equity-a.equity);
- const totalEquity=strategies.reduce((s,x)=>s+x.equity,0),totalRealized=strategies.reduce((s,x)=>s+x.realized_pnl,0),totalOpen=strategies.reduce((s,x)=>s+x.open_positions,0),totalClosed=strategies.reduce((s,x)=>s+x.closed_trades,0);
- const wins=strategies.reduce((s,x)=>s+(x.trades||[]).filter(t=>t.pnl>0).length,0);
- document.getElementById('status').textContent=d.paper_only?'ACTIVE · SAFE':'STATE ERROR';document.getElementById('updated').textContent=new Date(d.generated_at).toLocaleString('it-IT');
- document.getElementById('accounts').textContent=strategies.length;document.getElementById('equity').textContent=euro(totalEquity);document.getElementById('pnl').textContent='realized '+(totalRealized>=0?'+':'')+euro(totalRealized);
- document.getElementById('open').textContent=totalOpen;document.getElementById('closed').textContent=totalClosed;document.getElementById('wins').textContent=totalClosed?`win osservate ${wins}`:'in attesa delle prime chiusure';
- document.getElementById('comparison').innerHTML=table(['#','STRATEGIA','SETUP','CICLI','PASS','APERTE','CHIUSE','EQUITY','REALIZED','WIN','MAX DD'],strategies.map((x,i)=>`<tr><td class="rank">${i+1}</td><td><b>${x.name}</b></td><td>${x.description}</td><td>${x.cycles}</td><td class="${x.passes?'pass':'wait'}">${x.passes}</td><td>${x.open_positions}</td><td>${x.closed_trades}</td><td>${euro(x.equity)}</td><td class="${x.realized_pnl>=0?'pos':'neg'}">${x.realized_pnl>=0?'+':''}${euro(x.realized_pnl)}</td><td>${num(x.win_rate)}%</td><td>${num(x.max_drawdown_pct)}%</td></tr>`));
- const positions=strategies.flatMap(x=>(x.positions||[]).map(p=>({...p,strategy:x.name})));
- document.getElementById('positions').innerHTML=positions.length?table(['STRATEGIA','ASSET','ENTRY','QTY','APERTA'],positions.map(p=>`<tr><td>${p.strategy}</td><td><b>${p.symbol}</b></td><td>${euro(p.entry_price)}</td><td>${Number(p.qty).toFixed(8)}</td><td>${new Date(p.entry_ts).toLocaleString('it-IT')}</td></tr>`)):'<div class="empty">NESSUNA POSIZIONE APERTA</div>';
- const markets=d.market||[];document.getElementById('markets').innerHTML=table(['ASSET','PRICE','VOL 24H','SLOPE','ADX','ATR%','GATE'],markets.map(m=>`<tr><td><b>${m.symbol}</b></td><td>${euro(m.price)}</td><td>${euro(m.volume_eur_24h)}</td><td class="${m.slope_pct>=0?'pos':'neg'}">${num(m.slope_pct)}%</td><td>${num(m.adx)}</td><td>${num(m.atr_pct)}%</td><td class="${m.gate==='PASS'?'pass':'wait'}">${m.gate}</td></tr>`));
- const trades=strategies.flatMap(x=>(x.trades||[]).map(t=>({...t,strategy:x.name}))).sort((a,b)=>new Date(b.exit_ts)-new Date(a.exit_ts)).slice(0,30);
- document.getElementById('tradeLog').innerHTML=trades.length?table(['STRATEGIA','ASSET','PNL','MOTIVO','USCITA'],trades.map(t=>`<tr><td>${t.strategy}</td><td>${t.symbol}</td><td class="${t.pnl>=0?'pos':'neg'}">${t.pnl>=0?'+':''}${euro(t.pnl)}</td><td>${t.reason}</td><td>${new Date(t.exit_ts).toLocaleString('it-IT')}</td></tr>`)):'<div class="empty">NESSUN TRADE CHIUSO — Sprint Momentum completerà il primo ciclo BUY/SELL al prossimo campionamento</div>';
+function pnlClass(value){return Number(value)>=0?'pos':'neg'}
+function renderActivity(strategies){
+ const root=document.getElementById('activityList');
+ if(activityView==='open'){
+  const rows=strategies.flatMap(s=>(s.positions||[]).map(p=>({...p,strategy:s.name})));
+  root.innerHTML=rows.length?rows.map(p=>`<article class="trade-row"><div class="asset">${p.symbol.slice(0,4)}</div><div class="trade-main"><b>${p.symbol} · ${p.strategy}</b><span>Aperta ${shortDate(p.entry_ts)}</span></div><div class="trade-value"><b>${euro(p.entry_price)}</b><span>entry</span></div></article>`).join(''):'<div class="empty">Nessuna posizione aperta in questo momento.</div>';
+ }else{
+  const rows=strategies.flatMap(s=>(s.trades||[]).map(t=>({...t,strategy:s.name}))).sort((a,b)=>new Date(b.exit_ts)-new Date(a.exit_ts)).slice(0,30);
+  root.innerHTML=rows.length?rows.map(t=>`<article class="trade-row"><div class="asset">${t.symbol.slice(0,4)}</div><div class="trade-main"><b>${t.symbol} · ${t.strategy}</b><span>${t.reason.replaceAll('_',' ')} · ${shortDate(t.exit_ts)}</span></div><div class="trade-value"><b class="${pnlClass(t.pnl)}">${t.pnl>=0?'+':''}${euro(t.pnl)}</b><span>P&L</span></div></article>`).join(''):'<div class="empty">Le prime chiusure compariranno qui.</div>';
+ }
 }
-load().catch(()=>document.getElementById('status').textContent='STATE ERROR');setInterval(load,60000);
+function render(data){
+ dashboardData=data;const strategies=(data.strategies||[]).slice().sort((a,b)=>b.equity-a.equity);
+ const equity=strategies.reduce((sum,s)=>sum+s.equity,0),realized=strategies.reduce((sum,s)=>sum+s.realized_pnl,0),open=strategies.reduce((sum,s)=>sum+s.open_positions,0),closed=strategies.reduce((sum,s)=>sum+s.closed_trades,0),active=strategies.filter(s=>s.open_positions||s.closed_trades).length;
+ const ageMinutes=(Date.now()-new Date(data.generated_at))/60000,stale=ageMinutes>20;
+ document.getElementById('totalEquity').classList.remove('loading');document.getElementById('totalEquity').textContent=euro(equity);
+ const totalPnl=document.getElementById('totalPnl');totalPnl.className=`pill ${pnlClass(realized)}`;totalPnl.textContent=`Realizzato ${realized>=0?'+':''}${euro(realized)}`;
+ document.getElementById('openCount').textContent=open;document.getElementById('closedCount').textContent=closed;document.getElementById('activeCount').textContent=`${active}/10`;
+ document.getElementById('liveDot').classList.toggle('stale',stale);document.getElementById('liveLabel').textContent=stale?'In attesa':'Live';document.getElementById('updated').textContent=`· ${shortDate(data.generated_at)}`;
+ const best=strategies[0];document.getElementById('bestStrategy').innerHTML=`<div class="feature-label">Prima in classifica</div><div class="feature-name">${best.name}</div><div class="feature-desc">${best.description}</div><div class="feature-bottom"><div class="feature-equity"><span>Equity</span><strong>${euro(best.equity)}</strong></div><div class="feature-rank"><b>#1</b><br>${best.open_positions} aperte</div></div>`;
+ const allTrades=strategies.flatMap(s=>(s.trades||[]).map(t=>({...t,strategy:s.name}))).sort((a,b)=>new Date(b.exit_ts)-new Date(a.exit_ts));
+ const last=allTrades[0];document.getElementById('latestActivity').innerHTML=last?`<div class="icon">↕</div><div><h3>Ultima chiusura</h3><p>${last.symbol} · ${last.strategy}<br>${shortDate(last.exit_ts)}</p></div><strong class="${pnlClass(last.pnl)}">${last.pnl>=0?'+':''}${euro(last.pnl)}</strong>`:`<div class="icon">●</div><div><h3>${open} posizioni live</h3><p>Il test sta raccogliendo dati.</p></div><strong>${open}</strong>`;
+ document.getElementById('strategyGrid').innerHTML=strategies.map((s,index)=>`<details class="strategy-card"><summary><div class="strategy-top"><div class="rank ${index<3?'top':''}">${index+1}</div><div><div class="strategy-title">${s.name}</div><div class="strategy-sub">${s.description}</div></div><div class="chevron">⌄</div></div><div class="strategy-balance"><div><span>Equity</span><strong>${euro(s.equity)}</strong></div><div class="strategy-positions"><b>${s.open_positions}</b> aperte · <b>${s.closed_trades}</b> chiuse<br><span class="${pnlClass(s.realized_pnl)}">${s.realized_pnl>=0?'+':''}${euro(s.realized_pnl)} realizzato</span></div></div></summary><div class="strategy-detail"><div class="detail-grid"><div class="detail"><span>Win rate</span><b>${num(s.win_rate)}%</b></div><div class="detail"><span>Max DD</span><b>${num(s.max_drawdown_pct)}%</b></div><div class="detail"><span>Segnali</span><b>${s.passes}</b></div><div class="detail"><span>Cicli</span><b>${s.cycles}</b></div></div><p class="setup">Conto ${euro(s.initial_capital)} · size ${euro(s.trade_size)} · timeframe ${s.interval_minutes} minuti.</p></div></details>`).join('');
+ renderActivity(strategies);
+ const markets=data.market||[];document.getElementById('marketSummary').textContent=`${markets.length} asset · mostra`;document.getElementById('marketList').innerHTML=markets.map(m=>`<div class="market-row"><b>${m.symbol}</b><div><div class="market-price">${euro(m.price)}</div><div class="market-meta">ADX ${num(m.adx)} · ATR ${num(m.atr_pct)}%</div></div><span class="gate ${m.gate==='PASS'?'pass':''}">${m.gate}</span></div>`).join('');
+}
+document.querySelectorAll('.segmented button').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active',b===button));activityView=button.dataset.view;if(dashboardData)renderActivity(dashboardData.strategies.slice().sort((a,b)=>b.equity-a.equity));}));
+document.getElementById('collapseAll').addEventListener('click',()=>document.querySelectorAll('.strategy-card[open]').forEach(card=>card.removeAttribute('open')));
+async function load(){try{render(await fetchState())}catch(error){document.getElementById('liveDot').classList.add('stale');document.getElementById('liveLabel').textContent='Dati non disponibili';}}
+load();setInterval(load,60000);
 </script>
-</body></html>
+</body>
+</html>
 
