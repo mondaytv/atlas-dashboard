@@ -40,7 +40,7 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px
 const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:4}).format(n||0);
 const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(n||0);
 async function fetchState(){
- const api='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/state.json?ref=main';
+ const api='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/state.json?ref=data';
  try{
   const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}}); if(!r.ok) throw new Error('api state');
   const payload=await r.json();
