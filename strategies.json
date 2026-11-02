@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-02T18:01:48.981164+00:00",
+  "generated_at": "2026-11-02T18:08:41.806781+00:00",
   "mode": "PAPER",
   "paper_only": true,
   "account_capital": 1000.0,
@@ -8,9 +8,11 @@
   "strategy_count": 7,
   "active_strategy_count": 7,
   "active_capital": 7000.0,
-  "forward_strategy_count": 1,
-  "forward_capital": 1000.0,
-  "test_plan_id": "cost-aware-regime-replay-v2-2026-11",
+  "forward_strategy_count": 0,
+  "forward_capital": 0,
+  "test_plan_id": "candle-close-robust-gates-v3-2026-11",
+  "cycle_mode": "SIGNAL",
+  "stale_after_minutes": 75,
   "evaluation_policy": {
     "mode": "cost_aware_forward_plus_walk_forward",
     "checkpoints_hours": [
@@ -29,7 +31,13 @@
     ],
     "wait_full_30_days_for_failed_models": false,
     "minimum_replay_trades_for_forward": 10,
-    "forward_requires_positive_net_pnl": true
+    "forward_requires_positive_net_pnl": true,
+    "minimum_profit_factor": 1.15,
+    "maximum_replay_drawdown_pct": 12.0,
+    "maximum_single_trade_profit_share": 0.5,
+    "maximum_single_asset_contribution_share": 0.65,
+    "minimum_buy_hold_excess_eur": 0.0,
+    "forward_assets_must_be_replay_validated": true
   },
   "ai_pipeline": {
     "scout": {
@@ -48,92 +56,92 @@
         },
         {
           "symbol": "ETH",
-          "score": 98.12,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "SOL",
-          "score": 97.66,
+          "score": 96.86,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "XRP",
-          "score": 96.74,
+          "score": 96.52,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "SOL",
+          "score": 96.2,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "LINK",
-          "score": 89.39,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "ZEC",
-          "score": 88.58,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "HYPE",
-          "score": 87.13,
+          "score": 89.44,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "NEAR",
-          "score": 86.7,
+          "score": 87.69,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "HYPE",
+          "score": 87.22,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "TRX",
-          "score": 82.93,
+          "score": 83.37,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "SUI",
-          "score": 82.27,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "PEPE",
-          "score": 81.3,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "DOT",
-          "score": 79.45,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "AVAX",
-          "score": 78.69,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "LTC",
-          "score": 77.57,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "AAVE",
-          "score": 73.82,
-          "reason": "EXECUTION_OK"
-        },
-        {
-          "symbol": "ENA",
-          "score": 72.5,
+          "score": 82.37,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "ADA",
-          "score": 70.34,
+          "score": 79.59,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "LTC",
+          "score": 79.38,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "PEPE",
+          "score": 78.52,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "AVAX",
+          "score": 77.15,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "XLM",
-          "score": 70.23,
+          "score": 75.71,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "DOT",
+          "score": 74.73,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "ZEC",
+          "score": 74.5,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "AAVE",
+          "score": 70.73,
+          "reason": "EXECUTION_OK"
+        },
+        {
+          "symbol": "ENA",
+          "score": 69.94,
           "reason": "EXECUTION_OK"
         },
         {
           "symbol": "INJ",
-          "score": 54.72,
+          "score": 50.26,
           "reason": "EXECUTION_OK"
         }
       ],
@@ -147,79 +155,76 @@
       "lookahead": false,
       "replay_evidence_weight": 0.35,
       "minimum_trust_weight": 0.9,
-      "preferred_model": {
-        "id": "rsi_pullback",
-        "name": "Trend Daily",
-        "weight": 1.0165,
-        "status": "NEUTRAL",
-        "replay_closed_trades": 13,
-        "replay_net_pnl": 23.951596849484105,
-        "max_consecutive_losses": 2,
-        "top_error": "ATR_TRAILING_STOP"
-      },
-      "penalized_models": 1,
+      "preferred_model": null,
+      "penalized_models": 0,
       "models": [
         {
-          "id": "rsi_pullback",
-          "name": "Trend Daily",
-          "weight": 1.0165,
+          "id": "baseline_breakout",
+          "name": "Donchian Trend 4H",
+          "weight": 1.0,
           "status": "NEUTRAL",
-          "replay_closed_trades": 13,
-          "replay_net_pnl": 23.951596849484105,
-          "max_consecutive_losses": 2,
-          "top_error": "ATR_TRAILING_STOP"
-        },
-        {
-          "id": "ema_trend",
-          "name": "Trend Pullback 4H",
-          "weight": 1.0047,
-          "status": "NEUTRAL",
-          "replay_closed_trades": 1,
-          "replay_net_pnl": 1.7972742421321755,
+          "replay_closed_trades": 0,
+          "replay_net_pnl": 0.0,
           "max_consecutive_losses": 0,
           "top_error": null
         },
         {
-          "id": "baseline_breakout",
-          "name": "Donchian Trend 4H",
-          "weight": 0.9954,
+          "id": "ema_trend",
+          "name": "Trend Pullback 4H",
+          "weight": 1.0,
           "status": "NEUTRAL",
-          "replay_closed_trades": 2,
-          "replay_net_pnl": -1.5245650888212907,
-          "max_consecutive_losses": 1,
-          "top_error": "ATR_TRAILING_STOP"
-        },
-        {
-          "id": "mean_reversion",
-          "name": "Daily Pullback",
-          "weight": 0.9903,
-          "status": "NEUTRAL",
-          "replay_closed_trades": 8,
-          "replay_net_pnl": 13.752257758603903,
-          "max_consecutive_losses": 2,
-          "top_error": "ATR_TRAILING_STOP"
+          "replay_closed_trades": 0,
+          "replay_net_pnl": 0.0,
+          "max_consecutive_losses": 0,
+          "top_error": null
         },
         {
           "id": "macd_trend",
           "name": "Volatility Breakout 4H",
-          "weight": 0.9838,
+          "weight": 1.0,
           "status": "NEUTRAL",
-          "replay_closed_trades": 2,
-          "replay_net_pnl": -7.305826962953262,
-          "max_consecutive_losses": 2,
-          "top_error": "ATR_TRAILING_STOP"
+          "replay_closed_trades": 0,
+          "replay_net_pnl": 0.0,
+          "max_consecutive_losses": 0,
+          "top_error": null
         },
         {
           "id": "momentum_12",
           "name": "Momentum Daily",
-          "weight": 0.883,
-          "status": "VETOED",
-          "replay_closed_trades": 17,
-          "replay_net_pnl": -33.30177245707412,
-          "max_consecutive_losses": 4,
-          "top_error": "MOMENTUM_LOST"
+          "weight": 1.0,
+          "status": "NEUTRAL",
+          "replay_closed_trades": 0,
+          "replay_net_pnl": 0.0,
+          "max_consecutive_losses": 0,
+          "top_error": null
+        },
+        {
+          "id": "rsi_pullback",
+          "name": "Trend Daily",
+          "weight": 1.0,
+          "status": "NEUTRAL",
+          "replay_closed_trades": 0,
+          "replay_net_pnl": 0.0,
+          "max_consecutive_losses": 0,
+          "top_error": null
+        },
+        {
+          "id": "mean_reversion",
+          "name": "Daily Pullback",
+          "weight": 1.0,
+          "status": "NEUTRAL",
+          "replay_closed_trades": 0,
+          "replay_net_pnl": 0.0,
+          "max_consecutive_losses": 0,
+          "top_error": null
         }
       ]
+    },
+    "regime_thresholds": {
+      "TREND": 0.4,
+      "RANGE": 1.0,
+      "TRANSITION": 0.5,
+      "RISK_OFF": null
     },
     "real_orders": false
   },
@@ -242,6 +247,13 @@
       "status": "REPLAY_ONLY",
       "active": true,
       "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
@@ -253,9 +265,9 @@
       "closed_trades": 0,
       "win_rate": 0.0,
       "max_drawdown_pct": 0.0,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 57,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
       "passes": 0,
       "positions": [],
       "trades": [],
@@ -280,6 +292,26 @@
         "net_pnl": -1.5245650888212907,
         "fees": 3.2135115718643448,
         "win_rate": 50.0,
+        "profit_factor": 0.6565061075442307,
+        "max_drawdown_pct": 0.4425510001522615,
+        "max_single_trade_profit_share": 1.0,
+        "max_single_asset_contribution_share": 1.0,
+        "asset_contributions": {
+          "BTC": 0.0,
+          "ETH": 0.0,
+          "XRP": 0.0,
+          "SOL": 0.0,
+          "LINK": -1.5245650888212907
+        },
+        "buy_hold_net_pnl": -66.07654499164622,
+        "buy_hold_by_asset": {
+          "BTC": -7.870792414408356,
+          "ETH": -14.595035596758805,
+          "XRP": -17.347837024781015,
+          "SOL": -18.082078824492484,
+          "LINK": -8.180801131205556
+        },
+        "buy_hold_excess_eur": 64.55197990282493,
         "events": [
           {
             "ts": "2026-09-29T16:00:00+00:00",
@@ -318,7 +350,7 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:39.829074+00:00",
+          "updated_at": "2026-11-02T18:08:29.675155+00:00",
           "closed_trades": 2,
           "wins": 1,
           "losses": 1,
@@ -334,8 +366,32 @@
           "used_after_next_cycle": true
         },
         "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": false,
+          "positive_net_pnl": false,
+          "minimum_profit_factor": false,
+          "maximum_drawdown": true,
+          "single_trade_independence": false,
+          "single_asset_independence": false,
+          "beats_buy_hold": true
+        },
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
         "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
       },
       "charts": []
     },
@@ -347,6 +403,13 @@
       "status": "REPLAY_ONLY",
       "active": true,
       "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
@@ -358,9 +421,9 @@
       "closed_trades": 0,
       "win_rate": 0.0,
       "max_drawdown_pct": 0.0,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 57,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
       "passes": 0,
       "positions": [],
       "trades": [],
@@ -385,6 +448,26 @@
         "net_pnl": 1.7972742421321755,
         "fees": 1.6273973729204207,
         "win_rate": 100.0,
+        "profit_factor": 99.0,
+        "max_drawdown_pct": 0.0,
+        "max_single_trade_profit_share": 1.0,
+        "max_single_asset_contribution_share": 1.0,
+        "asset_contributions": {
+          "BTC": 0.0,
+          "ETH": 0.0,
+          "XRP": 1.7972742421321755,
+          "SOL": 0.0,
+          "LINK": 0.0
+        },
+        "buy_hold_net_pnl": -66.07654499164622,
+        "buy_hold_by_asset": {
+          "BTC": -7.870792414408356,
+          "ETH": -14.595035596758805,
+          "XRP": -17.347837024781015,
+          "SOL": -18.082078824492484,
+          "LINK": -8.180801131205556
+        },
+        "buy_hold_excess_eur": 67.87381923377839,
         "events": [
           {
             "ts": "2026-09-26T00:00:00+00:00",
@@ -406,7 +489,7 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:41.349784+00:00",
+          "updated_at": "2026-11-02T18:08:31.687086+00:00",
           "closed_trades": 1,
           "wins": 1,
           "losses": 0,
@@ -420,8 +503,32 @@
           "used_after_next_cycle": true
         },
         "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": false,
+          "positive_net_pnl": true,
+          "minimum_profit_factor": true,
+          "maximum_drawdown": true,
+          "single_trade_independence": false,
+          "single_asset_independence": false,
+          "beats_buy_hold": true
+        },
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
         "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
       },
       "charts": []
     },
@@ -433,6 +540,13 @@
       "status": "REPLAY_ONLY",
       "active": true,
       "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
@@ -444,9 +558,9 @@
       "closed_trades": 0,
       "win_rate": 0.0,
       "max_drawdown_pct": 0.0,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 57,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
       "passes": 0,
       "positions": [],
       "trades": [],
@@ -471,6 +585,26 @@
         "net_pnl": -7.305826962953262,
         "fees": 3.166888492234248,
         "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "max_drawdown_pct": 0.7305826962953234,
+        "max_single_trade_profit_share": 1.0,
+        "max_single_asset_contribution_share": 1.0,
+        "asset_contributions": {
+          "BTC": 0.0,
+          "ETH": 0.0,
+          "XRP": 0.0,
+          "SOL": 0.0,
+          "LINK": -7.305826962953262
+        },
+        "buy_hold_net_pnl": -66.07654499164622,
+        "buy_hold_by_asset": {
+          "BTC": -7.870792414408356,
+          "ETH": -14.595035596758805,
+          "XRP": -17.347837024781015,
+          "SOL": -18.082078824492484,
+          "LINK": -8.180801131205556
+        },
+        "buy_hold_excess_eur": 58.770718028692954,
         "events": [
           {
             "ts": "2026-09-29T16:00:00+00:00",
@@ -509,7 +643,7 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:42.874716+00:00",
+          "updated_at": "2026-11-02T18:08:33.709268+00:00",
           "closed_trades": 2,
           "wins": 0,
           "losses": 2,
@@ -525,8 +659,32 @@
           "used_after_next_cycle": true
         },
         "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": false,
+          "positive_net_pnl": false,
+          "minimum_profit_factor": false,
+          "maximum_drawdown": true,
+          "single_trade_independence": false,
+          "single_asset_independence": false,
+          "beats_buy_hold": true
+        },
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
         "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
       },
       "charts": []
     },
@@ -538,6 +696,13 @@
       "status": "REPLAY_ONLY",
       "active": true,
       "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
@@ -549,10 +714,10 @@
       "closed_trades": 0,
       "win_rate": 0.0,
       "max_drawdown_pct": 0.0,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 23,
-      "passes": 2,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
+      "passes": 0,
       "positions": [],
       "trades": [],
       "walk_forward": {
@@ -576,6 +741,26 @@
         "net_pnl": -33.30177245707412,
         "fees": 27.150792157604243,
         "win_rate": 35.294117647058826,
+        "profit_factor": 0.39151995583618754,
+        "max_drawdown_pct": 5.338410635042021,
+        "max_single_trade_profit_share": 0.27584412564556343,
+        "max_single_asset_contribution_share": 0.49062407808983516,
+        "asset_contributions": {
+          "BTC": -0.21077611846628486,
+          "ETH": -7.506523111718394,
+          "XRP": -7.763675638527431,
+          "SOL": -1.482146177852556,
+          "LINK": -16.338651410509456
+        },
+        "buy_hold_net_pnl": 76.11168023088756,
+        "buy_hold_by_asset": {
+          "BTC": 17.72962705005108,
+          "ETH": 17.680049396534386,
+          "XRP": -6.253358475110218,
+          "SOL": 14.217828566873223,
+          "LINK": 32.73753369253909
+        },
+        "buy_hold_excess_eur": -109.41345268796168,
         "events": [
           {
             "ts": "2026-10-07T00:00:00+00:00",
@@ -685,7 +870,7 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:44.402165+00:00",
+          "updated_at": "2026-11-02T18:08:35.736341+00:00",
           "closed_trades": 17,
           "wins": 6,
           "losses": 11,
@@ -702,8 +887,32 @@
           "used_after_next_cycle": true
         },
         "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": true,
+          "positive_net_pnl": false,
+          "minimum_profit_factor": false,
+          "maximum_drawdown": true,
+          "single_trade_independence": true,
+          "single_asset_independence": true,
+          "beats_buy_hold": false
+        },
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
         "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
       },
       "charts": []
     },
@@ -712,38 +921,32 @@
       "name": "Trend Daily",
       "description": "1d · EMA20/50 + SMA200 + ADX",
       "interval_minutes": 1440,
-      "status": "ACTIVE",
+      "status": "REPLAY_ONLY",
       "active": true,
-      "forward_enabled": true,
+      "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
       "trade_size": 100.0,
-      "cash": 798.4000000000001,
-      "equity": 989.8182663505738,
+      "cash": 1000.0,
+      "equity": 1000.0,
       "realized_pnl": 0,
-      "open_positions": 2,
+      "open_positions": 0,
       "closed_trades": 0,
       "win_rate": 0.0,
-      "max_drawdown_pct": 1.0885115320857721,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 23,
-      "passes": 2,
-      "positions": [
-        {
-          "symbol": "PEPE",
-          "entry_price": 4.3328664e-06,
-          "qty": 23079409.972114537,
-          "entry_ts": "2026-11-02T09:49:27.569870+00:00"
-        },
-        {
-          "symbol": "HYPE",
-          "entry_price": 76.7342720875198,
-          "qty": 1.3031986526951649,
-          "entry_ts": "2026-11-02T09:49:27.570040+00:00"
-        }
-      ],
+      "max_drawdown_pct": 0.0,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
+      "passes": 0,
+      "positions": [],
       "trades": [],
       "walk_forward": {
         "mode": "COST_AWARE_WALK_FORWARD",
@@ -766,6 +969,26 @@
         "net_pnl": 23.951596849484105,
         "fees": 21.160899974592613,
         "win_rate": 53.84615384615385,
+        "profit_factor": 1.8526080237598725,
+        "max_drawdown_pct": 1.9581867465063159,
+        "max_single_trade_profit_share": 0.33800389969035566,
+        "max_single_asset_contribution_share": 0.35899312073471457,
+        "asset_contributions": {
+          "BTC": 4.742862065854737,
+          "ETH": 5.193684787196233,
+          "XRP": -7.581452462985538,
+          "SOL": 7.554665401064483,
+          "LINK": 14.04183705835419
+        },
+        "buy_hold_net_pnl": 76.11168023088756,
+        "buy_hold_by_asset": {
+          "BTC": 17.72962705005108,
+          "ETH": 17.680049396534386,
+          "XRP": -6.253358475110218,
+          "SOL": 14.217828566873223,
+          "LINK": 32.73753369253909
+        },
+        "buy_hold_excess_eur": -52.16008338140345,
         "events": [
           {
             "ts": "2026-10-14T00:00:00+00:00",
@@ -878,7 +1101,7 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:45.932923+00:00",
+          "updated_at": "2026-11-02T18:08:37.742881+00:00",
           "closed_trades": 13,
           "wins": 7,
           "losses": 6,
@@ -894,866 +1117,35 @@
           },
           "used_after_next_cycle": true
         },
-        "eligible": true,
-        "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
-      },
-      "charts": [
-        {
-          "symbol": "PEPE",
-          "pair": "PEPEEUR",
-          "interval_minutes": 1440,
-          "candles": [
-            {
-              "ts": 1788393600,
-              "open": 2.963e-06,
-              "high": 3.334e-06,
-              "low": 2.932e-06,
-              "close": 3.191e-06
-            },
-            {
-              "ts": 1788480000,
-              "open": 3.191e-06,
-              "high": 3.193e-06,
-              "low": 2.992e-06,
-              "close": 3.037e-06
-            },
-            {
-              "ts": 1788566400,
-              "open": 3.038e-06,
-              "high": 3.192e-06,
-              "low": 2.968e-06,
-              "close": 3.11e-06
-            },
-            {
-              "ts": 1788652800,
-              "open": 3.126e-06,
-              "high": 3.175e-06,
-              "low": 3.039e-06,
-              "close": 3.146e-06
-            },
-            {
-              "ts": 1788739200,
-              "open": 3.149e-06,
-              "high": 3.186e-06,
-              "low": 3.043e-06,
-              "close": 3.117e-06
-            },
-            {
-              "ts": 1788825600,
-              "open": 3.106e-06,
-              "high": 3.171e-06,
-              "low": 3.053e-06,
-              "close": 3.142e-06
-            },
-            {
-              "ts": 1788912000,
-              "open": 3.159e-06,
-              "high": 3.236e-06,
-              "low": 2.925e-06,
-              "close": 2.991e-06
-            },
-            {
-              "ts": 1788998400,
-              "open": 2.988e-06,
-              "high": 3.001e-06,
-              "low": 2.77e-06,
-              "close": 2.785e-06
-            },
-            {
-              "ts": 1789084800,
-              "open": 2.796e-06,
-              "high": 3.078e-06,
-              "low": 2.759e-06,
-              "close": 2.851e-06
-            },
-            {
-              "ts": 1789171200,
-              "open": 2.852e-06,
-              "high": 2.964e-06,
-              "low": 2.843e-06,
-              "close": 2.953e-06
-            },
-            {
-              "ts": 1789257600,
-              "open": 2.957e-06,
-              "high": 3.005e-06,
-              "low": 2.878e-06,
-              "close": 2.9e-06
-            },
-            {
-              "ts": 1789344000,
-              "open": 2.901e-06,
-              "high": 3.107e-06,
-              "low": 2.882e-06,
-              "close": 2.99e-06
-            },
-            {
-              "ts": 1789430400,
-              "open": 2.989e-06,
-              "high": 3.025e-06,
-              "low": 2.832e-06,
-              "close": 2.941e-06
-            },
-            {
-              "ts": 1789516800,
-              "open": 2.935e-06,
-              "high": 2.978e-06,
-              "low": 2.85e-06,
-              "close": 2.97e-06
-            },
-            {
-              "ts": 1789603200,
-              "open": 2.962e-06,
-              "high": 3.208e-06,
-              "low": 2.954e-06,
-              "close": 3.144e-06
-            },
-            {
-              "ts": 1789689600,
-              "open": 3.147e-06,
-              "high": 3.379e-06,
-              "low": 3.132e-06,
-              "close": 3.314e-06
-            },
-            {
-              "ts": 1789776000,
-              "open": 3.314e-06,
-              "high": 3.754e-06,
-              "low": 2.9e-06,
-              "close": 3.584e-06
-            },
-            {
-              "ts": 1789862400,
-              "open": 3.582e-06,
-              "high": 3.594e-06,
-              "low": 3.365e-06,
-              "close": 3.488e-06
-            },
-            {
-              "ts": 1789948800,
-              "open": 3.496e-06,
-              "high": 4.495e-06,
-              "low": 3.468e-06,
-              "close": 4.161e-06
-            },
-            {
-              "ts": 1790035200,
-              "open": 4.151e-06,
-              "high": 4.666e-06,
-              "low": 4.151e-06,
-              "close": 4.355e-06
-            },
-            {
-              "ts": 1790121600,
-              "open": 4.351e-06,
-              "high": 4.433e-06,
-              "low": 3.784e-06,
-              "close": 3.805e-06
-            },
-            {
-              "ts": 1790208000,
-              "open": 3.806e-06,
-              "high": 3.98e-06,
-              "low": 3.704e-06,
-              "close": 3.884e-06
-            },
-            {
-              "ts": 1790294400,
-              "open": 3.89e-06,
-              "high": 4.057e-06,
-              "low": 3.84e-06,
-              "close": 3.94e-06
-            },
-            {
-              "ts": 1790380800,
-              "open": 3.939e-06,
-              "high": 3.97e-06,
-              "low": 3.741e-06,
-              "close": 3.834e-06
-            },
-            {
-              "ts": 1790467200,
-              "open": 3.826e-06,
-              "high": 3.926e-06,
-              "low": 3.775e-06,
-              "close": 3.837e-06
-            },
-            {
-              "ts": 1790553600,
-              "open": 3.821e-06,
-              "high": 3.879e-06,
-              "low": 3.616e-06,
-              "close": 3.703e-06
-            },
-            {
-              "ts": 1790640000,
-              "open": 3.7e-06,
-              "high": 3.866e-06,
-              "low": 3.571e-06,
-              "close": 3.749e-06
-            },
-            {
-              "ts": 1790726400,
-              "open": 3.756e-06,
-              "high": 3.966e-06,
-              "low": 3.74e-06,
-              "close": 3.769e-06
-            },
-            {
-              "ts": 1790812800,
-              "open": 3.768e-06,
-              "high": 3.983e-06,
-              "low": 3.759e-06,
-              "close": 3.946e-06
-            },
-            {
-              "ts": 1790899200,
-              "open": 3.943e-06,
-              "high": 4.212e-06,
-              "low": 3.641e-06,
-              "close": 3.776e-06
-            },
-            {
-              "ts": 1790985600,
-              "open": 3.778e-06,
-              "high": 3.852e-06,
-              "low": 3.752e-06,
-              "close": 3.831e-06
-            },
-            {
-              "ts": 1791072000,
-              "open": 3.829e-06,
-              "high": 3.946e-06,
-              "low": 3.79e-06,
-              "close": 3.906e-06
-            },
-            {
-              "ts": 1791158400,
-              "open": 3.901e-06,
-              "high": 4.074e-06,
-              "low": 3.893e-06,
-              "close": 3.906e-06
-            },
-            {
-              "ts": 1791244800,
-              "open": 3.904e-06,
-              "high": 3.912e-06,
-              "low": 3.76e-06,
-              "close": 3.805e-06
-            },
-            {
-              "ts": 1791331200,
-              "open": 3.804e-06,
-              "high": 3.804e-06,
-              "low": 3.569e-06,
-              "close": 3.654e-06
-            },
-            {
-              "ts": 1791417600,
-              "open": 3.652e-06,
-              "high": 3.68e-06,
-              "low": 3.245e-06,
-              "close": 3.413e-06
-            },
-            {
-              "ts": 1791504000,
-              "open": 3.416e-06,
-              "high": 3.54e-06,
-              "low": 3.412e-06,
-              "close": 3.532e-06
-            },
-            {
-              "ts": 1791590400,
-              "open": 3.531e-06,
-              "high": 3.635e-06,
-              "low": 3.529e-06,
-              "close": 3.599e-06
-            },
-            {
-              "ts": 1791676800,
-              "open": 3.591e-06,
-              "high": 3.787e-06,
-              "low": 3.548e-06,
-              "close": 3.758e-06
-            },
-            {
-              "ts": 1791763200,
-              "open": 3.766e-06,
-              "high": 3.859e-06,
-              "low": 3.488e-06,
-              "close": 3.502e-06
-            },
-            {
-              "ts": 1791849600,
-              "open": 3.505e-06,
-              "high": 3.794e-06,
-              "low": 3.371e-06,
-              "close": 3.745e-06
-            },
-            {
-              "ts": 1791936000,
-              "open": 3.752e-06,
-              "high": 3.804e-06,
-              "low": 3.596e-06,
-              "close": 3.633e-06
-            },
-            {
-              "ts": 1792022400,
-              "open": 3.637e-06,
-              "high": 3.752e-06,
-              "low": 3.39e-06,
-              "close": 3.64e-06
-            },
-            {
-              "ts": 1792108800,
-              "open": 3.636e-06,
-              "high": 3.698e-06,
-              "low": 3.495e-06,
-              "close": 3.583e-06
-            },
-            {
-              "ts": 1792195200,
-              "open": 3.578e-06,
-              "high": 3.601e-06,
-              "low": 3.364e-06,
-              "close": 3.441e-06
-            },
-            {
-              "ts": 1792281600,
-              "open": 3.437e-06,
-              "high": 3.605e-06,
-              "low": 3.351e-06,
-              "close": 3.573e-06
-            },
-            {
-              "ts": 1792368000,
-              "open": 3.567e-06,
-              "high": 3.716e-06,
-              "low": 3.547e-06,
-              "close": 3.7e-06
-            },
-            {
-              "ts": 1792454400,
-              "open": 3.707e-06,
-              "high": 4.149e-06,
-              "low": 3.659e-06,
-              "close": 4.056e-06
-            },
-            {
-              "ts": 1792540800,
-              "open": 4.054e-06,
-              "high": 4.261e-06,
-              "low": 3.97e-06,
-              "close": 4.122e-06
-            },
-            {
-              "ts": 1792627200,
-              "open": 4.12e-06,
-              "high": 4.122e-06,
-              "low": 3.856e-06,
-              "close": 3.91e-06
-            },
-            {
-              "ts": 1792713600,
-              "open": 3.905e-06,
-              "high": 4.558e-06,
-              "low": 3.905e-06,
-              "close": 4.076e-06
-            },
-            {
-              "ts": 1792800000,
-              "open": 4.077e-06,
-              "high": 4.112e-06,
-              "low": 3.78e-06,
-              "close": 4.024e-06
-            },
-            {
-              "ts": 1792886400,
-              "open": 4.023e-06,
-              "high": 4.041e-06,
-              "low": 3.774e-06,
-              "close": 3.812e-06
-            },
-            {
-              "ts": 1792972800,
-              "open": 3.789e-06,
-              "high": 3.971e-06,
-              "low": 3.75e-06,
-              "close": 3.848e-06
-            },
-            {
-              "ts": 1793059200,
-              "open": 3.859e-06,
-              "high": 4.142e-06,
-              "low": 3.817e-06,
-              "close": 4.123e-06
-            },
-            {
-              "ts": 1793145600,
-              "open": 4.121e-06,
-              "high": 4.68e-06,
-              "low": 4.099e-06,
-              "close": 4.499e-06
-            },
-            {
-              "ts": 1793232000,
-              "open": 4.517e-06,
-              "high": 5.084e-06,
-              "low": 3.935e-06,
-              "close": 4.07e-06
-            },
-            {
-              "ts": 1793318400,
-              "open": 4.06e-06,
-              "high": 4.774e-06,
-              "low": 3.839e-06,
-              "close": 4.396e-06
-            },
-            {
-              "ts": 1793404800,
-              "open": 4.415e-06,
-              "high": 4.568e-06,
-              "low": 4.285e-06,
-              "close": 4.446e-06
-            },
-            {
-              "ts": 1793491200,
-              "open": 4.438e-06,
-              "high": 4.529e-06,
-              "low": 4.29e-06,
-              "close": 4.379e-06
-            }
-          ]
+        "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": true,
+          "positive_net_pnl": true,
+          "minimum_profit_factor": true,
+          "maximum_drawdown": true,
+          "single_trade_independence": true,
+          "single_asset_independence": true,
+          "beats_buy_hold": false
         },
-        {
-          "symbol": "HYPE",
-          "pair": "HYPEEUR",
-          "interval_minutes": 1440,
-          "candles": [
-            {
-              "ts": 1788393600,
-              "open": 70.8,
-              "high": 75.77,
-              "low": 70.0,
-              "close": 75.25
-            },
-            {
-              "ts": 1788480000,
-              "open": 75.25,
-              "high": 75.53,
-              "low": 71.87,
-              "close": 72.73
-            },
-            {
-              "ts": 1788566400,
-              "open": 72.74,
-              "high": 74.22,
-              "low": 72.13,
-              "close": 73.6
-            },
-            {
-              "ts": 1788652800,
-              "open": 73.66,
-              "high": 77.19,
-              "low": 73.04,
-              "close": 75.69
-            },
-            {
-              "ts": 1788739200,
-              "open": 75.76,
-              "high": 76.0,
-              "low": 72.8,
-              "close": 73.26
-            },
-            {
-              "ts": 1788825600,
-              "open": 73.19,
-              "high": 73.47,
-              "low": 70.22,
-              "close": 73.25
-            },
-            {
-              "ts": 1788912000,
-              "open": 73.35,
-              "high": 74.78,
-              "low": 70.95,
-              "close": 71.86
-            },
-            {
-              "ts": 1788998400,
-              "open": 71.87,
-              "high": 72.53,
-              "low": 67.4,
-              "close": 67.66
-            },
-            {
-              "ts": 1789084800,
-              "open": 67.71,
-              "high": 72.2,
-              "low": 67.39,
-              "close": 68.54
-            },
-            {
-              "ts": 1789171200,
-              "open": 68.54,
-              "high": 69.71,
-              "low": 67.63,
-              "close": 68.82
-            },
-            {
-              "ts": 1789257600,
-              "open": 68.71,
-              "high": 68.71,
-              "low": 66.09,
-              "close": 66.67
-            },
-            {
-              "ts": 1789344000,
-              "open": 66.84,
-              "high": 71.39,
-              "low": 66.46,
-              "close": 69.49
-            },
-            {
-              "ts": 1789430400,
-              "open": 69.53,
-              "high": 69.77,
-              "low": 65.11,
-              "close": 66.68
-            },
-            {
-              "ts": 1789516800,
-              "open": 66.52,
-              "high": 69.97,
-              "low": 66.49,
-              "close": 68.22
-            },
-            {
-              "ts": 1789603200,
-              "open": 68.24,
-              "high": 74.24,
-              "low": 68.1,
-              "close": 74.18
-            },
-            {
-              "ts": 1789689600,
-              "open": 74.18,
-              "high": 81.07,
-              "low": 74.18,
-              "close": 80.37
-            },
-            {
-              "ts": 1789776000,
-              "open": 80.33,
-              "high": 82.17,
-              "low": 79.06,
-              "close": 80.2
-            },
-            {
-              "ts": 1789862400,
-              "open": 80.11,
-              "high": 81.81,
-              "low": 77.92,
-              "close": 81.57
-            },
-            {
-              "ts": 1789948800,
-              "open": 81.55,
-              "high": 83.71,
-              "low": 80.27,
-              "close": 82.06
-            },
-            {
-              "ts": 1790035200,
-              "open": 81.91,
-              "high": 85.42,
-              "low": 80.36,
-              "close": 84.81
-            },
-            {
-              "ts": 1790121600,
-              "open": 84.89,
-              "high": 85.78,
-              "low": 80.87,
-              "close": 82.61
-            },
-            {
-              "ts": 1790208000,
-              "open": 82.66,
-              "high": 83.31,
-              "low": 79.1,
-              "close": 80.97
-            },
-            {
-              "ts": 1790294400,
-              "open": 80.97,
-              "high": 82.73,
-              "low": 79.37,
-              "close": 81.1
-            },
-            {
-              "ts": 1790380800,
-              "open": 81.11,
-              "high": 81.42,
-              "low": 79.99,
-              "close": 81.23
-            },
-            {
-              "ts": 1790467200,
-              "open": 81.18,
-              "high": 82.44,
-              "low": 80.02,
-              "close": 80.6
-            },
-            {
-              "ts": 1790553600,
-              "open": 80.57,
-              "high": 80.88,
-              "low": 75.97,
-              "close": 77.05
-            },
-            {
-              "ts": 1790640000,
-              "open": 76.92,
-              "high": 78.44,
-              "low": 74.89,
-              "close": 75.77
-            },
-            {
-              "ts": 1790726400,
-              "open": 75.94,
-              "high": 81.0,
-              "low": 74.55,
-              "close": 80.22
-            },
-            {
-              "ts": 1790812800,
-              "open": 80.39,
-              "high": 80.39,
-              "low": 76.95,
-              "close": 77.95
-            },
-            {
-              "ts": 1790899200,
-              "open": 77.86,
-              "high": 81.36,
-              "low": 76.58,
-              "close": 79.22
-            },
-            {
-              "ts": 1790985600,
-              "open": 79.21,
-              "high": 80.02,
-              "low": 78.05,
-              "close": 79.38
-            },
-            {
-              "ts": 1791072000,
-              "open": 79.41,
-              "high": 81.0,
-              "low": 79.37,
-              "close": 80.44
-            },
-            {
-              "ts": 1791158400,
-              "open": 80.45,
-              "high": 84.85,
-              "low": 80.04,
-              "close": 83.97
-            },
-            {
-              "ts": 1791244800,
-              "open": 83.96,
-              "high": 84.55,
-              "low": 81.11,
-              "close": 81.75
-            },
-            {
-              "ts": 1791331200,
-              "open": 81.69,
-              "high": 81.98,
-              "low": 77.85,
-              "close": 79.03
-            },
-            {
-              "ts": 1791417600,
-              "open": 78.97,
-              "high": 79.34,
-              "low": 73.73,
-              "close": 75.17
-            },
-            {
-              "ts": 1791504000,
-              "open": 75.13,
-              "high": 77.18,
-              "low": 74.41,
-              "close": 75.16
-            },
-            {
-              "ts": 1791590400,
-              "open": 75.1,
-              "high": 77.44,
-              "low": 74.76,
-              "close": 76.32
-            },
-            {
-              "ts": 1791676800,
-              "open": 76.3,
-              "high": 77.87,
-              "low": 75.56,
-              "close": 77.37
-            },
-            {
-              "ts": 1791763200,
-              "open": 77.38,
-              "high": 78.51,
-              "low": 72.49,
-              "close": 72.59
-            },
-            {
-              "ts": 1791849600,
-              "open": 72.54,
-              "high": 74.51,
-              "low": 71.18,
-              "close": 72.84
-            },
-            {
-              "ts": 1791936000,
-              "open": 72.78,
-              "high": 73.77,
-              "low": 71.1,
-              "close": 72.2
-            },
-            {
-              "ts": 1792022400,
-              "open": 72.3,
-              "high": 73.61,
-              "low": 69.08,
-              "close": 72.86
-            },
-            {
-              "ts": 1792108800,
-              "open": 72.88,
-              "high": 73.32,
-              "low": 69.84,
-              "close": 71.43
-            },
-            {
-              "ts": 1792195200,
-              "open": 71.44,
-              "high": 71.53,
-              "low": 68.61,
-              "close": 69.43
-            },
-            {
-              "ts": 1792281600,
-              "open": 69.44,
-              "high": 70.55,
-              "low": 67.81,
-              "close": 70.28
-            },
-            {
-              "ts": 1792368000,
-              "open": 70.28,
-              "high": 71.62,
-              "low": 69.17,
-              "close": 70.58
-            },
-            {
-              "ts": 1792454400,
-              "open": 70.63,
-              "high": 72.66,
-              "low": 69.42,
-              "close": 71.56
-            },
-            {
-              "ts": 1792540800,
-              "open": 71.56,
-              "high": 73.45,
-              "low": 71.36,
-              "close": 71.74
-            },
-            {
-              "ts": 1792627200,
-              "open": 71.77,
-              "high": 72.09,
-              "low": 68.19,
-              "close": 68.97
-            },
-            {
-              "ts": 1792713600,
-              "open": 68.99,
-              "high": 70.36,
-              "low": 68.0,
-              "close": 68.79
-            },
-            {
-              "ts": 1792800000,
-              "open": 68.83,
-              "high": 69.51,
-              "low": 66.47,
-              "close": 68.47
-            },
-            {
-              "ts": 1792886400,
-              "open": 68.42,
-              "high": 69.19,
-              "low": 67.08,
-              "close": 68.01
-            },
-            {
-              "ts": 1792972800,
-              "open": 67.95,
-              "high": 71.94,
-              "low": 66.75,
-              "close": 70.02
-            },
-            {
-              "ts": 1793059200,
-              "open": 70.03,
-              "high": 73.49,
-              "low": 69.12,
-              "close": 72.95
-            },
-            {
-              "ts": 1793145600,
-              "open": 72.93,
-              "high": 74.03,
-              "low": 71.34,
-              "close": 72.46
-            },
-            {
-              "ts": 1793232000,
-              "open": 72.38,
-              "high": 86.89,
-              "low": 70.09,
-              "close": 79.54
-            },
-            {
-              "ts": 1793318400,
-              "open": 79.45,
-              "high": 84.14,
-              "low": 79.08,
-              "close": 80.56
-            },
-            {
-              "ts": 1793404800,
-              "open": 80.64,
-              "high": 80.69,
-              "low": 77.32,
-              "close": 78.79
-            },
-            {
-              "ts": 1793491200,
-              "open": 78.71,
-              "high": 79.37,
-              "low": 77.68,
-              "close": 78.77
-            }
-          ]
-        }
-      ]
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
+        "minimum_trades_for_forward": 10,
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
+      },
+      "charts": []
     },
     {
       "id": "mean_reversion",
@@ -1763,6 +1155,13 @@
       "status": "REPLAY_ONLY",
       "active": true,
       "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
@@ -1774,10 +1173,10 @@
       "closed_trades": 0,
       "win_rate": 0.0,
       "max_drawdown_pct": 0.0,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 23,
-      "passes": 1,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
+      "passes": 0,
       "positions": [],
       "trades": [],
       "walk_forward": {
@@ -1801,6 +1200,26 @@
         "net_pnl": 13.752257758603903,
         "fees": 13.014131110956484,
         "win_rate": 37.5,
+        "profit_factor": 1.4312573466086578,
+        "max_drawdown_pct": 2.2751651070675227,
+        "max_single_trade_profit_share": 0.41675448910432683,
+        "max_single_asset_contribution_share": 0.31753218923460547,
+        "asset_contributions": {
+          "BTC": 9.148810287785935,
+          "ETH": 0.0,
+          "XRP": -11.965903724856489,
+          "SOL": 10.31503182378755,
+          "LINK": 6.254319371886908
+        },
+        "buy_hold_net_pnl": 76.11168023088756,
+        "buy_hold_by_asset": {
+          "BTC": 17.72962705005108,
+          "ETH": 17.680049396534386,
+          "XRP": -6.253358475110218,
+          "SOL": 14.217828566873223,
+          "LINK": 32.73753369253909
+        },
+        "buy_hold_excess_eur": -62.359422472283654,
         "events": [
           {
             "ts": "2026-10-29T00:00:00+00:00",
@@ -1913,7 +1332,7 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:47.455629+00:00",
+          "updated_at": "2026-11-02T18:08:39.766540+00:00",
           "closed_trades": 8,
           "wins": 3,
           "losses": 5,
@@ -1930,8 +1349,32 @@
           "used_after_next_cycle": true
         },
         "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": false,
+          "positive_net_pnl": true,
+          "minimum_profit_factor": true,
+          "maximum_drawdown": true,
+          "single_trade_independence": true,
+          "single_asset_independence": true,
+          "beats_buy_hold": false
+        },
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
         "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
       },
       "charts": []
     },
@@ -1943,6 +1386,13 @@
       "status": "REPLAY_ONLY",
       "active": true,
       "forward_enabled": false,
+      "forward_validated_assets": [
+        "BTC",
+        "ETH",
+        "LINK",
+        "SOL",
+        "XRP"
+      ],
       "newly_forward_enabled": false,
       "retired_reason": null,
       "initial_capital": 1000.0,
@@ -1954,9 +1404,9 @@
       "closed_trades": 0,
       "win_rate": 0.0,
       "max_drawdown_pct": 0.0,
-      "cycles": 53,
-      "new_candles": 0,
-      "unique_market_candles": 57,
+      "cycles": 1,
+      "new_candles": 19,
+      "unique_market_candles": 19,
       "passes": 0,
       "positions": [],
       "trades": [],
@@ -1965,12 +1415,12 @@
         "learning_source": "closed_paper_trades_only",
         "external_api": false,
         "model_weights": {
-          "baseline_breakout": 0.9954,
-          "ema_trend": 1.0047,
-          "macd_trend": 0.9838,
-          "momentum_12": 0.883,
-          "rsi_pullback": 1.0165,
-          "mean_reversion": 0.9903
+          "baseline_breakout": 1.0,
+          "ema_trend": 1.0,
+          "macd_trend": 1.0,
+          "momentum_12": 1.0,
+          "rsi_pullback": 1.0,
+          "mean_reversion": 1.0
         },
         "top_decisions": [
           {
@@ -1978,35 +1428,40 @@
             "confidence": 0.0,
             "regime": "RISK_OFF",
             "votes": [],
-            "decision": "WAIT"
+            "decision": "WAIT",
+            "threshold": null
           },
           {
             "symbol": "ETH",
             "confidence": 0.0,
             "regime": "RISK_OFF",
             "votes": [],
-            "decision": "WAIT"
-          },
-          {
-            "symbol": "SOL",
-            "confidence": 0.0,
-            "regime": "RISK_OFF",
-            "votes": [],
-            "decision": "WAIT"
+            "decision": "WAIT",
+            "threshold": null
           },
           {
             "symbol": "XRP",
             "confidence": 0.0,
             "regime": "RISK_OFF",
             "votes": [],
-            "decision": "WAIT"
+            "decision": "WAIT",
+            "threshold": null
+          },
+          {
+            "symbol": "SOL",
+            "confidence": 0.0,
+            "regime": "RISK_OFF",
+            "votes": [],
+            "decision": "WAIT",
+            "threshold": null
           },
           {
             "symbol": "LINK",
             "confidence": 0.0,
             "regime": "RISK_OFF",
             "votes": [],
-            "decision": "WAIT"
+            "decision": "WAIT",
+            "threshold": null
           }
         ],
         "learning": {
@@ -2015,77 +1470,68 @@
           "lookahead": false,
           "replay_evidence_weight": 0.35,
           "minimum_trust_weight": 0.9,
-          "preferred_model": {
-            "id": "rsi_pullback",
-            "name": "Trend Daily",
-            "weight": 1.0165,
-            "status": "NEUTRAL",
-            "replay_closed_trades": 13,
-            "replay_net_pnl": 23.951596849484105,
-            "max_consecutive_losses": 2,
-            "top_error": "ATR_TRAILING_STOP"
-          },
-          "penalized_models": 1,
+          "preferred_model": null,
+          "penalized_models": 0,
           "models": [
             {
-              "id": "rsi_pullback",
-              "name": "Trend Daily",
-              "weight": 1.0165,
+              "id": "baseline_breakout",
+              "name": "Donchian Trend 4H",
+              "weight": 1.0,
               "status": "NEUTRAL",
-              "replay_closed_trades": 13,
-              "replay_net_pnl": 23.951596849484105,
-              "max_consecutive_losses": 2,
-              "top_error": "ATR_TRAILING_STOP"
-            },
-            {
-              "id": "ema_trend",
-              "name": "Trend Pullback 4H",
-              "weight": 1.0047,
-              "status": "NEUTRAL",
-              "replay_closed_trades": 1,
-              "replay_net_pnl": 1.7972742421321755,
+              "replay_closed_trades": 0,
+              "replay_net_pnl": 0.0,
               "max_consecutive_losses": 0,
               "top_error": null
             },
             {
-              "id": "baseline_breakout",
-              "name": "Donchian Trend 4H",
-              "weight": 0.9954,
+              "id": "ema_trend",
+              "name": "Trend Pullback 4H",
+              "weight": 1.0,
               "status": "NEUTRAL",
-              "replay_closed_trades": 2,
-              "replay_net_pnl": -1.5245650888212907,
-              "max_consecutive_losses": 1,
-              "top_error": "ATR_TRAILING_STOP"
-            },
-            {
-              "id": "mean_reversion",
-              "name": "Daily Pullback",
-              "weight": 0.9903,
-              "status": "NEUTRAL",
-              "replay_closed_trades": 8,
-              "replay_net_pnl": 13.752257758603903,
-              "max_consecutive_losses": 2,
-              "top_error": "ATR_TRAILING_STOP"
+              "replay_closed_trades": 0,
+              "replay_net_pnl": 0.0,
+              "max_consecutive_losses": 0,
+              "top_error": null
             },
             {
               "id": "macd_trend",
               "name": "Volatility Breakout 4H",
-              "weight": 0.9838,
+              "weight": 1.0,
               "status": "NEUTRAL",
-              "replay_closed_trades": 2,
-              "replay_net_pnl": -7.305826962953262,
-              "max_consecutive_losses": 2,
-              "top_error": "ATR_TRAILING_STOP"
+              "replay_closed_trades": 0,
+              "replay_net_pnl": 0.0,
+              "max_consecutive_losses": 0,
+              "top_error": null
             },
             {
               "id": "momentum_12",
               "name": "Momentum Daily",
-              "weight": 0.883,
-              "status": "VETOED",
-              "replay_closed_trades": 17,
-              "replay_net_pnl": -33.30177245707412,
-              "max_consecutive_losses": 4,
-              "top_error": "MOMENTUM_LOST"
+              "weight": 1.0,
+              "status": "NEUTRAL",
+              "replay_closed_trades": 0,
+              "replay_net_pnl": 0.0,
+              "max_consecutive_losses": 0,
+              "top_error": null
+            },
+            {
+              "id": "rsi_pullback",
+              "name": "Trend Daily",
+              "weight": 1.0,
+              "status": "NEUTRAL",
+              "replay_closed_trades": 0,
+              "replay_net_pnl": 0.0,
+              "max_consecutive_losses": 0,
+              "top_error": null
+            },
+            {
+              "id": "mean_reversion",
+              "name": "Daily Pullback",
+              "weight": 1.0,
+              "status": "NEUTRAL",
+              "replay_closed_trades": 0,
+              "replay_net_pnl": 0.0,
+              "max_consecutive_losses": 0,
+              "top_error": null
             }
           ]
         }
@@ -2101,26 +1547,63 @@
           "LINK"
         ],
         "evaluated_candles": 1205,
-        "technical_setups": 82,
-        "actionable_setups": 6,
+        "technical_setups": 120,
+        "actionable_setups": 16,
         "required_edge_pct": 2.5500000000000003,
         "closed_trades": 4,
         "open_positions": 0,
-        "realized_pnl": -7.096875011606855,
+        "realized_pnl": -5.374479447288778,
         "unrealized_pnl": 0.0,
-        "net_pnl": -7.096875011606855,
-        "fees": 6.394380040228977,
-        "win_rate": 0.0,
+        "net_pnl": -5.374479447288778,
+        "fees": 6.408270327037994,
+        "win_rate": 25.0,
+        "profit_factor": 0.3585351458480339,
+        "max_drawdown_pct": 0.8203203164071563,
+        "max_single_trade_profit_share": 1.0,
+        "max_single_asset_contribution_share": 0.9717465529522553,
+        "asset_contributions": {
+          "BTC": 0.0,
+          "ETH": 0.0,
+          "XRP": -0.15184757047316566,
+          "SOL": 0.0,
+          "LINK": -5.222631876815612
+        },
+        "buy_hold_net_pnl": -66.07654499164622,
+        "buy_hold_by_asset": {
+          "BTC": -7.870792414408356,
+          "ETH": -14.595035596758805,
+          "XRP": -17.347837024781015,
+          "SOL": -18.082078824492484,
+          "LINK": -8.180801131205556
+        },
+        "buy_hold_excess_eur": 60.70206554435744,
         "events": [
           {
-            "ts": "2026-09-29T00:00:00+00:00",
+            "ts": "2026-09-30T04:00:00+00:00",
+            "side": "SELL",
+            "symbol": "LINK",
+            "entry_ts": "2026-09-29T20:00:00+00:00",
+            "exit_ts": "2026-09-30T04:00:00+00:00",
+            "pnl": -3.7881944556255434,
+            "fees": 1.5823532705191488,
+            "reason": "AI_CONFIDENCE_LOST"
+          },
+          {
+            "ts": "2026-09-29T20:00:00+00:00",
+            "side": "BUY",
+            "symbol": "LINK",
+            "price": 12.88073715,
+            "qty": 7.763530831773863
+          },
+          {
+            "ts": "2026-09-29T16:00:00+00:00",
             "side": "SELL",
             "symbol": "LINK",
             "entry_ts": "2026-09-28T16:00:00+00:00",
-            "exit_ts": "2026-09-29T00:00:00+00:00",
-            "pnl": -3.218654261512569,
-            "fees": 1.5869463366007053,
-            "reason": "AI_CONFIDENCE_LOST"
+            "exit_ts": "2026-09-29T16:00:00+00:00",
+            "pnl": -4.4384052302112025,
+            "fees": 1.5771096352402323,
+            "reason": "ATR_TRAILING_STOP"
           },
           {
             "ts": "2026-09-28T16:00:00+00:00",
@@ -2130,30 +1613,13 @@
             "qty": 7.524175972139573
           },
           {
-            "ts": "2026-09-25T16:00:00+00:00",
-            "side": "SELL",
-            "symbol": "LINK",
-            "entry_ts": "2026-09-25T08:00:00+00:00",
-            "exit_ts": "2026-09-25T16:00:00+00:00",
-            "pnl": -3.1695760765157814,
-            "fees": 1.5873421284151954,
-            "reason": "AI_CONFIDENCE_LOST"
-          },
-          {
-            "ts": "2026-09-25T08:00:00+00:00",
-            "side": "BUY",
-            "symbol": "LINK",
-            "price": 12.36121752,
-            "qty": 8.089818000387393
-          },
-          {
-            "ts": "2026-09-25T00:00:00+00:00",
+            "ts": "2026-09-25T20:00:00+00:00",
             "side": "SELL",
             "symbol": "LINK",
             "entry_ts": "2026-09-24T16:00:00+00:00",
-            "exit_ts": "2026-09-25T00:00:00+00:00",
-            "pnl": -0.5567971031053389,
-            "fees": 1.6084129265878602,
+            "exit_ts": "2026-09-25T20:00:00+00:00",
+            "pnl": 3.003967809021134,
+            "fees": 1.6371287726533963,
             "reason": "AI_CONFIDENCE_LOST"
           },
           {
@@ -2183,24 +1649,49 @@
         ],
         "learning_feedback": {
           "version": "delayed-replay-error-learning-v2",
-          "updated_at": "2026-11-02T18:01:48.980478+00:00",
+          "updated_at": "2026-11-02T18:08:41.806129+00:00",
           "closed_trades": 4,
-          "wins": 0,
-          "losses": 4,
-          "win_rate": 0.0,
-          "net_pnl": -7.096875011606855,
-          "average_trade_return_pct": -1.774218752901714,
-          "profit_factor": 0.0,
-          "max_consecutive_losses": 4,
-          "stop_loss_rate": 1.0,
+          "wins": 1,
+          "losses": 3,
+          "win_rate": 25.0,
+          "net_pnl": -5.374479447288778,
+          "average_trade_return_pct": -1.3436198618221944,
+          "profit_factor": 0.3585351458480339,
+          "max_consecutive_losses": 2,
+          "stop_loss_rate": 0.75,
           "error_reasons": {
-            "AI_CONFIDENCE_LOST": 4
+            "AI_CONFIDENCE_LOST": 2,
+            "ATR_TRAILING_STOP": 1
           },
           "used_after_next_cycle": true
         },
         "eligible": false,
+        "promotion_gates": {
+          "minimum_closed_trades": false,
+          "positive_net_pnl": false,
+          "minimum_profit_factor": false,
+          "maximum_drawdown": true,
+          "single_trade_independence": false,
+          "single_asset_independence": false,
+          "beats_buy_hold": true
+        },
+        "promotion_thresholds": {
+          "minimum_closed_trades": 10,
+          "minimum_profit_factor": 1.15,
+          "maximum_drawdown_pct": 12.0,
+          "maximum_single_trade_profit_share": 0.5,
+          "maximum_single_asset_contribution_share": 0.65,
+          "minimum_buy_hold_excess_eur": 0.0
+        },
+        "validated_assets": [
+          "BTC",
+          "ETH",
+          "XRP",
+          "SOL",
+          "LINK"
+        ],
         "minimum_trades_for_forward": 10,
-        "note": "Replay sul paniere stabile BTC/ETH/XRP/SOL/LINK; capitale €100 per asset, fee e slippage inclusi."
+        "note": "Forward consentito solo dopo tutti i gate robusti e solo sugli asset coperti dal replay; €100 per asset, fee e slippage inclusi."
       },
       "charts": []
     }
@@ -2208,445 +1699,445 @@
   "market": [
     {
       "symbol": "BTC",
-      "price": 68753.15,
-      "volume_eur_24h": 42460177.92149111,
+      "price": 68900.85,
+      "volume_eur_24h": 42511564.80057751,
       "slope_pct": -0.02906815487572212,
       "adx": 33.11854738376129,
       "atr_pct": 0.6530333003694877,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.640145447881268,
-      "required_edge_pct": 2.460218171821902,
+      "estimated_roundtrip_cost_pct": 1.6401451360904526,
+      "required_edge_pct": 2.4602177041356788,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
       "scout_score": 99.13,
       "shortlisted": true,
-      "spread_pct": 0.00014544788128437584,
-      "bid_depth_eur": 140152.947059175,
-      "ask_depth_eur": 62360.793661509,
-      "buy_impact_pct": 0.020072738485432673,
-      "sell_impact_pct": 0.020072709395835275
+      "spread_pct": 0.00014513609047097219,
+      "bid_depth_eur": 48991.753301368,
+      "ask_depth_eur": 93835.310308683,
+      "buy_impact_pct": 0.020072582558827712,
+      "sell_impact_pct": 0.020072553531624848
     },
     {
       "symbol": "ETH",
-      "price": 2012.845,
-      "volume_eur_24h": 20250916.82815632,
+      "price": 2019.31,
+      "volume_eur_24h": 20275357.967164673,
       "slope_pct": -0.07475248721909855,
       "adx": 49.29471129858437,
       "atr_pct": 0.9098530427063828,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.648445757124871,
-      "required_edge_pct": 2.4726686356873064,
+      "estimated_roundtrip_cost_pct": 1.65881830922444,
+      "required_edge_pct": 2.48822746383666,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 98.12,
+      "scout_score": 96.86,
       "shortlisted": true,
-      "spread_pct": 0.008445757124869165,
-      "bid_depth_eur": 180733.8478257747,
-      "ask_depth_eur": 192431.47354524428,
-      "buy_impact_pct": 0.024223723138150355,
-      "sell_impact_pct": 0.024222033986720515
-    },
-    {
-      "symbol": "SOL",
-      "price": 82.025,
-      "volume_eur_24h": 9457049.64838164,
-      "slope_pct": -0.10963768448549738,
-      "adx": 38.57973983327554,
-      "atr_pct": 1.189477109630566,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.652191405059432,
-      "required_edge_pct": 2.478287107589148,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 97.66,
-      "shortlisted": true,
-      "spread_pct": 0.012191405059439334,
-      "bid_depth_eur": 46707.439660541,
-      "ask_depth_eur": 101716.865358425,
-      "buy_impact_pct": 0.0260969216702156,
-      "sell_impact_pct": 0.026094483389216272
+      "spread_pct": 0.018818309224443455,
+      "bid_depth_eur": 208330.5435349167,
+      "ask_depth_eur": 128868.20061222391,
+      "buy_impact_pct": 0.029411036443138805,
+      "sell_impact_pct": 0.029407272781301064
     },
     {
       "symbol": "XRP",
-      "price": 1.105725,
-      "volume_eur_24h": 10462504.565599227,
+      "price": 1.10934,
+      "volume_eur_24h": 7639442.8408512175,
       "slope_pct": -0.08614049980587568,
       "adx": 27.87373900342475,
       "atr_pct": 0.8836305940164437,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6645630102635298,
-      "required_edge_pct": 2.4968445153952947,
+      "estimated_roundtrip_cost_pct": 1.661634485369655,
+      "required_edge_pct": 2.4924517280544825,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 96.74,
+      "scout_score": 96.52,
       "shortlisted": true,
-      "spread_pct": 0.017183296027505436,
-      "bid_depth_eur": 31243.75400951122,
-      "ask_depth_eur": 21130.091181123993,
-      "buy_impact_pct": 0.03597308057936566,
-      "sell_impact_pct": 0.028589929684164073
+      "spread_pct": 0.021634485369660873,
+      "bid_depth_eur": 31861.957706019406,
+      "ask_depth_eur": 23219.26748548255,
+      "buy_impact_pct": 0.030819406133364424,
+      "sell_impact_pct": 0.030815079236290455
+    },
+    {
+      "symbol": "SOL",
+      "price": 82.46000000000001,
+      "volume_eur_24h": 9525314.447704485,
+      "slope_pct": -0.10963768448549738,
+      "adx": 38.57973983327554,
+      "atr_pct": 1.189477109630566,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.6642541838467126,
+      "required_edge_pct": 2.496381275770069,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 96.2,
+      "shortlisted": true,
+      "spread_pct": 0.02425418384670873,
+      "bid_depth_eur": 71981.7180901445,
+      "ask_depth_eur": 121259.53997432611,
+      "buy_impact_pct": 0.032129517341727976,
+      "sell_impact_pct": 0.03212466650498458
     },
     {
       "symbol": "LINK",
-      "price": 9.90639,
-      "volume_eur_24h": 2076839.5109635256,
+      "price": 9.950645000000002,
+      "volume_eur_24h": 2086028.4078092827,
       "slope_pct": -0.11713856154876856,
       "adx": 21.566831936327407,
       "atr_pct": 1.9503018560380658,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6472680360858014,
-      "required_edge_pct": 2.470902054128702,
+      "estimated_roundtrip_cost_pct": 1.6471352158578743,
+      "required_edge_pct": 2.4707028237868114,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 89.39,
+      "scout_score": 89.44,
       "shortlisted": true,
-      "spread_pct": 0.007268036085810917,
-      "bid_depth_eur": 20661.40608229057,
-      "ask_depth_eur": 13823.296411250783,
-      "buy_impact_pct": 0.0236347448465013,
-      "sell_impact_pct": 0.023633291239300025
-    },
-    {
-      "symbol": "ZEC",
-      "price": 1041.5215,
-      "volume_eur_24h": 4497524.624080949,
-      "slope_pct": -0.05687476923691426,
-      "adx": 15.134745653994292,
-      "atr_pct": 2.170630351856129,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.7038283774880134,
-      "required_edge_pct": 2.55574256623202,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 88.58,
-      "shortlisted": true,
-      "spread_pct": 0.06365687122157448,
-      "bid_depth_eur": 12027.64267621583,
-      "ask_depth_eur": 12059.027953622432,
-      "buy_impact_pct": 0.05192043112265399,
-      "sell_impact_pct": 0.051907946365359336
-    },
-    {
-      "symbol": "HYPE",
-      "price": 75.09,
-      "volume_eur_24h": 2100600.0915549407,
-      "slope_pct": 0.0030074162885584954,
-      "adx": 54.809366925489584,
-      "atr_pct": 1.7637377024651184,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6666347050206296,
-      "required_edge_pct": 2.4999520575309444,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 87.13,
-      "shortlisted": true,
-      "spread_pct": 0.026634705020636598,
-      "bid_depth_eur": 74143.4813869215,
-      "ask_depth_eur": 48689.3121019355,
-      "buy_impact_pct": 0.03332001598079781,
-      "sell_impact_pct": 0.0333146890398317
+      "spread_pct": 0.0071352158578641516,
+      "bid_depth_eur": 30095.059136364034,
+      "ask_depth_eur": 14944.249656294047,
+      "buy_impact_pct": 0.023568321450517793,
+      "sell_impact_pct": 0.023566894407356376
     },
     {
       "symbol": "NEAR",
-      "price": 3.5,
-      "volume_eur_24h": 2176001.813616088,
+      "price": 3.5126999999999997,
+      "volume_eur_24h": 1945021.6488763709,
       "slope_pct": -0.10020132319136232,
       "adx": 24.294095604264182,
       "atr_pct": 2.5617110491974504,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "PASS",
-      "estimated_roundtrip_cost_pct": 1.6628571428571313,
-      "required_edge_pct": 2.494285714285697,
+      "estimated_roundtrip_cost_pct": 1.6570808779571053,
+      "required_edge_pct": 2.4856213169356582,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 86.7,
+      "scout_score": 87.69,
       "shortlisted": true,
-      "spread_pct": 0.02285714285714034,
-      "bid_depth_eur": 5958.915392515172,
-      "ask_depth_eur": 27582.48939586906,
-      "buy_impact_pct": 0.03143085714285565,
-      "sell_impact_pct": 0.031426285714275526
+      "spread_pct": 0.017080877957125117,
+      "bid_depth_eur": 7035.507683969193,
+      "ask_depth_eur": 7801.719133915965,
+      "buy_impact_pct": 0.02854214706635716,
+      "sell_impact_pct": 0.0285387308907481
+    },
+    {
+      "symbol": "HYPE",
+      "price": 75.25999999999999,
+      "volume_eur_24h": 2122809.084303984,
+      "slope_pct": 0.0030074162885584954,
+      "adx": 54.809366925489584,
+      "atr_pct": 1.7637377024651184,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.6665745415891484,
+      "required_edge_pct": 2.4998618123837226,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 87.22,
+      "shortlisted": true,
+      "spread_pct": 0.026574541589152307,
+      "bid_depth_eur": 49034.6163515819,
+      "ask_depth_eur": 63963.4752835342,
+      "buy_impact_pct": 0.033289928248736445,
+      "sell_impact_pct": 0.033284613340411884
     },
     {
       "symbol": "TRX",
-      "price": 0.2835295,
-      "volume_eur_24h": 920778.8359328985,
+      "price": 0.2831545,
+      "volume_eur_24h": 932128.4595976581,
       "slope_pct": -0.02358626256675489,
       "adx": 36.788652581113844,
       "atr_pct": 1.5165948009357804,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6481120306705108,
-      "required_edge_pct": 2.4721680460057662,
+      "estimated_roundtrip_cost_pct": 1.6452974612799918,
+      "required_edge_pct": 2.467946191919988,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 82.93,
+      "scout_score": 83.37,
       "shortlisted": true,
-      "spread_pct": 0.008112030670528198,
-      "bid_depth_eur": 37151.370048644996,
-      "ask_depth_eur": 12561.95675422102,
-      "buy_impact_pct": 0.024056826538321197,
-      "sell_impact_pct": 0.024055204132189534
+      "spread_pct": 0.005297461279987695,
+      "bid_depth_eur": 16733.13591472499,
+      "ask_depth_eur": 18995.5620581097,
+      "buy_impact_pct": 0.022649260386131687,
+      "sell_impact_pct": 0.022648200893859993
     },
     {
       "symbol": "SUI",
-      "price": 0.7789,
-      "volume_eur_24h": 1112030.6135492,
+      "price": 0.7816,
+      "volume_eur_24h": 1124164.153061575,
       "slope_pct": -0.12938413477208144,
       "adx": 27.786612855631013,
       "atr_pct": 1.150612451982315,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6656772371292692,
-      "required_edge_pct": 2.4985158556939036,
+      "estimated_roundtrip_cost_pct": 1.6655885363357146,
+      "required_edge_pct": 2.4983828045035716,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 82.27,
+      "scout_score": 82.37,
       "shortlisted": true,
-      "spread_pct": 0.02567723712928206,
-      "bid_depth_eur": 22624.950219292,
-      "ask_depth_eur": 20897.827611924,
-      "buy_impact_pct": 0.03284118628834598,
-      "sell_impact_pct": 0.032836050840923114
-    },
-    {
-      "symbol": "PEPE",
-      "price": 4.1235e-06,
-      "volume_eur_24h": 959851.874531197,
-      "slope_pct": 0.0494302647093825,
-      "adx": 35.955757118345836,
-      "atr_pct": 2.874961450159339,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "PASS",
-      "estimated_roundtrip_cost_pct": 1.66425124287619,
-      "required_edge_pct": 2.4963768643142847,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 81.3,
-      "shortlisted": true,
-      "spread_pct": 0.024251242876188954,
-      "bid_depth_eur": 17680.605528986023,
-      "ask_depth_eur": 56981.30641636652,
-      "buy_impact_pct": 0.032128046562385215,
-      "sell_impact_pct": 0.03212319631380467
-    },
-    {
-      "symbol": "DOT",
-      "price": 0.83645,
-      "volume_eur_24h": 711206.1876146953,
-      "slope_pct": -0.11424272748127295,
-      "adx": 24.91057922872809,
-      "atr_pct": 1.3100099516145642,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6750812355624465,
-      "required_edge_pct": 2.5126218533436697,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 79.45,
-      "shortlisted": true,
-      "spread_pct": 0.011955287225774283,
-      "bid_depth_eur": 14281.379059901097,
-      "ask_depth_eur": 23431.86664003497,
-      "buy_impact_pct": 0.025978839141616028,
-      "sell_impact_pct": 0.04910239642083036
-    },
-    {
-      "symbol": "AVAX",
-      "price": 7.459,
-      "volume_eur_24h": 715462.5143520202,
-      "slope_pct": -0.1268284721419266,
-      "adx": 27.0264101629006,
-      "atr_pct": 1.6518448438978244,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6668132457434135,
-      "required_edge_pct": 2.5002198686151202,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 78.69,
-      "shortlisted": true,
-      "spread_pct": 0.026813245743394287,
-      "bid_depth_eur": 64459.02797628134,
-      "ask_depth_eur": 42494.5404737325,
-      "buy_impact_pct": 0.03340930419628574,
-      "sell_impact_pct": 0.03340394154712767
-    },
-    {
-      "symbol": "LTC",
-      "price": 48.21,
-      "volume_eur_24h": 788257.130624955,
-      "slope_pct": -0.09323046753486608,
-      "adx": 26.47970602466096,
-      "atr_pct": 1.2070988559694908,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6837314536312973,
-      "required_edge_pct": 2.5255971804469457,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 77.57,
-      "shortlisted": true,
-      "spread_pct": 0.04148516905205563,
-      "bid_depth_eur": 98172.3885434576,
-      "ask_depth_eur": 77136.27806938419,
-      "buy_impact_pct": 0.04074673304292897,
-      "sell_impact_pct": 0.04298472058836822
-    },
-    {
-      "symbol": "AAVE",
-      "price": 113.815,
-      "volume_eur_24h": 680719.6376215614,
-      "slope_pct": -0.08739091921029507,
-      "adx": 36.91629276959053,
-      "atr_pct": 2.28278779234193,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.7137356363741794,
-      "required_edge_pct": 2.570603454561269,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 73.82,
-      "shortlisted": true,
-      "spread_pct": 0.061503316786006394,
-      "bid_depth_eur": 31635.8957845124,
-      "ask_depth_eur": 23716.5911188356,
-      "buy_impact_pct": 0.05688028981269966,
-      "sell_impact_pct": 0.056855346561479614
-    },
-    {
-      "symbol": "ENA",
-      "price": 0.15075,
-      "volume_eur_24h": 598846.77829494,
-      "slope_pct": -0.1702900757697967,
-      "adx": 31.558511871991378,
-      "atr_pct": 2.6567383710240846,
-      "gate": "WAIT",
-      "technical_gate": "WAIT",
-      "cost_edge": "PASS",
-      "estimated_roundtrip_cost_pct": 1.7063349917081125,
-      "required_edge_pct": 2.5595024875621686,
-      "entry_block_reason": null,
-      "liquidity": "TRADEABLE",
-      "liquidity_reason": "OK",
-      "scout_score": 72.5,
-      "shortlisted": true,
-      "spread_pct": 0.06633499170811873,
-      "bid_depth_eur": 67290.558486379,
-      "ask_depth_eur": 59919.512820185,
-      "buy_impact_pct": 0.05317412935323951,
-      "sell_impact_pct": 0.05316086235487294
+      "spread_pct": 0.025588536335718778,
+      "bid_depth_eur": 47535.310950947,
+      "ask_depth_eur": 15783.88645134,
+      "buy_impact_pct": 0.03279682702148623,
+      "sell_impact_pct": 0.03279170931422826
     },
     {
       "symbol": "ADA",
-      "price": 0.16764050000000003,
-      "volume_eur_24h": 2667169.960146307,
+      "price": 0.1682595,
+      "volume_eur_24h": 2665271.495223447,
       "slope_pct": -0.11388258858223699,
       "adx": 24.73859697923694,
       "atr_pct": 1.0918479518141473,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.7050200876279828,
-      "required_edge_pct": 2.5575301314419745,
+      "estimated_roundtrip_cost_pct": 1.69883768821376,
+      "required_edge_pct": 2.54825653232064,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 70.34,
+      "scout_score": 79.59,
       "shortlisted": true,
-      "spread_pct": 0.06502008762798844,
-      "bid_depth_eur": 2750.601289536662,
-      "ask_depth_eur": 8900.911404577571,
-      "buy_impact_pct": 0.05251654582274501,
-      "sell_impact_pct": 0.05250354180523775
+      "spread_pct": 0.05883768821373413,
+      "bid_depth_eur": 5874.0564364894,
+      "ask_depth_eur": 4878.494417357093,
+      "buy_impact_pct": 0.04942472787570207,
+      "sell_impact_pct": 0.049412960338057754
+    },
+    {
+      "symbol": "LTC",
+      "price": 48.364999999999995,
+      "volume_eur_24h": 790227.5475283645,
+      "slope_pct": -0.09323046753486608,
+      "adx": 26.47970602466096,
+      "atr_pct": 1.2070988559694908,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.6800966860202036,
+      "required_edge_pct": 2.5201450290303056,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 79.38,
+      "shortlisted": true,
+      "spread_pct": 0.020676108756327947,
+      "bid_depth_eur": 76486.5500294173,
+      "ask_depth_eur": 96142.0467320554,
+      "buy_impact_pct": 0.03034012198903646,
+      "sell_impact_pct": 0.04975656403116702
+    },
+    {
+      "symbol": "PEPE",
+      "price": 4.144e-06,
+      "volume_eur_24h": 977560.2861669315,
+      "slope_pct": 0.0494302647093825,
+      "adx": 35.955757118345836,
+      "atr_pct": 2.874961450159339,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "PASS",
+      "estimated_roundtrip_cost_pct": 1.6882625482625522,
+      "required_edge_pct": 2.5323938223938285,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 78.52,
+      "shortlisted": true,
+      "spread_pct": 0.04826254826255189,
+      "bid_depth_eur": 51716.74496927687,
+      "ask_depth_eur": 48559.91454159112,
+      "buy_impact_pct": 0.04413610038611626,
+      "sell_impact_pct": 0.044126447876435826
+    },
+    {
+      "symbol": "AVAX",
+      "price": 7.4875,
+      "volume_eur_24h": 722069.9974653745,
+      "slope_pct": -0.1268284721419266,
+      "adx": 27.0264101629006,
+      "atr_pct": 1.6518448438978244,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.6800667779632725,
+      "required_edge_pct": 2.520100166944909,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 77.15,
+      "shortlisted": true,
+      "spread_pct": 0.04006677796327364,
+      "bid_depth_eur": 45434.79368874078,
+      "ask_depth_eur": 54818.842432340294,
+      "buy_impact_pct": 0.04003739565943132,
+      "sell_impact_pct": 0.04002938230384112
     },
     {
       "symbol": "XLM",
-      "price": 0.1476755,
-      "volume_eur_24h": 600692.1231708628,
+      "price": 0.148129,
+      "volume_eur_24h": 606635.0497469647,
       "slope_pct": -0.14452648928579004,
       "adx": 41.37705729120039,
       "atr_pct": 1.086239184952379,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.6980511452970846,
-      "required_edge_pct": 2.547076717945627,
+      "estimated_roundtrip_cost_pct": 1.707437043664116,
+      "required_edge_pct": 2.5611555654961737,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 70.23,
+      "scout_score": 75.71,
       "shortlisted": true,
-      "spread_pct": 0.057558633625754946,
-      "bid_depth_eur": 5415.290195082558,
-      "ask_depth_eur": 32599.539731866622,
-      "buy_impact_pct": 0.04878507267622734,
-      "sell_impact_pct": 0.04926607262085714
+      "spread_pct": 0.0337543627513819,
+      "bid_depth_eur": 9213.109064778933,
+      "ask_depth_eur": 33905.109571499124,
+      "buy_impact_pct": 0.056619171172411775,
+      "sell_impact_pct": 0.05081787249170411
+    },
+    {
+      "symbol": "DOT",
+      "price": 0.8402499999999999,
+      "volume_eur_24h": 716127.8708402985,
+      "slope_pct": -0.11424272748127295,
+      "adx": 24.91057922872809,
+      "atr_pct": 1.3100099516145642,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.6995060993751796,
+      "required_edge_pct": 2.5492591490627694,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 74.73,
+      "shortlisted": true,
+      "spread_pct": 0.05950609937519263,
+      "bid_depth_eur": 9789.707139617374,
+      "ask_depth_eur": 16672.18895735812,
+      "buy_impact_pct": 0.04975900029753344,
+      "sell_impact_pct": 0.04974709907764607
+    },
+    {
+      "symbol": "ZEC",
+      "price": 1055.743,
+      "volume_eur_24h": 4494160.744467818,
+      "slope_pct": -0.05687476923691426,
+      "adx": 15.134745653994292,
+      "atr_pct": 2.170630351856129,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.8196735106659299,
+      "required_edge_pct": 2.729510265998895,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 74.5,
+      "shortlisted": true,
+      "spread_pct": 0.17958916137733882,
+      "bid_depth_eur": 26346.74588862389,
+      "ask_depth_eur": 41010.64110836198,
+      "buy_impact_pct": 0.10981253960482551,
+      "sell_impact_pct": 0.10986097106110426
+    },
+    {
+      "symbol": "AAVE",
+      "price": 114.58,
+      "volume_eur_24h": 684080.85141583,
+      "slope_pct": -0.08739091921029507,
+      "adx": 36.91629276959053,
+      "atr_pct": 2.28278779234193,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "WAIT",
+      "estimated_roundtrip_cost_pct": 1.7333476781740562,
+      "required_edge_pct": 2.6000215172610845,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 70.73,
+      "shortlisted": true,
+      "spread_pct": 0.08727526618955692,
+      "bid_depth_eur": 17950.3507452815,
+      "ask_depth_eur": 46005.125499652,
+      "buy_impact_pct": 0.06971877260590897,
+      "sell_impact_pct": 0.06362890556814715
+    },
+    {
+      "symbol": "ENA",
+      "price": 0.15155000000000002,
+      "volume_eur_24h": 603502.2963572401,
+      "slope_pct": -0.1702900757697967,
+      "adx": 31.558511871991378,
+      "atr_pct": 2.6567383710240846,
+      "gate": "WAIT",
+      "technical_gate": "WAIT",
+      "cost_edge": "PASS",
+      "estimated_roundtrip_cost_pct": 1.7681602514080894,
+      "required_edge_pct": 2.6522403771121343,
+      "entry_block_reason": null,
+      "liquidity": "TRADEABLE",
+      "liquidity_reason": "OK",
+      "scout_score": 69.94,
+      "shortlisted": true,
+      "spread_pct": 0.0659848234906082,
+      "bid_depth_eur": 54412.792952823,
+      "ask_depth_eur": 66109.471725333,
+      "buy_impact_pct": 0.052999010227638976,
+      "sell_impact_pct": 0.11516124118045035
     },
     {
       "symbol": "INJ",
-      "price": 6.236000000000001,
-      "volume_eur_24h": 510713.780846625,
+      "price": 6.2675,
+      "volume_eur_24h": 511546.44830730115,
       "slope_pct": -0.03567308494509813,
       "adx": 20.038360774995954,
       "atr_pct": 2.70325806525263,
       "gate": "WAIT",
       "technical_gate": "WAIT",
       "cost_edge": "WAIT",
-      "estimated_roundtrip_cost_pct": 1.8609452667873492,
-      "required_edge_pct": 2.791417900181024,
+      "estimated_roundtrip_cost_pct": 1.8793298763462238,
+      "required_edge_pct": 2.8189948145193355,
       "entry_block_reason": null,
       "liquidity": "TRADEABLE",
       "liquidity_reason": "OK",
-      "scout_score": 54.72,
+      "scout_score": 50.26,
       "shortlisted": true,
-      "spread_pct": 0.19243104554200716,
-      "bid_depth_eur": 33389.726786731604,
-      "ask_depth_eur": 14577.706265873769,
-      "buy_impact_pct": 0.14474898712089068,
-      "sell_impact_pct": 0.1161962796664584
+      "spread_pct": 0.2393298763462396,
+      "bid_depth_eur": 26865.08506102604,
+      "ask_depth_eur": 13242.00957771576,
+      "buy_impact_pct": 0.13968887116073692,
+      "sell_impact_pct": 0.13964100518548683
     },
     {
       "symbol": "XDG",
-      "price": 0.0660092,
-      "volume_eur_24h": 1041077.2034390554,
+      "price": 0.0661765,
+      "volume_eur_24h": 1043651.5500656795,
       "slope_pct": null,
       "adx": null,
       "atr_pct": null,
