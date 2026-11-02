@@ -744,5 +744,23 @@
       "buy_impact_pct": null,
       "sell_impact_pct": null
     }
-  ]
+  ],
+  "evaluation_policy": {
+    "mode": "staged_with_early_stop",
+    "checkpoints_hours": [
+      24,
+      72,
+      168,
+      336,
+      720
+    ],
+    "labels": [
+      "technical",
+      "signal_quality",
+      "continue_or_stop",
+      "stability",
+      "final"
+    ],
+    "wait_full_30_days_for_failed_models": false
+  }
 }
