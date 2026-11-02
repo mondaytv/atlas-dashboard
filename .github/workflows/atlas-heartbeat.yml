@@ -23,89 +23,74 @@ jobs:
     env:
       BOT_REPOSITORY: mondaytv/atlas-bot
       BOT_WORKFLOW: atlas.yml
-      FAST_PULSE_SECONDS: "600"
-      SLOW_PULSE_SECONDS: "3600"
-      INTENSIVE_UNTIL: "2026-11-08T10:00:00Z"
+      PULSE_SECONDS: "1800"
       TEST_UNTIL: "2026-12-01T10:00:00Z"
       WINDOW_SECONDS: "14400"
     steps:
-      - name: Dispatch phased ATLAS paper cycles
+      - name: Dispatch ATLAS stop checks and candle-close cycles
         id: relay
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.ATLAS_TRIGGER_TOKEN }}
         run: |
-          set -u
-
+          set -euo pipefail
           if [[ -z "${GH_TOKEN:-}" ]]; then
             echo "::error::ATLAS_TRIGGER_TOKEN is not configured"
             exit 1
           fi
 
           echo "safe_restart=true" >> "$GITHUB_OUTPUT"
-          intensive_end_epoch="$(date -u -d "$INTENSIVE_UNTIL" +%s)"
           end_epoch="$(date -u -d "$TEST_UNTIL" +%s)"
           window_end="$(( $(date -u +%s) + WINDOW_SECONDS ))"
-          failures=0
 
           dispatch_atlas() {
             for attempt in 1 2 3; do
-              if gh workflow run "$BOT_WORKFLOW" \
-                --repo "$BOT_REPOSITORY" \
-                --ref main; then
-                echo "ATLAS paper cycle dispatched at $(date -u --iso-8601=seconds)"
+              if gh workflow run "$BOT_WORKFLOW" --repo "$BOT_REPOSITORY" --ref main; then
+                echo "ATLAS paper check dispatched at $(date -u --iso-8601=seconds)"
                 return 0
               fi
-              if (( attempt < 3 )); then
-                echo "Dispatch attempt $attempt failed; retrying in 20 seconds"
-                sleep 20
-              fi
+              if (( attempt < 3 )); then sleep 20; fi
             done
-            echo "::error::Unable to dispatch ATLAS after three attempts"
             return 1
           }
 
+          failures=0
           while :; do
             now="$(date -u +%s)"
-
             if (( now >= end_epoch )); then
-              echo "Thirty-day test deadline reached; sending the final cleanup cycle"
+              echo "Thirty-day test deadline reached; sending final cleanup cycle"
               dispatch_atlas || failures=$((failures + 1))
               break
             fi
 
-            if (( now < intensive_end_epoch )); then
-              pulse_seconds="$FAST_PULSE_SECONDS"
-              phase="INTENSIVE_10M"
-            else
-              pulse_seconds="$SLOW_PULSE_SECONDS"
-              phase="FORWARD_60M"
-            fi
-            echo "ATLAS phase: $phase; next cadence: ${pulse_seconds}s"
             dispatch_atlas || failures=$((failures + 1))
-
-            next_pulse="$((now + pulse_seconds))"
-            if (( next_pulse >= window_end )); then
-              echo "Relay window complete; a fresh runner will take over"
-              break
-            fi
-
-            sleep_for="$pulse_seconds"
-            if (( now < intensive_end_epoch && now + sleep_for > intensive_end_epoch )); then
-              sleep_for="$((intensive_end_epoch - now))"
-            fi
-            if (( now + sleep_for > end_epoch )); then
-              sleep_for="$((end_epoch - now))"
-            fi
-            if (( sleep_for > 0 )); then
-              sleep "$sleep_for"
-            fi
+            next_pulse="$((now + PULSE_SECONDS))"
+            if (( next_pulse >= window_end )); then break; fi
+            sleep_for="$PULSE_SECONDS"
+            if (( now + sleep_for > end_epoch )); then sleep_for="$((end_epoch - now))"; fi
+            if (( sleep_for > 0 )); then sleep "$sleep_for"; fi
           done
 
           if (( failures > 0 )); then
-            echo "::error::$failures ATLAS dispatches failed in this relay window"
+            echo "::error::$failures ATLAS dispatches failed"
             exit 1
           fi
+
+      - name: Notify heartbeat failure
+        if: ${{ failure() }}
+        shell: bash
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        run: |
+          if [ -z "${NTFY_URL:-}" ]; then
+            echo "::warning::NTFY_URL is not configured; notification skipped"
+            exit 0
+          fi
+          curl --fail --silent --show-error \
+            -H "Title: ATLAS heartbeat failure" \
+            -H "Priority: high" \
+            -d "Public relay failed; run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            "$NTFY_URL" || echo "::warning::ntfy notification failed"
 
       - name: Start the next free relay window
         if: ${{ always() && steps.relay.outputs.safe_restart == 'true' }}
@@ -117,9 +102,7 @@ jobs:
           now="$(date -u +%s)"
           end_epoch="$(date -u -d "$TEST_UNTIL" +%s)"
           if (( now < end_epoch )); then
-            gh workflow run atlas-heartbeat.yml \
-              --repo "$GITHUB_REPOSITORY" \
-              --ref main
+            gh workflow run atlas-heartbeat.yml --repo "$GITHUB_REPOSITORY" --ref main
             echo "Next ATLAS relay window queued"
           else
             echo "Thirty-day test finished; relay stopped"
