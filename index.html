@@ -111,8 +111,8 @@ const shortDate=value=>new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'2-d
 let dashboardData=null,activityView='open';
 async function fetchState(name){
  const raw=`https://raw.githubusercontent.com/mondaytv/atlas-dashboard/data/${name}?t=${Date.now()}`,api=`https://api.github.com/repos/mondaytv/atlas-dashboard/contents/${name}?ref=data`;
- try{const r=await fetch(raw,{cache:'no-store'});if(!r.ok)throw new Error('raw state');return r.json();}
- catch(rawError){try{const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});if(!r.ok)throw new Error('GitHub API');const p=await r.json();const bytes=Uint8Array.from(atob(p.content.replace(/\s/g,'')),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}catch(apiError){const r=await fetch('./'+name,{cache:'reload'});if(!r.ok)throw apiError;return r.json();}}
+ try{const r=await fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});if(!r.ok)throw new Error('GitHub API');const p=await r.json();const bytes=Uint8Array.from(atob(p.content.replace(/\s/g,'')),c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}
+ catch(apiError){try{const r=await fetch(raw,{cache:'no-store'});if(!r.ok)throw new Error('raw state');return r.json();}catch(rawError){const r=await fetch('./'+name,{cache:'reload'});if(!r.ok)throw apiError;return r.json();}}
 }
 function pnlClass(value){return Number(value)>=0?'pos':'neg'}
 function renderSp500(data){
@@ -204,7 +204,7 @@ function render(data){
 document.querySelectorAll('.segmented button').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active',b===button));activityView=button.dataset.view;if(dashboardData)renderActivity(dashboardData.strategies.filter(s=>s.active!==false&&s.forward_enabled!==false).slice().sort((a,b)=>(Number(b.walk_forward?.net_pnl)||0)-(Number(a.walk_forward?.net_pnl)||0)));}));
 document.getElementById('collapseAll').addEventListener('click',()=>document.querySelectorAll('.strategy-card[open]').forEach(card=>card.removeAttribute('open')));
 async function load(){const [crypto,sp500]=await Promise.allSettled([fetchState('strategies.json'),fetchState('sp500.json')]);if(crypto.status==='fulfilled')render(crypto.value);else{document.getElementById('liveDot').classList.add('stale');document.getElementById('liveLabel').textContent='Dati non disponibili';}renderSp500(sp500.status==='fulfilled'?sp500.value:null);}
-load();setInterval(refreshLiveCharts,30000);setInterval(load,60000);
+load();setInterval(refreshLiveCharts,30000);setInterval(load,600000);
 </script>
 </body>
 </html>
