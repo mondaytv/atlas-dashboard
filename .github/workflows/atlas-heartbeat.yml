@@ -65,7 +65,14 @@ jobs:
 
             dispatch_atlas || failures=$((failures + 1))
             next_pulse="$((now + PULSE_SECONDS))"
-            if (( next_pulse >= window_end )); then break; fi
+            if (( next_pulse >= window_end )); then
+              # Keep relay windows exactly four hours apart.  Exiting here
+              # immediately used to start the next window 30 minutes early,
+              # producing two dispatches in the same pulse bucket.
+              boundary_wait="$((window_end - now))"
+              if (( boundary_wait > 0 )); then sleep "$boundary_wait"; fi
+              break
+            fi
             sleep_for="$PULSE_SECONDS"
             if (( now + sleep_for > end_epoch )); then sleep_for="$((end_epoch - now))"; fi
             if (( sleep_for > 0 )); then sleep "$sleep_for"; fi
