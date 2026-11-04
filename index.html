@@ -238,6 +238,7 @@ function startAiNarration(messages){
   [...log.children].forEach(child=>child.classList.remove('current'));log.appendChild(row);while(log.children.length>7)log.firstElementChild.remove();log.scrollTop=log.scrollHeight;
   index=(index+1)%messages.length;aiNarrationTimer=setTimeout(advance,2300);
  };
+ if(narrationPaused){messages.forEach((item,i)=>{const row=document.createElement('div');row.className='ai-chat-line'+(i===messages.length-1?' current':'');row.innerHTML=`<span class="ai-chat-index">${String(i+1).padStart(2,'0')}</span><span class="ai-chat-agent">${safeHtml(item.agent)}</span><span class="ai-chat-message"><b>${safeHtml(item.stage)}</b> · ${safeHtml(item.message)}</span>`;log.appendChild(row)});steps.forEach(step=>step.classList.toggle('active',step.dataset.stage===messages.at(-1).stage));log.scrollTop=log.scrollHeight;}
  advance();
 }
 function renderAiPipeline(data,strategies,fee){
