@@ -123,7 +123,8 @@ const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',min
 const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:1}).format(Number(n)||0);
 const pct=n=>new Intl.NumberFormat('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0);
 const shortDate=value=>new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value));
-let dashboardData=null,sp500Loaded=false,activityView='open',loadPromise=null,chartRefreshActive=false,loadTimer=null,chartTimer=null;
+const DATA_REFRESH_MS=60000,CHART_REFRESH_MS=30000;
+let dashboardData=null,sp500Loaded=false,activityView='open',loadPromise=null,chartRefreshActive=false,loadTimer=null,chartTimer=null,syncTimer=null,nextDataRefreshAt=0;
 async function fetchState(name){
  const raw=`https://raw.githubusercontent.com/mondaytv/atlas-dashboard/data/${name}?t=${Date.now()}`;
  try{const r=await fetch(raw,{cache:'no-store'});if(!r.ok)throw new Error('raw state');return r.json();}
@@ -241,7 +242,7 @@ function render(data){
  document.getElementById('openCount').textContent=open;document.getElementById('closedCount').textContent=closed;document.getElementById('activeCount').textContent=active;document.getElementById('accountLabel').textContent=`${live.length} validati · ${experimental.length} sperimentali · €1.000 ciascuno`;document.getElementById('forwardCount').textContent=live.length;document.getElementById('experimentalCount').textContent=experimental.length;document.getElementById('replayCount').textContent=replay.length;
  const risk=data.global_risk||{},riskLocked=risk.locked===true||risk.manual_stop===true,riskBanner=document.getElementById('globalRiskBanner'),riskStatus=risk.locked?'BLOCCO EMERGENZA':risk.manual_stop?'STOP MANUALE':'PROTEZIONE ATTIVA',riskText=risk.locked?'Nuovi ingressi bloccati. Serve revisione e sblocco manuale; gli stop restano operativi.':risk.manual_stop?'Nuovi ingressi disabilitati dal controllo privato; gli stop restano operativi.':'Circuit breaker globale armato; nessun ordine reale può essere inviato.';riskBanner.classList.toggle('locked',riskLocked);riskBanner.innerHTML=`<div class="risk-icon">${riskLocked?'!':'✓'}</div><div class="risk-copy"><b>${riskStatus}</b><span>${riskText}</span></div><div class="risk-value"><b>${num(risk.drawdown_24h_pct||0)}% DD 24h</b><span>soglia ${num(risk.threshold_pct||7)}%</span></div>`;
  const fee=data.execution_policy?.taker_fee_pct_per_side;renderAiPipeline(data,strategies,fee);
- document.getElementById('liveDot').classList.toggle('stale',stale);document.getElementById('liveLabel').textContent=stale?'In attesa':'Live';document.getElementById('updated').textContent=`· ${shortDate(data.generated_at)}`;
+ document.getElementById('liveDot').classList.toggle('stale',stale);document.getElementById('liveLabel').textContent=stale?'In attesa':'Live';updateSyncCountdown();
  const best=live[0]||experimental[0]||strategies[0],bestReplay=Number(best?.walk_forward?.net_pnl)||0;document.getElementById('bestStrategy').innerHTML=best?`<div class="feature-label">${live.length?'Migliore modello validato':experimental.length?'Migliore sperimentale per replay':'Migliore replay netto dei costi'}</div><div class="feature-name">${best.name}</div><div class="feature-desc">${best.description}</div><div class="feature-bottom"><div class="feature-equity"><span>P&amp;L walk-forward</span><strong class="${pnlClass(bestReplay)}">${bestReplay>=0?'+':''}${euro(bestReplay)}</strong></div><div class="feature-rank"><b>#1</b><br>${best.walk_forward?.closed_trades??0} chiuse</div></div>`:'<div class="empty">Nessun modello disponibile.</div>';
  const allTrades=paperAccounts.flatMap(s=>(s.trades||[]).map(t=>({...t,strategy:s.name}))).sort((a,b)=>new Date(b.exit_ts)-new Date(a.exit_ts));
  const last=allTrades[0];document.getElementById('latestActivity').innerHTML=last?`<div class="icon">↕</div><div><h3>Ultima chiusura</h3><p>${last.symbol} · ${last.strategy}<br>${shortDate(last.exit_ts)}</p></div><strong class="${pnlClass(last.pnl)}">${last.pnl>=0?'+':''}${euro(last.pnl)}</strong>`:`<div class="icon">●</div><div><h3>${open} posizioni live</h3><p>Il test sta raccogliendo dati.</p></div><strong>${open}</strong>`;
@@ -255,11 +256,25 @@ function render(data){
 document.querySelectorAll('.segmented button').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active',b===button));activityView=button.dataset.view;if(dashboardData)renderActivity(dashboardData.strategies.filter(s=>s.active!==false).slice().sort((a,b)=>(Number(b.walk_forward?.net_pnl)||0)-(Number(a.walk_forward?.net_pnl)||0)));}));
 async function load(){
  if(document.visibilityState!=='visible')return;if(loadPromise)return loadPromise;
- loadPromise=(async()=>{const [crypto,sp500]=await Promise.allSettled([fetchState('strategies.json'),fetchState('sp500.json')]);if(crypto.status==='fulfilled')render(crypto.value);else{document.getElementById('liveDot').classList.add('stale');document.getElementById('liveLabel').textContent=dashboardData?'Dati non aggiornati':'Dati non disponibili';}if(sp500.status==='fulfilled'){renderSp500(sp500.value);sp500Loaded=true;}else if(!sp500Loaded){renderSp500(null);}})();
+ document.getElementById('liveLabel').textContent=dashboardData?'Aggiorno…':'Sincronizzazione';
+ loadPromise=(async()=>{const [crypto,sp500]=await Promise.allSettled([fetchState('strategies.json'),fetchState('sp500.json')]);if(crypto.status==='fulfilled')render(crypto.value);else{document.getElementById('liveDot').classList.add('stale');document.getElementById('liveLabel').textContent=dashboardData?'Dati non aggiornati':'Dati non disponibili';updateSyncCountdown();}if(sp500.status==='fulfilled'){renderSp500(sp500.value);sp500Loaded=true;}else if(!sp500Loaded){renderSp500(null);}})();
  try{return await loadPromise;}finally{loadPromise=null;}
 }
-function startPolling(){clearInterval(loadTimer);clearInterval(chartTimer);if(document.visibilityState!=='visible')return;load();loadTimer=setInterval(load,600000);chartTimer=setInterval(refreshLiveCharts,30000);}
-document.addEventListener('visibilitychange',startPolling);startPolling();
+function updateSyncCountdown(){
+ const updated=document.getElementById('updated');if(!dashboardData){updated.textContent='';return}
+ const seconds=Math.max(0,Math.ceil((nextDataRefreshAt-Date.now())/1000));updated.textContent=`· dati ${shortDate(dashboardData.generated_at)} · sync ${seconds}s`;
+}
+async function refreshData(){
+ if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();await load();
+}
+function stopPolling(){clearInterval(loadTimer);clearInterval(chartTimer);clearInterval(syncTimer);loadTimer=chartTimer=syncTimer=null;}
+function startPolling(){
+ stopPolling();if(document.visibilityState!=='visible')return;refreshData();loadTimer=setInterval(refreshData,DATA_REFRESH_MS);chartTimer=setInterval(refreshLiveCharts,CHART_REFRESH_MS);syncTimer=setInterval(updateSyncCountdown,1000);
+}
+document.addEventListener('visibilitychange',startPolling);
+window.addEventListener('focus',()=>{if(document.visibilityState==='visible')refreshData()});
+window.addEventListener('online',()=>{if(document.visibilityState==='visible')refreshData()});
+startPolling();
 </script>
 </body>
 </html>
