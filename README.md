@@ -2,15 +2,15 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-09T06:40:22+00:00 · codice: `b912510176bfe0851f62e74463e3805e5ce66d9e`
+Snapshot: 2026-11-09T12:40:01+00:00 · codice: `0fc77297e08cf5e7ba0c7fa0fe0c026c0029001f`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
 | Candidata | Famiglia | Stato | Chiusure / PnL holdout | Chiusure / PnL PAPER | Ultima attività |
 |---|---|---|---:|---:|---|
-| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 0 / €+0.00 | `WAIT_FOR_NEW_CANDLE` |
-| `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €+0.00 | `WAIT_FOR_NEW_CANDLE` |
-| `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 0 / €+0.00 | `WAIT_FOR_NEW_CANDLE` |
+| `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 0 / €+0.00 | `WAIT` |
+| `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €+0.00 | `WAIT` |
+| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 0 / €+0.00 | `WAIT` |
 
 Il ciclo è previsto ogni quattro ore. Se lo snapshot ha più di otto ore, consideralo non aggiornato.
 
