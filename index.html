@@ -110,6 +110,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .lab-lead h2{font-size:17px;font-weight:650;margin:0}.lab-lead p,.lab-note{color:var(--muted);font-size:12px;line-height:1.6;margin:5px 0 0}
 .lab-status{color:var(--muted);font-size:11px;line-height:1.5;margin:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 .lab-status[data-state=ok]{color:var(--mint)}.lab-status:is([data-state=error],[data-state=stale],[data-state=missing]){color:var(--amber)}
+.lab-timing{display:grid;gap:6px;max-width:100%}
 .lab-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0}
 .lab-metric,.lab-lane{min-width:0;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)}
 .lab-metric dt,.lab-lane span{font-size:11px;color:var(--muted);line-height:1.5}
@@ -192,7 +193,10 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
   <article class="lab-surface">
    <div class="lab-lead">
     <div><h2>Ricerca autonoma</h2><p>Nuove strategie in simulazione. Conti di ricerca separati dai sette modelli Atlas.</p></div>
-    <p id="labStatus" class="lab-status" data-state="loading" role="status">Caricamento del report…</p>
+    <div class="lab-timing">
+     <p id="labWatchStatus" class="lab-status" data-state="loading" role="status">Caricamento controllo mercato…</p>
+     <p id="labStatus" class="lab-status" data-state="loading" role="status">Caricamento valutazione PAPER…</p>
+    </div>
    </div>
    <div id="labSummary"></div>
   </article>
@@ -569,6 +573,7 @@ function exportClosedTrades(){
 
 
 const LAB_REPORT_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research/research.json';
+const LAB_WATCH_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/monitor.json';
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
 const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media'};
 const labStatuses={PAPER_RESEARCH:'In osservazione',RESEARCH_QUALIFIED:'Qualificata PAPER',RESEARCH_STOPPED:'Fermata',RETIRED:'Archiviata'};
@@ -576,6 +581,7 @@ const labGateLabels={minimum_closed_trades:'Campione minimo di chiusure',positiv
 const labReasons={STOP:'Stop',TARGET:'Obiettivo',MAX_HOLD:'Tempo massimo',RESEARCH_EXIT:'Fine osservazione',RESEARCH_DRAWDOWN_STOP:'Limite di drawdown',DRAWDOWN_OR_LOSS_STREAK:'Drawdown o perdite consecutive',OBSERVATION_WINDOW_COMPLETE:'Periodo di osservazione concluso'};
 const labActions={WAIT:'Nessun ingresso nel ciclo',WAIT_FOR_NEW_CANDLE:'In attesa di una nuova candela',WAIT_FOR_FUTURE_CANDLE:'In attesa della prima candela dopo la selezione',ENTRY_BLOCKED_MISSING_FRESH_BOOK:'Ingresso sospeso · book non aggiornato',EXIT_BLOCKED_MISSING_FRESH_BOOK:'Uscita in attesa di un book aggiornato'};
 let labRequest=null,labSnapshot=null,labSnapshotKey='';
+let labWatchRequest=null,labWatchSnapshot=null;
 
 function labEscape(value){
  return String(value??'n/d').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -644,7 +650,7 @@ function renderLaboratory(report){
  const stages=[['Duplicati',counts?.DUPLICATE_TRAIN_BEHAVIOR],['Scarti dopo il test iniziale',counts?.TRAIN_REJECTED],['Scarti in validazione',counts?.VALIDATION_REJECTED]];
  const breakdown=stages.filter(([,value])=>Number.isInteger(value)).map(([label,value])=>label+' '+labCount(value)).join(' · ');
  const metrics=[['Ricette testate',labCount(report.trials_total)],['Idonee storiche',labCount(report.historical_eligible)],['In osservazione',labCount(shadow.filter(row=>row?.status==='PAPER_RESEARCH').length)],['Qualificate PAPER',labCount(report.research_qualified)]];
- const every=Number.isFinite(policy?.interval_minutes)?'Controlli previsti ogni '+num(policy.interval_minutes/60)+' ore.':'';
+ const every=Number.isFinite(policy?.interval_minutes)?'Valutazioni PAPER su candele da '+num(policy.interval_minutes/60)+' ore.':'';
  const qualified=policy?.forward_gate;
  const gateInfo=Number.isInteger(qualified?.minimum_days)&&Number.isInteger(qualified?.minimum_closed_trades)?
   'Il campione minimo PAPER richiede '+num(qualified.minimum_days)+' giorni e '+num(qualified.minimum_closed_trades)+' chiusure.':'';
@@ -668,8 +674,44 @@ function setLabStatus(state,label){
  status.dataset.state=state;
  if(status.textContent!==label)status.textContent=label;
 }
+function renderLabWatch(snapshot,failed=false){
+ const root=document.getElementById('labWatchStatus');
+ let state='missing', label='Controllo mercato non disponibile';
+ if(snapshot){
+  const age=Date.now()-Date.parse(snapshot.checked_at);
+  const stale=Number.isFinite(snapshot.stale_after_minutes)&&age>snapshot.stale_after_minutes*60000;
+  const gaps=Number.isFinite(snapshot.ready_markets)&&snapshot.ready_markets<snapshot.total_markets;
+  state=failed?'error':stale?'stale':gaps||snapshot.status==='DISPATCH_FAILED'?'error':'ok';
+  const interval=Number.isInteger(snapshot.check_interval_minutes)?' ('+snapshot.check_interval_minutes+' min)':'';
+  label=(failed?'Controllo non raggiungibile · ultimo ':stale?'Controllo in ritardo · ultimo ':'Controllo mercato'+interval+' · ')+labTime(snapshot.checked_at);
+  if(Number.isInteger(snapshot.ready_markets)&&Number.isInteger(snapshot.total_markets))label+=' · '+snapshot.ready_markets+'/'+snapshot.total_markets+' mercati';
+  if(!failed&&!stale&&snapshot.status==='DISPATCH_FAILED')label+=' · avvio valutazione non riuscito';
+ }
+ root.dataset.state=state;
+ if(root.textContent!==label)root.textContent=label;
+}
+async function refreshLabWatch(){
+ if(labWatchRequest)return labWatchRequest;
+ labWatchRequest=(async()=>{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const response=await fetch(LAB_WATCH_URL+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw new Error('Controllo mercato non disponibile');
+   const snapshot=await response.json();
+   const stamp=Date.parse(snapshot?.checked_at);
+   if(snapshot?.schema!==1||snapshot.mode!=='PAPER_RESEARCH_MARKET_WATCH'||!Number.isFinite(stamp))throw new Error('Controllo mercato non valido');
+   if(!labWatchSnapshot||stamp>=Date.parse(labWatchSnapshot.checked_at))labWatchSnapshot=snapshot;
+   renderLabWatch(labWatchSnapshot);
+  }catch{
+   renderLabWatch(labWatchSnapshot,true);
+  }finally{clearTimeout(timeout)}
+ })();
+ try{return await labWatchRequest;}finally{labWatchRequest=null;}
+}
 async function refreshLaboratory(){
  if(workspacePage!=='laboratorio'||document.visibilityState!=='visible')return;
+ void refreshLabWatch();
  if(labRequest)return labRequest;
  labRequest=(async()=>{
   const controller=new AbortController();
@@ -689,8 +731,14 @@ async function refreshLaboratory(){
    if(key!==labSnapshotKey){renderLaboratory(report);labSnapshotKey=key;}
    labSnapshot=report;
    const staleAfter=report.stale_after_minutes;
-   if(Number.isFinite(staleAfter)&&staleAfter>0&&Date.now()-stamp>staleAfter*60000)setLabStatus('stale','Ultimo ciclo non aggiornato');
-   else setLabStatus('ok','Ultimo ciclo · '+labTime(report.generated_at));
+   const cadence=report.policy?.interval_minutes;
+   const age=Date.now()-stamp;
+   // Allow a new candle to settle and the watchdog one retry before flagging a missed evaluation.
+   const overdue=Number.isFinite(cadence)&&cadence>0
+    ?Date.now()>=(Math.floor(stamp/(cadence*60000))+1)*cadence*60000+45*60000
+    :Number.isFinite(staleAfter)&&staleAfter>0&&age>staleAfter*60000;
+   if(overdue)setLabStatus('stale','Valutazione PAPER in ritardo · '+labTime(report.generated_at));
+   else setLabStatus('ok','Valutazione PAPER · '+labTime(report.generated_at));
   }catch{
    setLabStatus('error',labSnapshot?'Aggiornamento non riuscito · ultimo snapshot conservato':'Impossibile caricare il report');
   }finally{clearTimeout(timeout)}

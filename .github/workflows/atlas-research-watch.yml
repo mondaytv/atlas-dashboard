@@ -1,0 +1,86 @@
+name: ATLAS Laboratory market watch
+
+on:
+  push:
+    branches: [main]
+    paths: ["research-watch.py", ".github/workflows/atlas-research-watch.yml"]
+  workflow_dispatch:
+  schedule:
+    - cron: "23 3 * * *"
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: atlas-laboratory-market-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 255
+    steps:
+      - name: Checkout monitor code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: source
+          persist-credentials: false
+
+      - name: Checkout isolated public monitoring snapshots
+        uses: actions/checkout@v4
+        with:
+          ref: research-monitor
+          path: snapshots
+
+      - name: Check Kraken every 30 minutes and recover missing 4h evaluations
+        id: watch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.ATLAS_TRIGGER_TOKEN }}
+        run: |
+          set -euo pipefail
+          git -C snapshots config user.name atlas-research-watch
+          git -C snapshots config user.email atlas-research-watch@users.noreply.github.com
+          echo "continue=true" >> "$GITHUB_OUTPUT"
+          started="$(date -u +%s)"
+          next_boundary="$(( (started / 1800 + 1) * 1800 + 120 ))"
+          pulses=8
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then pulses=1; fi
+          failures=0
+          for ((pulse=1; pulse<=pulses; pulse++)); do
+            if python3 source/research-watch.py --output snapshots/monitor.json; then
+              if [[ -f snapshots/monitor.json ]]; then
+                git -C snapshots add monitor.json
+                if ! git -C snapshots diff --cached --quiet; then
+                  git -C snapshots commit -m "Record ATLAS Laboratory market check"
+                fi
+                if ! git -C snapshots push origin HEAD:refs/heads/research-monitor; then
+                  echo "::warning::Market snapshot push failed. The next pulse retries without force."
+                  failures=$((failures + 1))
+                fi
+              fi
+            else
+              echo "::warning::Market check failed. The next pulse retries."
+              failures=$((failures + 1))
+            fi
+            if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then break; fi
+            target="$((next_boundary + (pulse - 1) * 1800))"
+            now="$(date -u +%s)"
+            if (( target > now )); then sleep "$((target - now))"; fi
+          done
+          if (( failures > 0 )); then exit 1; fi
+
+      - name: Queue the next monitoring window
+        if: ${{ always() && steps.watch.outputs.continue == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if gh workflow run atlas-research-watch.yml --repo "$GITHUB_REPOSITORY" --ref main; then exit 0; fi
+            if (( attempt < 3 )); then sleep 10; fi
+          done
+          exit 1
