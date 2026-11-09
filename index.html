@@ -105,6 +105,40 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 @media(max-width:370px){.obs-values b{font-size:12px}.obs-range button{padding:6px 8px}.evidence-metrics{gap:10px}.obs-legend{gap:8px}}
 
 
+.lab-surface{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.lab-lead{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:17px}
+.lab-lead h2{font-size:17px;font-weight:650;margin:0}.lab-lead p,.lab-note{color:var(--muted);font-size:12px;line-height:1.6;margin:5px 0 0}
+.lab-status{color:var(--muted);font-size:11px;line-height:1.5;margin:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.lab-status[data-state=ok]{color:var(--mint)}.lab-status:is([data-state=error],[data-state=stale],[data-state=missing]){color:var(--amber)}
+.lab-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0}
+.lab-metric,.lab-lane{min-width:0;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)}
+.lab-metric dt,.lab-lane span{font-size:11px;color:var(--muted);line-height:1.5}
+.lab-metric dd{font-size:24px;font-weight:650;margin:4px 0 0;font-variant-numeric:tabular-nums}
+.lab-heading{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:24px 0 12px}
+.lab-heading h2{font-size:16px;font-weight:650;margin:0}.lab-heading p{margin:0}
+.lab-candidates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.lab-candidate-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:7px;margin:0 0 12px}
+.lab-candidate-head h3{font-size:15px;font-weight:650;margin:0}
+.lab-tag{font-size:10px;color:var(--amber)}.lab-tag[data-qualified=true]{color:var(--mint)}
+.lab-lanes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.lab-lane{padding:10px}.lab-lane b{display:block;font-size:16px;font-variant-numeric:tabular-nums;margin:3px 0;overflow-wrap:anywhere}
+.lab-lane[data-lane=paper]{border-color:color-mix(in srgb,var(--mint) 28%,var(--line))}
+.lab-action{margin:12px 0 0;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+.lab-detail{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+.lab-detail summary{color:var(--blue);cursor:pointer;padding:6px 0;font-size:12px;line-height:1.5}
+.lab-detail summary:focus-visible,.lab-link:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.lab-detail h4{font-size:12px;margin:12px 0 3px}.lab-detail ul{margin:6px 0 0;padding-left:17px}
+.lab-detail li{font-size:11px;color:var(--muted);line-height:1.55;margin:4px 0;overflow-wrap:anywhere}
+.lab-ledger{margin-top:14px}.lab-ledger b{font-variant-numeric:tabular-nums}
+.lab-source{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:17px;color:var(--muted);font-size:11px}
+.lab-link{color:var(--blue);text-underline-offset:3px}
+@media(max-width:1100px){.lab-candidates{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+ .bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))}
+ .bottom-nav a{min-height:44px;justify-content:center}
+ .lab-surface{padding:15px}.lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lab-candidates{grid-template-columns:1fr}
+}
+@media(max-width:370px){.bottom-nav{padding-inline:3px}.bottom-nav a{padding-inline:0}.lab-metric dd{font-size:21px}}
 </style>
 </head>
 <body>
@@ -153,6 +187,17 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  </section>
  <section class="section">
   <details class="market-panel"><summary><b>Scanner di mercato</b><span id="marketSummary">Mostra asset</span></summary><div id="marketList" class="market-list"></div></details>
+ </section>
+ <section id="laboratorio" class="section" data-workspace-page="laboratorio" aria-label="Laboratorio strategie" hidden>
+  <article class="lab-surface">
+   <div class="lab-lead">
+    <div><h2>Ricerca autonoma</h2><p>Nuove strategie in simulazione. Conti di ricerca separati dai sette modelli Atlas.</p></div>
+    <p id="labStatus" class="lab-status" data-state="loading" role="status">Caricamento del report…</p>
+   </div>
+   <div id="labSummary"></div>
+  </article>
+  <div id="labCandidates"></div>
+  <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
  </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
@@ -338,7 +383,7 @@ function updateSyncCountdown(){
  const seconds=Math.max(0,Math.ceil((nextDataRefreshAt-Date.now())/1000));updated.textContent=`· dati ${shortDate(dashboardData.generated_at)} · sync ${seconds}s`;
 }
 async function refreshData(){
- if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();await load();
+ if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();await load();
 }
 function stopPolling(){clearTimeout(loadTimer);clearTimeout(chartTimer);clearInterval(syncTimer);clearTimeout(aiNarrationTimer);loadTimer=chartTimer=syncTimer=aiNarrationTimer=null;}
 function scheduleDataRefresh(){
@@ -363,8 +408,9 @@ window.addEventListener('online',()=>startPolling(true));
 document.addEventListener('pointerdown',ensureFresh,{passive:true});
 document.addEventListener('touchstart',ensureFresh,{passive:true});
 // Presentation state is independent of paper engine state.
-const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
+const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},laboratorio:{title:'Laboratorio.',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
 const workspaceIcons={overview:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',models:'<path d="M4 19V9m8 10V4m8 15v-7"/><path d="M2 21h20"/>',ai:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',activity:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',markets:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>'};
+workspaceIcons.laboratorio='<path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3M8 15h8"/>';
 let workspacePage='overview',workspaceFilter=(()=>{const value=readPreference('filter','all');return ['all','open','ai'].includes(value)?value:'all'})(),workspaceQuery='',narrationPaused=false;
 const expandedModels=new Set((()=>{const value=readPreference('expanded',[]);return Array.isArray(value)?value.filter(id=>typeof id==='string'):[]})());
 function workspaceIcon(key){return `<span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${workspaceIcons[key]}</svg></span>`}
@@ -374,7 +420,9 @@ function setWorkspacePage(page){
  document.querySelectorAll('[data-workspace-page]').forEach(el=>{el.hidden=el.dataset.workspacePage!==page});
  document.querySelectorAll('[data-workspace-nav]').forEach(a=>{if(a.dataset.workspaceNav===page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
  document.querySelector('#workspaceTitle').textContent=meta.title;document.querySelector('#workspaceDescription').textContent=meta.description;document.querySelector('#workspaceCrumb').textContent=meta.label;
+ document.querySelector('.workspace-chip').hidden=page==='laboratorio';
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
+ if(page==='laboratorio')void refreshLaboratory();
 }
 function applyModelFilters(){
  let visible=0;
@@ -519,6 +567,136 @@ function exportClosedTrades(){
  const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='atlas-paper-chiusure-disponibili.csv';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
+
+const LAB_REPORT_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research/research.json';
+const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
+const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media'};
+const labStatuses={PAPER_RESEARCH:'In osservazione',RESEARCH_QUALIFIED:'Qualificata PAPER',RESEARCH_STOPPED:'Fermata',RETIRED:'Archiviata'};
+const labGateLabels={minimum_closed_trades:'Campione minimo di chiusure',positive_net_pnl:'P&L netto positivo',profit_factor:'Profit factor minimo',drawdown:'Drawdown entro limite',single_trade:'Concentrazione su un trade',single_asset:'Concentrazione su un asset',beats_buy_hold:'Confronto con buy & hold'};
+const labReasons={STOP:'Stop',TARGET:'Obiettivo',MAX_HOLD:'Tempo massimo',RESEARCH_EXIT:'Fine osservazione',RESEARCH_DRAWDOWN_STOP:'Limite di drawdown',DRAWDOWN_OR_LOSS_STREAK:'Drawdown o perdite consecutive',OBSERVATION_WINDOW_COMPLETE:'Periodo di osservazione concluso'};
+const labActions={WAIT:'Nessun ingresso nel ciclo',WAIT_FOR_NEW_CANDLE:'In attesa di una nuova candela',WAIT_FOR_FUTURE_CANDLE:'In attesa della prima candela dopo la selezione',ENTRY_BLOCKED_MISSING_FRESH_BOOK:'Ingresso sospeso · book non aggiornato',EXIT_BLOCKED_MISSING_FRESH_BOOK:'Uscita in attesa di un book aggiornato'};
+let labRequest=null,labSnapshot=null,labSnapshotKey='';
+
+function labEscape(value){
+ return String(value??'n/d').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+}
+function labCount(value){return Number.isInteger(value)&&value>=0?num(value):'n/d'}
+function labMoney(value,signed=false){return Number.isFinite(value)?(signed&&value>0?'+':'')+euro(value):'n/d'}
+function labTime(value){
+ const stamp=typeof value==='number'?value*1000:typeof value==='string'?Date.parse(value):NaN;
+ return Number.isFinite(stamp)&&Math.abs(stamp)<=8.64e15?labDateFormat.format(stamp):'n/d';
+}
+function labMetric(label,value){
+ return '<div class="lab-metric"><dt>'+labEscape(label)+'</dt><dd>'+labEscape(value)+'</dd></div>';
+}
+function labResult(label,result,lane){
+ const pnl=result?.net_pnl_eur,tone=Number.isFinite(pnl)&&pnl!==0?pnlClass(pnl):'';
+ return '<div class="lab-lane" data-lane="'+lane+'"><span>'+label+'</span><b class="'+tone+'">'+labMoney(pnl,true)+'</b><span>Chiusure '+labCount(result?.closed_trades)+'</span></div>';
+}
+function labGate(title,gate,metrics,minimum){
+ if(!gate?.checks)return '<h4>'+title+'</h4><p class="lab-note">Criteri n/d</p>';
+ const label=gate.status==='INSUFFICIENT_SAMPLE'?'Campione insufficiente':gate.passed===true?'Criteri superati':'Criteri non superati';
+ const sample=Number.isInteger(minimum)?' · '+labCount(metrics?.closed_trades)+' / '+labCount(minimum)+' chiusure':'';
+ const failed=Object.entries(labGateLabels).filter(([key])=>gate.checks[key]===false);
+ return '<h4>'+title+' · '+label+sample+'</h4>'+(failed.length?'<ul>'+failed.map(([,reason])=>'<li>'+labEscape(reason)+'</li>').join('')+'</ul>':'');
+}
+function labAction(candidate){
+ const code=candidate.last_action;
+ if(typeof code!=='string')return 'Attività n/d';
+ if(code.startsWith('PAPER_BUY_'))return 'Apertura PAPER · '+code.slice('PAPER_BUY_'.length);
+ if(code.startsWith('PAPER_SELL_'))return 'Chiusura PAPER · '+(labReasons[code.slice('PAPER_SELL_'.length)]??'Motivo n/d');
+ if(code.startsWith('ENTRY_BLOCKED_'))return 'Ingresso sospeso · criteri di liquidità';
+ return labActions[code]??'Attività n/d';
+}
+function labTradeLedger(candidate){
+ const position=candidate.position;
+ const open=position?.lane==='FUTURE_SHADOW_PAPER'
+  ?'Posizione aperta · <b>'+labEscape(position.symbol)+'</b> · '+labTime(position.entry_at)+' · ingresso '+labMoney(position.entry_price)
+  :position===null?'Nessuna posizione aperta':'Posizione aperta n/d';
+ const trades=Array.isArray(candidate.trades)?candidate.trades.filter(trade=>trade?.lane==='FUTURE_SHADOW_PAPER') : null;
+ const latest=trades?.slice().sort((a,b)=>b.exit_at-a.exit_at).slice(0,5);
+ const closed=latest?.length?'<h4>Ultime chiusure PAPER</h4><ul>'+latest.map(trade=>'<li><b>'+labEscape(trade.symbol)+'</b> · '+labTime(trade.exit_at)+' · <b>'+labMoney(trade.pnl,true)+'</b> · '+labEscape(labReasons[trade.reason]??'Motivo n/d')+'</li>').join('')+'</ul>':
+  '<p class="lab-note">'+(trades?'Nessuna chiusura PAPER':'Chiusure PAPER n/d')+'</p>';
+ return '<p class="lab-note">'+open+'</p>'+closed;
+}
+function labCandidate(candidate,index,policy){
+ const family=labFamilies[candidate.recipe?.family]??'Famiglia n/d';
+ const status=labStatuses[candidate.status]??'Stato n/d';
+ const historical=candidate.historical_eligible===true?'Idonea storica':candidate.historical_eligible===false?'Esplorativa non validata':'Idoneità storica n/d';
+ const closeMinimum=policy?.gate?.minimum_closed_trades;
+ const accountInfo='Conto PAPER '+labMoney(candidate.equity_eur)+(candidate.equity_stale===true?' · stima non aggiornata':'')+' · avvio '+labTime(candidate.started_at);
+ return '<article class="lab-surface"><header class="lab-candidate-head"><h3>'+family+' '+(index+1)+'</h3><span class="lab-tag" data-qualified="'+(candidate.status==='RESEARCH_QUALIFIED')+'">'+status+'</span></header>'+
+  '<div class="lab-lanes">'+labResult('Storico · Test finale',candidate.holdout,'historical')+labResult('PAPER · Dati futuri',candidate.forward,'paper')+'</div>'+
+  '<p class="lab-action">'+labEscape(labAction(candidate))+'</p><p class="lab-note">'+historical+'</p>'+
+  '<details class="lab-detail" data-lab-key="'+labEscape(candidate.id??index)+'"><summary>Criteri e operazioni PAPER</summary>'+
+  labGate('Validazione storica',candidate.validation_gate,candidate.validation,closeMinimum)+labGate('Holdout storico',candidate.holdout_gate,candidate.holdout,closeMinimum)+
+  '<div class="lab-ledger"><h4>Conto PAPER</h4><p class="lab-note">'+accountInfo+'</p>'+labTradeLedger(candidate)+
+  (candidate.stop_reason?'<p class="lab-note">'+labEscape(labReasons[candidate.stop_reason]??'Motivo del fermo n/d')+'</p>':'')+
+  '</div></details></article>';
+}
+function renderLaboratory(report){
+ const {shadow,policy,trial_counts:counts}=report;
+ const active=[],archived=[];
+ shadow.forEach((candidate,index)=>{
+  if(!candidate||typeof candidate!=='object')return;
+  (['RETIRED','RESEARCH_STOPPED'].includes(candidate.status)?archived:active).push(labCandidate(candidate,index,policy));
+ });
+ const stages=[['Duplicati',counts?.DUPLICATE_TRAIN_BEHAVIOR],['Scarti dopo il test iniziale',counts?.TRAIN_REJECTED],['Scarti in validazione',counts?.VALIDATION_REJECTED]];
+ const breakdown=stages.filter(([,value])=>Number.isInteger(value)).map(([label,value])=>label+' '+labCount(value)).join(' · ');
+ const metrics=[['Ricette testate',labCount(report.trials_total)],['Idonee storiche',labCount(report.historical_eligible)],['In osservazione',labCount(shadow.filter(row=>row?.status==='PAPER_RESEARCH').length)],['Qualificate PAPER',labCount(report.research_qualified)]];
+ const every=Number.isFinite(policy?.interval_minutes)?'Controlli previsti ogni '+num(policy.interval_minutes/60)+' ore.':'';
+ const qualified=policy?.forward_gate;
+ const gateInfo=Number.isInteger(qualified?.minimum_days)&&Number.isInteger(qualified?.minimum_closed_trades)?
+  'Il campione minimo PAPER richiede '+num(qualified.minimum_days)+' giorni e '+num(qualified.minimum_closed_trades)+' chiusure.':'';
+ document.getElementById('labSummary').innerHTML='<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
+  (breakdown?'<p class="lab-note">'+breakdown+'</p>':'')+'<p class="lab-note">'+every+' '+gateInfo+'</p>'+
+  (Object.keys(report.errors??{}).length?'<p class="lab-note">Il ciclo segnala dati di mercato incompleti o aggiornati dal fornitore. I dettagli sono nel report sorgente.</p>':'');
+ const root=document.getElementById('labCandidates');
+ const opened=new Set([...root.querySelectorAll('details[open]')].map(detail=>detail.dataset.labKey));
+ const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.labKey:null;
+ root.innerHTML='<div class="lab-heading"><h2>Candidate</h2><p class="lab-note">Risultati netti dei costi. Storico e PAPER separati.</p></div>'+
+  (active.length?'<div class="lab-candidates">'+active.join('')+'</div>':'<p class="lab-note">Nessuna candidata attiva nel laboratorio.</p>')+
+  (archived.length?'<details class="lab-detail" data-lab-key="archivio"><summary>Candidate fermate o archiviate · '+archived.length+'</summary><div class="lab-candidates">'+archived.join('')+'</div></details>':'');
+ root.querySelectorAll('details').forEach(detail=>{
+  detail.open=opened.has(detail.dataset.labKey);
+  if(focused===detail.dataset.labKey)detail.querySelector('summary').focus({preventScroll:true});
+ });
+ document.getElementById('labTimestamp').textContent='Ciclo '+labCount(report.cycles)+' · '+labTime(report.generated_at)+' (Italia)';
+}
+function setLabStatus(state,label){
+ const status=document.getElementById('labStatus');
+ status.dataset.state=state;
+ if(status.textContent!==label)status.textContent=label;
+}
+async function refreshLaboratory(){
+ if(workspacePage!=='laboratorio'||document.visibilityState!=='visible')return;
+ if(labRequest)return labRequest;
+ labRequest=(async()=>{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const response=await fetch(LAB_REPORT_URL+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+   if(response.status===404&&!labSnapshot){setLabStatus('missing','Report non ancora disponibile');return;}
+   if(!response.ok)throw new Error('Report non disponibile');
+   const report=await response.json();
+   const stamp=Date.parse(report?.generated_at);
+   if(report?.schema!==1||report.paper_only!==true||report.mode!=='ISOLATED_AUTONOMOUS_PAPER_RESEARCH'||!Number.isFinite(stamp)||!Array.isArray(report.shadow))throw new Error('Report non valido');
+   if(labSnapshot&&stamp<Date.parse(labSnapshot.generated_at)){
+    setLabStatus('stale','Ricevuto un report precedente · ultimo snapshot conservato');
+    return;
+   }
+   const key=report.generated_at+' '+(report.source_commit??'');
+   if(key!==labSnapshotKey){renderLaboratory(report);labSnapshotKey=key;}
+   labSnapshot=report;
+   const staleAfter=report.stale_after_minutes;
+   if(Number.isFinite(staleAfter)&&staleAfter>0&&Date.now()-stamp>staleAfter*60000)setLabStatus('stale','Ultimo ciclo non aggiornato');
+   else setLabStatus('ok','Ultimo ciclo · '+labTime(report.generated_at));
+  }catch{
+   setLabStatus('error',labSnapshot?'Aggiornamento non riuscito · ultimo snapshot conservato':'Impossibile caricare il report');
+  }finally{clearTimeout(timeout)}
+ })();
+ try{return await labRequest;}finally{labRequest=null;}
+}
 
 initWorkspace();
 initObservability();
