@@ -1,11 +1,3 @@
-# ATLAS Dashboard
+# ATLAS Laboratory market monitor
 
-Cockpit pubblico **paper-only** di ATLAS.
-
-Questo repository contiene solo:
-- interfaccia statica `index.html`
-- stato paper sanitizzato `state.json`
-
-Non contiene API key, credenziali, password o codice del motore privato.
-
-La dashboard viene aggiornata dal repository privato `atlas-bot`.
+Public market-check telemetry is published in `monitor.json`. Research results remain in `research`.
