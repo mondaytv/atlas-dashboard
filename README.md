@@ -12,6 +12,10 @@ Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel labor
 | `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €+0.00 | `WAIT` |
 | `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 0 / €+0.00 | `WAIT` |
 
+## Conto PAPER dello screening massivo
+
+Stato: `NO_ELIGIBLE_CANDIDATE` · slot dedicati: 1
+
 Il ciclo è previsto ogni quattro ore. Se lo snapshot ha più di otto ore, consideralo non aggiornato.
 
 Il backtest stima lo slippage. Il PAPER successivo usa il book osservato al momento del controllo.
