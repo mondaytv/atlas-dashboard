@@ -627,15 +627,17 @@ function labTradeLedger(candidate){
 }
 function labCandidate(candidate,index,policy){
  const family=labFamilies[candidate.recipe?.family]??'Famiglia n/d';
+ const screened=candidate.source==='MASS_SCREENING';
  const status=labStatuses[candidate.status]??'Stato n/d';
  const historical=candidate.historical_eligible===true?'Idonea storica':candidate.historical_eligible===false?'Esplorativa non validata':'Idoneità storica n/d';
  const closeMinimum=policy?.gate?.minimum_closed_trades;
  const accountInfo='Conto PAPER '+labMoney(candidate.equity_eur)+(candidate.equity_stale===true?' · stima non aggiornata':'')+' · avvio '+labTime(candidate.started_at);
  return '<article class="lab-surface"><header class="lab-candidate-head"><h3>'+family+' '+(index+1)+'</h3><span class="lab-tag" data-qualified="'+(candidate.status==='RESEARCH_QUALIFIED')+'">'+status+'</span></header>'+
-  '<div class="lab-lanes">'+labResult('Storico · Test finale',candidate.holdout,'historical')+labResult('PAPER · Dati futuri',candidate.forward,'paper')+'</div>'+
+  '<div class="lab-lanes">'+labResult(screened?'Storico · Verifica':'Storico · Test finale',candidate.holdout,'historical')+labResult('PAPER · Dati futuri',candidate.forward,'paper')+'</div>'+
   '<p class="lab-action">'+labEscape(labAction(candidate))+'</p><p class="lab-note">'+historical+'</p>'+
   '<details class="lab-detail" data-lab-key="'+labEscape(candidate.id??index)+'"><summary>Criteri e operazioni PAPER</summary>'+
-  labGate('Validazione storica',candidate.validation_gate,candidate.validation,closeMinimum)+labGate('Holdout storico',candidate.holdout_gate,candidate.holdout,closeMinimum)+
+  (screened?'':labGate('Validazione storica',candidate.validation_gate,candidate.validation,closeMinimum))+
+  labGate(screened?'Verifica storica':'Holdout storico',candidate.holdout_gate,candidate.holdout,closeMinimum)+
   '<div class="lab-ledger"><h4>Conto PAPER</h4><p class="lab-note">'+accountInfo+'</p>'+labTradeLedger(candidate)+
   (candidate.stop_reason?'<p class="lab-note">'+labEscape(labReasons[candidate.stop_reason]??'Motivo del fermo n/d')+'</p>':'')+
   '</div></details></article>';
@@ -651,6 +653,22 @@ function labScreening(screen){
  return '<div class="lab-heading"><h2>Screening storico massivo</h2><p class="lab-note">Lotto '+labCount(screen.epoch)+' · '+labTime(screen.generated_at)+'</p></div>'+
   '<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
   '<p class="lab-note">Il filtro elimina i percorsi di ingresso equivalenti prima delle simulazioni. Le candidate finali sono riesaminate su un secondo periodo storico. I conti PAPER sono riportati separatamente.</p>';
+}
+function labScreeningAccounts(paper,policy){
+ if(!paper)return '';
+ const labels={
+  ACTIVE:'Conto PAPER attivo. Ingressi e uscite seguono i segnali della candidata.',
+  NO_ELIGIBLE_CANDIDATE:'In attesa di una candidata che superi la verifica storica.',
+  WAITING_FOR_SCREENING:'In attesa del prossimo risultato storico valido.',
+  WAITING_FOR_FRESH_BOOK:'Candidata idonea. Il conto partirà con dati di mercato aggiornati.',
+  ALREADY_TESTED:'Le candidate idonee sono già state provate.'
+ };
+ const accounts=Array.isArray(paper.accounts)?paper.accounts:[];
+ const active=accounts.filter(row=>row&&(!['RETIRED','RESEARCH_STOPPED'].includes(row.status)||row.position));
+ const archived=accounts.filter(row=>row&&['RETIRED','RESEARCH_STOPPED'].includes(row.status)&&!row.position);
+ return '<div class="lab-heading"><h2>Prova PAPER dallo screening</h2><p class="lab-note">'+(labels[paper.status]??'Stato n/d')+'</p></div>'+
+  (active.length?'<div class="lab-candidates">'+active.map((row,i)=>labCandidate(row,i,policy)).join('')+'</div>':'')+
+  (archived.length?'<details class="lab-detail" data-lab-key="screening-archive"><summary>Conti screening archiviati · '+archived.length+'</summary><div class="lab-candidates">'+archived.map((row,i)=>labCandidate(row,i,policy)).join('')+'</div></details>':'');
 }
 function renderLaboratory(report){
  const {shadow,policy,trial_counts:counts}=report;
@@ -673,7 +691,8 @@ function renderLaboratory(report){
  const root=document.getElementById('labCandidates');
  const opened=new Set([...root.querySelectorAll('details[open]')].map(detail=>detail.dataset.labKey));
  const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.labKey:null;
- root.innerHTML='<div class="lab-heading"><h2>Candidate</h2><p class="lab-note">Risultati netti dei costi. Storico e PAPER separati.</p></div>'+
+ root.innerHTML=labScreeningAccounts(report.screening_paper,policy)+
+  '<div class="lab-heading"><h2>Candidate</h2><p class="lab-note">Risultati netti dei costi. Storico e PAPER separati.</p></div>'+
   (active.length?'<div class="lab-candidates">'+active.join('')+'</div>':'<p class="lab-note">Nessuna candidata attiva nel laboratorio.</p>')+
   (archived.length?'<details class="lab-detail" data-lab-key="archivio"><summary>Candidate fermate o archiviate · '+archived.length+'</summary><div class="lab-candidates">'+archived.join('')+'</div></details>':'');
  root.querySelectorAll('details').forEach(detail=>{
@@ -740,7 +759,7 @@ async function refreshLaboratory(){
     setLabStatus('stale','Ricevuto un report precedente · ultimo snapshot conservato');
     return;
    }
-   const key=report.generated_at+' '+(report.source_commit??'')+' '+(report.mass_screening?.generated_at??'');
+   const key=report.generated_at+' '+(report.source_commit??'')+' '+(report.mass_screening?.generated_at??'')+' '+(report.screening_paper?.status??'');
    if(key!==labSnapshotKey){renderLaboratory(report);labSnapshotKey=key;}
    labSnapshot=report;
    const staleAfter=report.stale_after_minutes;
