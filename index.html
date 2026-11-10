@@ -195,6 +195,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
     <div><h2>Ricerca autonoma</h2><p>Nuove strategie in simulazione. Conti di ricerca separati dai sette modelli Atlas.</p></div>
     <div class="lab-timing">
      <p id="labWatchStatus" class="lab-status" data-state="loading" role="status">Caricamento controllo mercato…</p>
+     <p id="labScreeningStatus" class="lab-status" data-state="loading" role="status">Caricamento screening ogni 5 min…</p>
      <p id="labStatus" class="lab-status" data-state="loading" role="status">Caricamento valutazione PAPER…</p>
     </div>
    </div>
@@ -574,6 +575,7 @@ function exportClosedTrades(){
 
 const LAB_REPORT_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research/research.json';
 const LAB_WATCH_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/monitor.json';
+const LAB_SCREENING_PULSE_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/screening-5m.json';
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
 const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media'};
 const labStatuses={PAPER_RESEARCH:'In osservazione',RESEARCH_QUALIFIED:'Qualificata PAPER',RESEARCH_STOPPED:'Fermata',RETIRED:'Archiviata'};
@@ -582,6 +584,7 @@ const labReasons={STOP:'Stop',TARGET:'Obiettivo',MAX_HOLD:'Tempo massimo',RESEAR
 const labActions={WAIT:'Nessun ingresso nel ciclo',WAIT_FOR_NEW_CANDLE:'In attesa di una nuova candela',WAIT_FOR_FUTURE_CANDLE:'In attesa della prima candela dopo la selezione',ENTRY_BLOCKED_MISSING_FRESH_BOOK:'Ingresso sospeso · book non aggiornato',EXIT_BLOCKED_MISSING_FRESH_BOOK:'Uscita in attesa di un book aggiornato'};
 let labRequest=null,labSnapshot=null,labSnapshotKey='';
 let labWatchRequest=null,labWatchSnapshot=null;
+let labScreeningRequest=null,labScreeningSnapshot=null;
 
 function labEscape(value){
  return String(value??'n/d').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -741,9 +744,46 @@ async function refreshLabWatch(){
  })();
  try{return await labWatchRequest;}finally{labWatchRequest=null;}
 }
+function renderLabScreeningPulse(snapshot,unreachable){
+ const root=document.getElementById('labScreeningStatus');
+ const last=snapshot?.last_success;
+ const stamp=Date.parse(last?.completed_at);
+ const stale=Number.isFinite(stamp)&&Date.now()-stamp>(snapshot.stale_after_minutes??12)*60000;
+ const healthy=snapshot?.status==='COMPLETE'&&!unreachable&&!stale&&Number.isFinite(stamp);
+ let text='Screening 5 min · in attesa del primo risultato';
+ if(Number.isFinite(stamp)){
+  text=(healthy?'Screening 5 min · ':stale?'Screening in ritardo · ultimo ':'Screening non aggiornato · ultimo ')+
+   labTime(last.completed_at)+' · '+labCount(last.executed_simulations)+' simulazioni';
+  if(healthy&&last.same_input===true)text+=' · stesso storico';
+ }else if(snapshot?.status==='CALCULATION_FAILED'||snapshot?.status==='INPUT_UNAVAILABLE'){
+  text='Screening 5 min · '+(snapshot.status==='INPUT_UNAVAILABLE'?'dati non disponibili':'calcolo non riuscito');
+ }
+ root.dataset.state=healthy?'ok':stale?'stale':snapshot||unreachable?'error':'missing';
+ if(root.textContent!==text)root.textContent=text;
+}
+async function refreshLabScreeningPulse(){
+ if(labScreeningRequest)return labScreeningRequest;
+ labScreeningRequest=(async()=>{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const response=await fetch(LAB_SCREENING_PULSE_URL+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw new Error('Screening pulse unavailable');
+   const snapshot=await response.json();
+   const stamp=Date.parse(snapshot?.checked_at);
+   if(snapshot?.schema!==1||snapshot.mode!=='HISTORICAL_SCREENING_5M'||!Number.isFinite(stamp))throw new Error('Invalid screening pulse');
+   if(!labScreeningSnapshot||stamp>=Date.parse(labScreeningSnapshot.checked_at))labScreeningSnapshot=snapshot;
+   renderLabScreeningPulse(labScreeningSnapshot,false);
+  }catch{
+   renderLabScreeningPulse(labScreeningSnapshot,true);
+  }finally{clearTimeout(timeout)}
+ })();
+ try{return await labScreeningRequest;}finally{labScreeningRequest=null;}
+}
 async function refreshLaboratory(){
  if(workspacePage!=='laboratorio'||document.visibilityState!=='visible')return;
  void refreshLabWatch();
+ void refreshLabScreeningPulse();
  if(labRequest)return labRequest;
  labRequest=(async()=>{
   const controller=new AbortController();

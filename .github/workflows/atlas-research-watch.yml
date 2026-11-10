@@ -3,7 +3,7 @@ name: ATLAS Laboratory market watch
 on:
   push:
     branches: [main]
-    paths: ["research-watch.py", ".github/workflows/atlas-research-watch.yml"]
+    paths: ["research-watch.py", "screening-pulse.py", ".github/workflows/atlas-research-watch.yml"]
   workflow_dispatch:
   schedule:
     - cron: "23 3 * * *"
@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: atlas-laboratory-market-watch
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   watch:
@@ -34,7 +34,19 @@ jobs:
           ref: research-monitor
           path: snapshots
 
-      - name: Check Kraken every 30 minutes and recover missing 4h evaluations
+      - name: Set up Python for the screening runner
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned screening dependencies
+        continue-on-error: true
+        run: |
+          python -m pip install -q --disable-pip-version-check --only-binary=:all: \
+            --target "$RUNNER_TEMP/atlas-screen-deps" \
+            numpy==2.4.6 numba==0.66.0 llvmlite==0.48.0
+
+      - name: Run historical screening every five minutes and keep the 30-minute market watch
         id: watch
         shell: bash
         env:
@@ -45,28 +57,34 @@ jobs:
           git -C snapshots config user.email atlas-research-watch@users.noreply.github.com
           echo "continue=true" >> "$GITHUB_OUTPUT"
           started="$(date -u +%s)"
-          next_boundary="$(( (started / 1800 + 1) * 1800 + 120 ))"
-          pulses=8
+          next_boundary="$(( (started / 300 + 1) * 300 + 15 ))"
+          pulses=48
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then pulses=1; fi
           failures=0
           for ((pulse=1; pulse<=pulses; pulse++)); do
-            if python3 source/research-watch.py --output snapshots/monitor.json; then
-              if [[ -f snapshots/monitor.json ]]; then
-                git -C snapshots add monitor.json
-                if ! git -C snapshots diff --cached --quiet; then
-                  git -C snapshots commit -m "Record ATLAS Laboratory market check"
-                fi
-                if ! git -C snapshots push origin HEAD:refs/heads/research-monitor; then
-                  echo "::warning::Market snapshot push failed. The next pulse retries without force."
-                  failures=$((failures + 1))
-                fi
-              fi
-            else
+            if ! python source/research-watch.py --output snapshots/monitor.json; then
               echo "::warning::Market check failed. The next pulse retries."
               failures=$((failures + 1))
             fi
+            if ! python source/screening-pulse.py \
+              --work-dir "$RUNNER_TEMP/atlas-screen-worker" \
+              --dependency-dir "$RUNNER_TEMP/atlas-screen-deps" \
+              --output snapshots/screening-5m.json; then
+              echo "::warning::Screening pulse failed. The next pulse retries."
+              failures=$((failures + 1))
+            fi
+            for snapshot in monitor.json screening-5m.json; do
+              if [[ -f "snapshots/$snapshot" ]]; then git -C snapshots add "$snapshot"; fi
+            done
+            if ! git -C snapshots diff --cached --quiet; then
+              git -C snapshots commit -m "Record ATLAS Laboratory screening pulse"
+            fi
+            if ! git -C snapshots push origin HEAD:refs/heads/research-monitor; then
+              echo "::warning::Snapshot push failed. The next pulse retries without force."
+              failures=$((failures + 1))
+            fi
             if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then break; fi
-            target="$((next_boundary + (pulse - 1) * 1800))"
+            target="$((next_boundary + (pulse - 1) * 300))"
             now="$(date -u +%s)"
             if (( target > now )); then sleep "$((target - now))"; fi
           done
