@@ -640,6 +640,18 @@ function labCandidate(candidate,index,policy){
   (candidate.stop_reason?'<p class="lab-note">'+labEscape(labReasons[candidate.stop_reason]??'Motivo del fermo n/d')+'</p>':'')+
   '</div></details></article>';
 }
+function labScreening(screen){
+ if(screen?.mode!=='PAPER_HISTORICAL_SCREEN_ONLY')return '';
+ const metrics=[
+  ['Simulazioni eseguite',labCount(screen.executed_simulations)],
+  ['Impronte di trade distinte',labCount(screen.distinct_trade_fingerprints)],
+  ['Verifica storica superata',labCount(screen.passed_historical_recheck)+' / '+labCount(screen.candidates_rechecked)],
+  ['Tempo del lotto',Number.isFinite(screen.elapsed_seconds)?num(screen.elapsed_seconds)+' s':'n/d']
+ ];
+ return '<div class="lab-heading"><h2>Screening storico massivo</h2><p class="lab-note">Lotto '+labCount(screen.epoch)+' · '+labTime(screen.generated_at)+'</p></div>'+
+  '<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
+  '<p class="lab-note">Il filtro elimina i percorsi di ingresso equivalenti prima delle simulazioni. Le candidate finali sono riesaminate su un secondo periodo storico. I conti PAPER sono riportati separatamente.</p>';
+}
 function renderLaboratory(report){
  const {shadow,policy,trial_counts:counts}=report;
  const active=[],archived=[];
@@ -656,7 +668,8 @@ function renderLaboratory(report){
   'Il campione minimo PAPER richiede '+num(qualified.minimum_days)+' giorni e '+num(qualified.minimum_closed_trades)+' chiusure.':'';
  document.getElementById('labSummary').innerHTML='<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
   (breakdown?'<p class="lab-note">'+breakdown+'</p>':'')+'<p class="lab-note">'+every+' '+gateInfo+'</p>'+
-  (Object.keys(report.errors??{}).length?'<p class="lab-note">Il ciclo segnala dati di mercato incompleti o aggiornati dal fornitore. I dettagli sono nel report sorgente.</p>':'');
+  (Object.keys(report.errors??{}).length?'<p class="lab-note">Il ciclo segnala dati di mercato incompleti o aggiornati dal fornitore. I dettagli sono nel report sorgente.</p>':'')+
+  labScreening(report.mass_screening);
  const root=document.getElementById('labCandidates');
  const opened=new Set([...root.querySelectorAll('details[open]')].map(detail=>detail.dataset.labKey));
  const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.labKey:null;
@@ -727,7 +740,7 @@ async function refreshLaboratory(){
     setLabStatus('stale','Ricevuto un report precedente · ultimo snapshot conservato');
     return;
    }
-   const key=report.generated_at+' '+(report.source_commit??'');
+   const key=report.generated_at+' '+(report.source_commit??'')+' '+(report.mass_screening?.generated_at??'');
    if(key!==labSnapshotKey){renderLaboratory(report);labSnapshotKey=key;}
    labSnapshot=report;
    const staleAfter=report.stale_after_minutes;
