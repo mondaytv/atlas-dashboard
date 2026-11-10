@@ -18,3 +18,7 @@ Il backtest stima lo slippage. Il PAPER successivo usa il book osservato al mome
 I risultati vanno confrontati con i costi e il benchmark. Provare molte ricette aumenta la probabilità di trovare risultati positivi per caso.
 
 Policy, parametri, periodi e manifest dei tentativi: `research.json`. Registro completo: `state.json` nel branch privato `research-state`.
+
+## Screening storico massivo
+
+2,121,728 simulazioni eseguite in 4.073 s. 1,165,123 impronte distinte con almeno un trade. Verifica storica su periodo separato superata da 0 su 24 candidate. Evidenza storica separata dai risultati PAPER.
