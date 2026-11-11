@@ -133,6 +133,20 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .lab-ledger{margin-top:14px}.lab-ledger b{font-variant-numeric:tabular-nums}
 .lab-source{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:17px;color:var(--muted);font-size:11px}
 .lab-link{color:var(--blue);text-underline-offset:3px}
+.lab-diary{margin:0 0 18px}.lab-diary-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:12px}
+.lab-diary-head h2{font-size:16px;margin:0}.lab-diary-control{min-height:36px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:11px;cursor:pointer}
+.lab-diary-control:focus-visible,.lab-diary-log:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.lab-diary-roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0 12px}
+.lab-diary-role{border:1px solid var(--line);border-radius:10px;padding:11px;min-width:0;background:var(--bg)}
+.lab-diary-role span{display:block;font-size:10px;color:var(--muted)}.lab-diary-role b{display:block;font-size:13px;margin-top:5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.lab-diary-log{height:400px;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;list-style:none;padding:0 14px;margin:0;background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.lab-diary-line{display:grid;grid-template-columns:72px 94px minmax(0,1fr);gap:12px;padding:13px 0;border-top:1px solid var(--line);font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+.lab-diary-line:first-child{border-top:0}.lab-diary-line p{margin:0}.lab-diary-line time{color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums}
+.lab-diary-line b{font-size:10px;letter-spacing:.02em;color:var(--blue)}.lab-diary-line[data-role=research] b{color:var(--mint)}.lab-diary-line[data-role=risk] b{color:var(--amber)}
+.lab-diary-batch{padding:13px 0 7px;color:var(--muted);font-size:10px;line-height:1.6;border-bottom:1px solid var(--line)}
+.lab-diary-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+.lab-diary-foot p{margin:0}.lab-diary-log .lab-note{padding:14px 0}
+@media(max-width:760px){.lab-diary-log{height:350px;padding-inline:10px}.lab-diary-line{grid-template-columns:62px minmax(0,1fr);gap:3px 8px}.lab-diary-line p{grid-column:1/-1;margin:0}.lab-diary-line time{font-size:9px}.lab-diary-line b{font-size:10px}.lab-diary-role{padding:9px}.lab-diary-role b{font-size:11px}.lab-diary-role span{font-size:9px}}
 @media(max-width:1100px){.lab-candidates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
  .bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))}
@@ -201,6 +215,16 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
    </div>
    <div id="labSummary"></div>
   </article>
+  <section class="lab-surface lab-diary" aria-labelledby="labDiaryTitle">
+   <div class="lab-diary-head"><div><h2 id="labDiaryTitle">Diario di ricerca</h2><p class="lab-note">Ricerca, validazione e rischio commentano i risultati del motore. Messaggi automatici da calcoli registrati.</p></div><button id="labDiaryPause" class="lab-diary-control" type="button" aria-pressed="false">Pausa diario</button></div>
+   <div class="lab-diary-roles" aria-label="Ultimo passaggio di screening">
+    <div class="lab-diary-role"><span>Ricerca</span><b id="labDiaryResearch">n/d</b></div>
+    <div class="lab-diary-role"><span>Validazione</span><b id="labDiaryValidation">n/d</b></div>
+    <div class="lab-diary-role"><span>Rischio</span><b id="labDiaryRisk">n/d</b></div>
+   </div>
+   <ol id="labEventLog" class="lab-diary-log" role="log" aria-live="off" aria-label="Passaggi registrati del Laboratorio" tabindex="0"><li class="lab-note">Il diario apparirà con il primo screening disponibile.</li></ol>
+   <div class="lab-diary-foot"><div><p id="labDiaryStatus" class="lab-note" role="status">Aggiornamenti dal motore ogni cinque minuti.</p><p id="labDiaryNext" class="lab-note" aria-live="off"></p></div><button id="labDiaryLatest" class="lab-diary-control" type="button" hidden>Vai agli ultimi passaggi</button></div>
+  </section>
   <div id="labCandidates"></div>
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
  </section>
@@ -384,6 +408,7 @@ async function load(){
  try{return await loadPromise;}finally{loadPromise=null;}
 }
 function updateSyncCountdown(){
+ updateLabDiaryCountdown();
  const updated=document.getElementById('updated');if(!dashboardData){updated.textContent='';return}
  const seconds=Math.max(0,Math.ceil((nextDataRefreshAt-Date.now())/1000));updated.textContent=`· dati ${shortDate(dashboardData.generated_at)} · sync ${seconds}s`;
 }
@@ -585,6 +610,8 @@ const labActions={WAIT:'Nessun ingresso nel ciclo',WAIT_FOR_NEW_CANDLE:'In attes
 let labRequest=null,labSnapshot=null,labSnapshotKey='';
 let labWatchRequest=null,labWatchSnapshot=null;
 let labScreeningRequest=null,labScreeningSnapshot=null;
+let labDiaryPaused=readPreference('labDiaryPaused',false)===true,labDiaryKey='',labDiaryPending=0;
+const labDiaryTime=new Intl.DateTimeFormat('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Europe/Rome'});
 
 function labEscape(value){
  return String(value??'n/d').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -744,6 +771,105 @@ async function refreshLabWatch(){
  })();
  try{return await labWatchRequest;}finally{labWatchRequest=null;}
 }
+function labDiaryMessage(event){
+ const data=event?.data??{};
+ const candidate=typeof data.candidate_id==='string'?data.candidate_id.slice(0,8):'n/d';
+ const numeric=(key)=>labCount(data[key]);
+ switch(event?.code){
+  case 'INPUT_READY': return {role:'research',label:'Ricerca',text:'Preparo il lotto '+numeric('epoch')+' con '+numeric('assets')+' mercati e '+numeric('bars')+' candele storiche per asset.'};
+  case 'ENTRY_FILTERED': return {role:'research',label:'Ricerca',text:'La griglia contiene '+numeric('grid')+' configurazioni. Restano '+numeric('paths')+' percorsi di ingresso distinti da simulare.'};
+  case 'SIMULATION_PROGRESS': return {role:'research',label:'Ricerca',text:'Calcolate '+numeric('done')+' di '+numeric('total')+' simulazioni storiche.'};
+  case 'SHORTLIST_FROZEN': return {role:'research',label:'Ricerca',text:'Fisso '+numeric('nominees')+' candidate prima di verificarle sul periodo successivo.'};
+  case 'CANDIDATE_PROPOSED': return {role:'research',label:'Ricerca',text:'Propongo la candidata '+candidate+'. Nel primo periodo ha '+labMoney(data.pnl,true)+' netti e '+numeric('closed')+' chiusure.'};
+  case 'CANDIDATE_RECHECKED': return {role:'validation',label:'Validazione',text:'Verifico '+candidate+' sul secondo periodo: '+labMoney(data.pnl,true)+' netti e '+numeric('closed')+' chiusure.'};
+  case 'CANDIDATE_REVIEWED': {
+   const failures=Array.isArray(data.failed_gates)?data.failed_gates.map(key=>labGateLabels[key]).filter(Boolean):[];
+   const reasons=failures.slice(0,3).join(', ')+(failures.length>3?' e altri '+(failures.length-3)+' criteri':'');
+   const text=data.passed===true?'La candidata '+candidate+' supera i criteri storici. È idonea al controllo di ammissione PAPER.':
+    'Respingo '+candidate+'. Criteri non superati: '+(reasons||'n/d')+'.';
+   return {role:'risk',label:'Rischio',text};
+  }
+  case 'SCREEN_COMPLETE': return {role:'risk',label:'Rischio',text:'Passaggio concluso: '+numeric('done')+' simulazioni in '+(Number.isFinite(data.seconds)?num(data.seconds):'n/d')+' s. '+numeric('passed')+' su '+numeric('nominees')+' candidate superano la verifica storica.'};
+  default:return null;
+ }
+}
+function labDiaryRows(snapshot){
+ let runs=Array.isArray(snapshot?.recent_runs)?snapshot.recent_runs.filter(run=>run&&Number.isFinite(Date.parse(run.completed_at))):[];
+ if(!runs.length&&snapshot?.last_success)runs=[{...snapshot.last_success,slot:snapshot.slot}];
+ return runs.slice(-6).sort((a,b)=>a.slot-b.slot);
+}
+function applyLabDiaryControls(){
+ const pause=document.getElementById('labDiaryPause');
+ pause.textContent=labDiaryPaused?'Riprendi diario':'Pausa diario';
+ pause.setAttribute('aria-pressed',String(labDiaryPaused));
+}
+function updateLabDiaryCountdown(){
+ const root=document.getElementById('labDiaryNext');
+ if(!root||!labScreeningSnapshot)return;
+ const interval=labScreeningSnapshot.interval_minutes;
+ const slot=labScreeningSnapshot.slot;
+ if(!Number.isFinite(interval)||interval<=0||!Number.isInteger(slot))return;
+ const due=(slot+1)*interval*60000;
+ const seconds=Math.ceil((due-Date.now())/1000);
+ const text=seconds>0?'Prossimo intervallo di screening tra '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0'):
+  'Nuovo intervallo iniziato · in attesa del risultato registrato';
+ if(root.textContent!==text)root.textContent=text;
+}
+function renderLabDiary(snapshot,force=false){
+ const latest=snapshot?.last_success;
+ if(!latest)return;
+ document.getElementById('labDiaryResearch').textContent=labCount(latest.executed_simulations)+' simulazioni';
+ document.getElementById('labDiaryValidation').textContent=labCount(latest.candidates_rechecked)+' candidate';
+ document.getElementById('labDiaryRisk').textContent=labCount(latest.passed_historical_recheck)+' idonee storiche';
+ const runs=labDiaryRows(snapshot);
+ const key=runs.map(run=>run.slot+' '+run.completed_at).join('|');
+ if(labDiaryPaused&&!force){
+  labDiaryPending=runs.filter(run=>!labDiaryKey.includes(run.slot+' '+run.completed_at)).length;
+  document.getElementById('labDiaryStatus').textContent='Diario in pausa'+(labDiaryPending?' · '+labDiaryPending+' passaggi disponibili':'')+'.';
+  return;
+ }
+ if(key===labDiaryKey&&!force)return;
+ const root=document.getElementById('labEventLog');
+ const first=!labDiaryKey;
+ const follow=first||root.scrollHeight-root.clientHeight-root.scrollTop<40||force;
+ const previousTop=root.scrollTop;
+ const rows=[];
+ for(const run of runs){
+  const completed=labTime(run.completed_at);
+  rows.push('<li class="lab-diary-batch">Passaggio '+completed+' · lotto '+labCount(run.epoch)+(run.same_input?' · ricalcolo dello stesso storico':'')+'</li>');
+  const events=Array.isArray(run.events)&&run.events.length?run.events:[{code:'SCREEN_COMPLETE',at:run.completed_at,data:{done:run.executed_simulations,seconds:run.elapsed_seconds,nominees:run.candidates_rechecked,passed:run.passed_historical_recheck}}];
+  for(const event of events.slice(0,32)){
+   const message=labDiaryMessage(event);
+   if(!message)continue;
+   const stamp=Date.parse(event.at);
+   const clock=Number.isFinite(stamp)?labDiaryTime.format(stamp):'n/d';
+   rows.push('<li class="lab-diary-line" data-role="'+message.role+'"><time>'+labEscape(clock)+'</time><b>'+message.label+'</b><p>'+labEscape(message.text)+'</p></li>');
+  }
+ }
+ root.innerHTML=rows.join('');
+ root.scrollTop=follow?root.scrollHeight:previousTop;
+ document.getElementById('labDiaryLatest').hidden=follow;
+ document.getElementById('labDiaryStatus').textContent='Passaggi registrati · ultimo calcolo '+labTime(latest.completed_at)+'.'+(follow?'':' Nuovi eventi disponibili in fondo al diario.');
+ labDiaryKey=key;
+ labDiaryPending=0;
+ updateLabDiaryCountdown();
+}
+function initLabDiary(){
+ const diary=document.querySelector('.lab-diary');
+ document.getElementById('laboratorio').prepend(diary);
+ applyLabDiaryControls();
+ document.getElementById('labDiaryPause').addEventListener('click',()=>{
+  labDiaryPaused=!labDiaryPaused;
+  writePreference('labDiaryPaused',labDiaryPaused);
+  applyLabDiaryControls();
+  if(labScreeningSnapshot)renderLabDiary(labScreeningSnapshot,!labDiaryPaused);
+ });
+ document.getElementById('labDiaryLatest').addEventListener('click',()=>{
+  const root=document.getElementById('labEventLog');
+  root.scrollTop=root.scrollHeight;
+  document.getElementById('labDiaryLatest').hidden=true;
+ });
+}
 function renderLabScreeningPulse(snapshot,unreachable){
  const root=document.getElementById('labScreeningStatus');
  const last=snapshot?.last_success;
@@ -760,6 +886,8 @@ function renderLabScreeningPulse(snapshot,unreachable){
  }
  root.dataset.state=healthy?'ok':stale?'stale':snapshot||unreachable?'error':'missing';
  if(root.textContent!==text)root.textContent=text;
+ if(snapshot)renderLabDiary(snapshot);
+ else document.getElementById('labDiaryStatus').textContent='Diario in attesa di dati di screening disponibili.';
 }
 async function refreshLabScreeningPulse(){
  if(labScreeningRequest)return labScreeningRequest;
@@ -820,6 +948,7 @@ async function refreshLaboratory(){
 
 initWorkspace();
 initObservability();
+initLabDiary();
 startPolling(true);
 </script>
 </body>
