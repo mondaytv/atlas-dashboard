@@ -132,6 +132,10 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .lab-detail li{font-size:11px;color:var(--muted);line-height:1.55;margin:4px 0;overflow-wrap:anywhere}
 .lab-ledger{margin-top:14px}.lab-ledger b{font-variant-numeric:tabular-nums}
 .lab-source{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:17px;color:var(--muted);font-size:11px}
+.exploration-panel{margin:0 0 18px}.exploration-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;color:var(--muted)}
+.exploration-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.exploration-account{min-width:0;border:1px solid var(--line);border-radius:9px;padding:10px}
+.exploration-account summary{color:var(--text);font-size:12px;cursor:pointer;line-height:1.8;overflow-wrap:anywhere}.exploration-account summary:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+@media(max-width:760px){.exploration-list{grid-template-columns:1fr}}
 .lab-link{color:var(--blue);text-underline-offset:3px}
 .lab-diary{margin:0 0 18px}.lab-diary-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:12px}
 .lab-diary-head h2{font-size:16px;margin:0}.lab-diary-control{min-height:36px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:11px;cursor:pointer}
@@ -174,7 +178,8 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  </section>
  <section id="globalRiskBanner" class="risk-banner" aria-live="polite"><div class="risk-icon">✓</div><div class="risk-copy"><b>Protezione globale in caricamento</b><span>Verifica del drawdown paper nelle ultime 24 ore.</span></div><div class="risk-value"><b>—</b><span>soglia —</span></div></section>
  <section class="section">
-  <div class="section-head"><div><h2>Pipeline IA</h2><p>Prima seleziona i mercati, poi decide se operare.</p></div></div>
+  <div class="section-head"><div><h2>Agente IA · test e ricerca</h2><p>Prove esplorative autonome e decisioni del modello originale, separate.</p></div></div>
+  <div id="aiExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative…</p></div>
   <div id="aiPipeline" class="pipeline-card"><div class="loading">Caricamento agenti…</div></div>
  </section>
  <section class="section">
@@ -227,6 +232,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
    <ol id="labEventLog" class="lab-diary-log" role="log" aria-live="off" aria-label="Passaggi registrati del Laboratorio" tabindex="0"><li class="lab-note">Il diario apparirà con il primo screening disponibile.</li></ol>
    <div class="lab-diary-foot"><div><p id="labDiaryStatus" class="lab-note" role="status">Aggiornamenti dal motore ogni cinque minuti.</p><p id="labDiaryNext" class="lab-note" aria-live="off"></p></div><button id="labDiaryLatest" class="lab-diary-control" type="button" hidden>Vai agli ultimi passaggi</button></div>
   </section>
+  <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative…</p></div>
   <div id="labCandidates"></div>
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
  </section>
@@ -454,7 +460,7 @@ function setWorkspacePage(page){
  document.querySelector('#workspaceTitle').textContent=meta.title;document.querySelector('#workspaceDescription').textContent=meta.description;document.querySelector('#workspaceCrumb').textContent=meta.label;
  document.querySelector('.workspace-chip').hidden=page==='laboratorio';
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
- if(page==='laboratorio')void refreshLaboratory();
+ if(page==='laboratorio'||page==='ai')void refreshLaboratory();
 }
 function applyModelFilters(){
  let visible=0;
@@ -628,6 +634,42 @@ function labTime(value){
 }
 function labMetric(label,value){
  return '<div class="lab-metric"><dt>'+labEscape(label)+'</dt><dd>'+labEscape(value)+'</dd></div>';
+}
+function renderExploration(report,unreachable=false){
+ const valid=report?.version==='atlas-exploration-v1'&&report.paper_only===true&&report.validated===false&&report.risk_admission_required===false&&report.historical_pass_required===false&&Array.isArray(report.accounts);
+ for(const id of ['aiExploration','labExploration']){
+  const root=document.getElementById(id);
+  if(!valid){root.innerHTML='<h2>Prove esplorative PAPER</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo ciclo esplorativo.')+' Nessun risultato disponibile.</p>';continue}
+  const stamp=Date.parse(report.generated_at),stale=!Number.isFinite(stamp)||!Number.isFinite(report.stale_after_minutes)||Date.now()-stamp>report.stale_after_minutes*60000;
+  const key=report.generated_at+' '+unreachable+' '+stale;
+  if(root.dataset.snapshot===key)continue;
+  const open=new Set([...root.querySelectorAll('details[open]')].map(el=>el.dataset.explorationKey));
+  const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.explorationKey:null;
+  const s=report.summary||{},rows=report.accounts.slice().sort((a,b)=>Number(!!b.position)-Number(!!a.position)||String(a.symbol).localeCompare(String(b.symbol)));
+  const metrics=[['Posizioni aperte',labCount(s.open)],['Chiusure registrate',labCount(s.closed)],['Prove avviate',labCount(s.accounts)],['P&L netto · conti separati',labMoney(s.net_pnl_eur,true)]];
+  const cards=rows.map((row,index)=>{
+   const pos=row.position?.lane==='UNFILTERED_EXPLORATORY_PAPER'?row.position:null;
+   const status=pos?'APERTA':row.status==='SAMPLE_COMPLETE'?'CAMPIONE CONCLUSO':row.status==='EXHAUSTED'?'CAPITALE VIRTUALE INSUFFICIENTE':'IN OSSERVAZIONE';
+   const ledger=(Array.isArray(row.trades)?row.trades:[]).filter(t=>t?.lane==='UNFILTERED_EXPLORATORY_PAPER').slice(-3).reverse();
+   return '<details class="exploration-account" data-exploration-key="'+labEscape(row.id)+'"><summary><b>'+labEscape(row.symbol)+'</b> · Prova '+(index+1)+' · '+status+' · '+labMoney(row.metrics?.net_pnl_eur,true)+(row.equity_stale?' · NON AGGIORNATO':'')+'</summary>'+
+    '<p class="lab-note">Equity netta '+labMoney(row.equity)+' · chiusure '+labCount(row.metrics?.closed_trades)+' · drawdown '+(Number.isFinite(row.metrics?.max_drawdown_pct)?num(row.metrics.max_drawdown_pct)+'%':'n/d')+'</p>'+
+    (pos?'<p class="lab-note">Ingresso '+labTime(pos.entry_at)+' a '+labMoney(pos.entry_price)+' · stop '+labMoney(pos.stop)+' · target '+labMoney(pos.target)+'</p>':'')+
+    '<p class="lab-note">'+(row.last_action==='MISSING_EXECUTABLE_BOOK'?'Book eseguibile non disponibile: posizione conservata.':'Ultimo controllo '+labTime(row.quote_at))+'</p>'+
+    '<p class="lab-note">Filtri osservati e non bloccanti: '+labEscape(Array.isArray(row.observed_risk_reasons)?row.observed_risk_reasons.join(', ')||'nessuno':'n/d')+'</p>'+
+    (ledger.length?'<ul>'+ledger.map(t=>'<li class="lab-note">'+labTime(t.exit_at)+' · '+labMoney(t.pnl,true)+' · '+labEscape(labReasons[t.reason]??t.reason)+'</li>').join('')+'</ul>':'<p class="lab-note">Nessuna chiusura registrata.</p>')+
+    '<pre>'+labEscape(JSON.stringify(row.recipe,null,2))+'</pre></details>';
+  }).join('');
+  root.innerHTML='<div class="lab-lead"><div><h2>Prove esplorative PAPER</h2><p>Questa corsia prova anche candidate che non superano i gate storici. RISK_OFF non blocca questi conti.</p></div><p class="lab-status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'" role="status">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Aggiornamento non riuscito · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
+   '<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
+   (s.stale_accounts?'<p class="lab-note">Attenzione: '+labCount(s.stale_accounts)+' conti con valutazione non aggiornata; il totale include gli ultimi valori disponibili.</p>':'')+
+   '<p class="lab-note">Campione parallelo: '+labCount(s.active)+' / '+labCount(report.slots)+' conti attivi · '+labCount(report.symbols?.length)+' mercati. Controlli ogni '+labCount(report.check_interval_minutes)+' min; segnali su candele chiuse da '+labCount(report.signal_interval_minutes)+' min. Lo screening storico continua sulle nuove combinazioni.</p>'+
+   '<p class="lab-note">Conto diagnostico '+labMoney(report.initial_capital_per_account)+' · posizione '+labMoney(report.trade_eur)+' · fee per lato '+(Number.isFinite(report.fee_per_side)?pct(report.fee_per_side*100)+'%':'n/d')+'. Prezzi dal book corrente, spread e impatto inclusi. Capitale indipendente: escluso dai sette conti originali.</p>'+
+   '<p class="lab-note">Esperimenti non validati. Le perdite restano registrate. Ricambio del campione dopo '+labCount(report.sample_closes)+' chiusure o '+labCount(report.observation_days)+' giorni, a posizione chiusa; nessun reset del saldo. Un campione selezionato non equivale a tutte le combinazioni possibili.</p>'+
+   '<details class="lab-detail" data-exploration-key="accounts"><summary>Posizioni, risultati e formule delle '+labCount(s.accounts)+' prove</summary><div class="exploration-list">'+(cards||'<p class="lab-note">Nessun ingresso: attesa di un segnale su dati eseguibili.</p>')+'</div></details>';
+  root.dataset.snapshot=key;
+  root.querySelectorAll('details').forEach(el=>{if(open.has(el.dataset.explorationKey))el.open=true});
+  if(focused)[...root.querySelectorAll('details')].find(el=>el.dataset.explorationKey===focused)?.querySelector('summary')?.focus({preventScroll:true});
+ }
 }
 function labResult(label,result,lane){
  const pnl=result?.net_pnl_eur,tone=Number.isFinite(pnl)&&pnl!==0?pnlClass(pnl):'';
@@ -886,6 +928,7 @@ function initLabDiary(){
  });
 }
 function renderLabScreeningPulse(snapshot,unreachable){
+ renderExploration(snapshot?.exploration,unreachable||snapshot?.exploration_status==='CALCULATION_FAILED');
  const root=document.getElementById('labScreeningStatus');
  const last=snapshot?.last_success;
  const stamp=Date.parse(last?.completed_at);
@@ -932,6 +975,7 @@ async function refreshLabScreeningPulse(){
  try{return await labScreeningRequest;}finally{labScreeningRequest=null;}
 }
 async function refreshLaboratory(){
+ if(workspacePage==='ai'&&document.visibilityState==='visible'){void refreshLabScreeningPulse();return}
  if(workspacePage!=='laboratorio'||document.visibilityState!=='visible')return;
  void refreshLabWatch();
  void refreshLabScreeningPulse();
