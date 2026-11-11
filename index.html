@@ -682,9 +682,9 @@ function labScreening(screen){
   ['Verifica storica superata',labCount(screen.passed_historical_recheck)+' / '+labCount(screen.candidates_rechecked)],
   ['Tempo del lotto',Number.isFinite(screen.elapsed_seconds)?num(screen.elapsed_seconds)+' s':'n/d']
  ];
- return '<div class="lab-heading"><h2>Screening storico massivo</h2><p class="lab-note">Lotto '+labCount(screen.epoch)+' · '+labTime(screen.generated_at)+'</p></div>'+
+ return '<div class="lab-heading"><h2>Screening iniziale di riferimento</h2><p class="lab-note">Lotto '+labCount(screen.epoch)+' · '+labTime(screen.generated_at)+'</p></div>'+
   '<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
-  '<p class="lab-note">Il filtro elimina i percorsi di ingresso equivalenti prima delle simulazioni. Le candidate finali sono riesaminate su un secondo periodo storico. I conti PAPER sono riportati separatamente.</p>';
+  '<p class="lab-note">Questo è il lotto iniziale di confronto. I progressi della ricerca autonoma e le nuove formule sono riportati nel diario.</p>';
 }
 function labScreeningAccounts(paper,policy){
  if(!paper)return '';
@@ -848,7 +848,8 @@ function renderLabDiary(snapshot,force=false){
  const rows=[];
  for(const run of runs){
   const completed=labTime(run.completed_at);
-  rows.push('<li class="lab-diary-batch">Passaggio '+completed+' · lotto '+labCount(run.epoch)+(run.same_input?' · ricalcolo dello stesso storico':'')+'</li>');
+  const activity=Number.isInteger(run.new_entry_rules)?' · '+labCount(run.new_entry_rules)+' formule nuove sullo storico':run.same_input?' · ricalcolo dello stesso storico':'';
+  rows.push('<li class="lab-diary-batch">Passaggio '+completed+' · lotto '+labCount(run.epoch)+activity+'</li>');
   const events=Array.isArray(run.events)&&run.events.length?run.events:[{code:'SCREEN_COMPLETE',at:run.completed_at,data:{done:run.executed_simulations,seconds:run.elapsed_seconds,nominees:run.candidates_rechecked,passed:run.passed_historical_recheck}}];
   for(const event of events.slice(0,32)){
    const message=labDiaryMessage(event);
