@@ -73,13 +73,24 @@ jobs:
               echo "::warning::Screening pulse failed. The next pulse retries."
               failures=$((failures + 1))
             fi
-            for snapshot in monitor.json screening-5m.json; do
+            for snapshot in monitor.json screening-5m.json evolution-memory.json screening-proposals.json; do
               if [[ -f "snapshots/$snapshot" ]]; then git -C snapshots add "$snapshot"; fi
             done
             if ! git -C snapshots diff --cached --quiet; then
               git -C snapshots commit -m "Record ATLAS Laboratory screening pulse"
             fi
-            if ! git -C snapshots push origin HEAD:refs/heads/research-monitor; then
+            if git -C snapshots push origin HEAD:refs/heads/research-monitor; then
+              python source/screening-pulse.py \
+                --work-dir "$RUNNER_TEMP/atlas-screen-worker" \
+                --dependency-dir "$RUNNER_TEMP/atlas-screen-deps" \
+                --output snapshots/screening-5m.json --dispatch-only
+              git -C snapshots add screening-5m.json
+              if ! git -C snapshots diff --cached --quiet; then
+                git -C snapshots commit -m "Record autonomous PAPER handoff status"
+                git -C snapshots push origin HEAD:refs/heads/research-monitor || \
+                  echo "::warning::PAPER handoff status publication will be retried."
+              fi
+            else
               echo "::warning::Snapshot push failed. The next pulse retries without force."
               failures=$((failures + 1))
             fi

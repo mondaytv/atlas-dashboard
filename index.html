@@ -222,6 +222,8 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
     <div class="lab-diary-role"><span>Validazione</span><b id="labDiaryValidation">n/d</b></div>
     <div class="lab-diary-role"><span>Rischio</span><b id="labDiaryRisk">n/d</b></div>
    </div>
+   <p id="labDiscoveryMemory" class="lab-note"></p>
+   <p id="labDiscoveryAdmission" class="lab-note"></p>
    <ol id="labEventLog" class="lab-diary-log" role="log" aria-live="off" aria-label="Passaggi registrati del Laboratorio" tabindex="0"><li class="lab-note">Il diario apparirà con il primo screening disponibile.</li></ol>
    <div class="lab-diary-foot"><div><p id="labDiaryStatus" class="lab-note" role="status">Aggiornamenti dal motore ogni cinque minuti.</p><p id="labDiaryNext" class="lab-note" aria-live="off"></p></div><button id="labDiaryLatest" class="lab-diary-control" type="button" hidden>Vai agli ultimi passaggi</button></div>
   </section>
@@ -602,7 +604,7 @@ const LAB_REPORT_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard
 const LAB_WATCH_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/monitor.json';
 const LAB_SCREENING_PULSE_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/screening-5m.json';
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
-const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media'};
+const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media',discovered:'Strategia scoperta'};
 const labStatuses={PAPER_RESEARCH:'In osservazione',RESEARCH_QUALIFIED:'Qualificata PAPER',RESEARCH_STOPPED:'Fermata',RETIRED:'Archiviata'};
 const labGateLabels={minimum_closed_trades:'Campione minimo di chiusure',positive_net_pnl:'P&L netto positivo',profit_factor:'Profit factor minimo',drawdown:'Drawdown entro limite',single_trade:'Concentrazione su un trade',single_asset:'Concentrazione su un asset',beats_buy_hold:'Confronto con buy & hold'};
 const labReasons={STOP:'Stop',TARGET:'Obiettivo',MAX_HOLD:'Tempo massimo',RESEARCH_EXIT:'Fine osservazione',RESEARCH_DRAWDOWN_STOP:'Limite di drawdown',DRAWDOWN_OR_LOSS_STREAK:'Drawdown o perdite consecutive',OBSERVATION_WINDOW_COMPLETE:'Periodo di osservazione concluso'};
@@ -777,6 +779,7 @@ function labDiaryMessage(event){
  const numeric=(key)=>labCount(data[key]);
  switch(event?.code){
   case 'INPUT_READY': return {role:'research',label:'Ricerca',text:'Preparo il lotto '+numeric('epoch')+' con '+numeric('assets')+' mercati e '+numeric('bars')+' candele storiche per asset.'};
+  case 'DISCOVERY_GENERATED': return {role:'research',label:'Ricerca',text:'Genero '+numeric('new_rules')+' formule nuove. La ricerca è arrivata a '+numeric('total_rules')+' formule esplorate; ho conservato '+numeric('retained')+' candidate e registrato '+numeric('rejected')+' scarti.'};
   case 'ENTRY_FILTERED': return {role:'research',label:'Ricerca',text:'La griglia contiene '+numeric('grid')+' configurazioni. Restano '+numeric('paths')+' percorsi di ingresso distinti da simulare.'};
   case 'SIMULATION_PROGRESS': return {role:'research',label:'Ricerca',text:'Calcolate '+numeric('done')+' di '+numeric('total')+' simulazioni storiche.'};
   case 'SHORTLIST_FROZEN': return {role:'research',label:'Ricerca',text:'Fisso '+numeric('nominees')+' candidate prima di verificarle sul periodo successivo.'};
@@ -818,9 +821,18 @@ function updateLabDiaryCountdown(){
 function renderLabDiary(snapshot,force=false){
  const latest=snapshot?.last_success;
  if(!latest)return;
- document.getElementById('labDiaryResearch').textContent=labCount(latest.executed_simulations)+' simulazioni';
+ document.getElementById('labDiaryResearch').textContent=Number.isInteger(latest.new_entry_rules)?labCount(latest.new_entry_rules)+' nuove formule':labCount(latest.executed_simulations)+' simulazioni';
  document.getElementById('labDiaryValidation').textContent=labCount(latest.candidates_rechecked)+' candidate';
- document.getElementById('labDiaryRisk').textContent=labCount(latest.passed_historical_recheck)+' idonee storiche';
+ document.getElementById('labDiaryRisk').textContent=Number.isInteger(latest.saved_candidates)?labCount(latest.saved_candidates)+' conservate':labCount(latest.passed_historical_recheck)+' idonee storiche';
+ document.getElementById('labDiscoveryMemory').textContent=Number.isInteger(latest.discovery_batch)?
+  'Passaggio '+labCount(latest.discovery_batch)+' · '+labCount(latest.total_entry_rules)+' formule esplorate · '+labCount(latest.total_simulations)+' simulazioni complessive · '+labCount(latest.rejected_total)+' candidate respinte.':'';
+ const admissionLabels={NO_SAVED_CANDIDATE:'La ricerca continua fino a trovare una candidata idonea.',
+  PAPER_ACCOUNT_ACTIVE:'La strategia selezionata è in prova nel conto PAPER.',
+  ALREADY_TESTED:'Le candidate conservate sono già state provate. La ricerca prosegue.',
+  WAITING_FOR_PAPER_CONFIRMATION:'Candidata conservata. In attesa della verifica del motore privato.',
+  PAPER_VERIFICATION_REQUESTED:'Candidata conservata. Verifica privata e ammissione PAPER richieste.',
+  PAPER_RELAY_UNAVAILABLE:'Candidata conservata. Collegamento al motore PAPER da riprovare.'};
+ document.getElementById('labDiscoveryAdmission').textContent=admissionLabels[snapshot.admission_status]??'';
  const runs=labDiaryRows(snapshot);
  const key=runs.map(run=>run.slot+' '+run.completed_at).join('|');
  if(labDiaryPaused&&!force){
@@ -880,7 +892,8 @@ function renderLabScreeningPulse(snapshot,unreachable){
  if(Number.isFinite(stamp)){
   text=(healthy?'Screening 5 min · ':stale?'Screening in ritardo · ultimo ':'Screening non aggiornato · ultimo ')+
    labTime(last.completed_at)+' · '+labCount(last.executed_simulations)+' simulazioni';
-  if(healthy&&last.same_input===true)text+=' · stesso storico';
+  if(healthy&&Number.isInteger(last.new_entry_rules))text+=' · '+labCount(last.new_entry_rules)+' formule nuove';
+  else if(healthy&&last.same_input===true)text+=' · stesso storico';
  }else if(snapshot?.status==='CALCULATION_FAILED'||snapshot?.status==='INPUT_UNAVAILABLE'){
   text='Screening 5 min · '+(snapshot.status==='INPUT_UNAVAILABLE'?'dati non disponibili':'calcolo non riuscito');
  }
@@ -927,7 +940,7 @@ async function refreshLaboratory(){
     setLabStatus('stale','Ricevuto un report precedente · ultimo snapshot conservato');
     return;
    }
-   const key=report.generated_at+' '+(report.source_commit??'')+' '+(report.mass_screening?.generated_at??'')+' '+(report.screening_paper?.status??'');
+   const key=report.generated_at+' '+(report.source_commit??'')+' '+(report.mass_screening?.generated_at??'')+' '+(report.screening_paper?.status??'')+' '+(report.screening_paper_updated_at??'');
    if(key!==labSnapshotKey){renderLaboratory(report);labSnapshotKey=key;}
    labSnapshot=report;
    const staleAfter=report.stale_after_minutes;

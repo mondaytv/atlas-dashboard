@@ -4,12 +4,14 @@ import json
 import math
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 REPO = "mondaytv/atlas-bot"
 WORKFLOW = "atlas-research.yml"
@@ -18,10 +20,12 @@ INTERVAL_SECONDS = 300
 EVENT_CODES = {
     "INPUT_READY", "ENTRY_FILTERED", "SIMULATION_PROGRESS", "SHORTLIST_FROZEN",
     "CANDIDATE_PROPOSED", "CANDIDATE_RECHECKED", "CANDIDATE_REVIEWED", "SCREEN_COMPLETE",
+    "DISCOVERY_GENERATED",
 }
 EVENT_FIELDS = {
     "epoch", "assets", "bars", "paths", "grid", "done", "total", "nominees", "closed",
     "pnl", "seconds", "passed",
+    "new_rules", "total_rules", "batch", "retained", "rejected",
 }
 GATE_KEYS = {
     "minimum_closed_trades", "positive_net_pnl", "profit_factor", "drawdown",
@@ -64,7 +68,8 @@ def get_bundle(root):
         bundle = Path(tempfile.mkdtemp(prefix="input-", dir=root))
         gh(["run", "download", result, "--repo", REPO, "--name", ARTIFACT, "--dir", str(bundle)], 25)
         required = {"atlas_research.py", "screen_research.py", "policy.json", "input.json"}
-        if {file.name for file in bundle.iterdir() if file.is_file()} != required:
+        present = {file.name for file in bundle.iterdir() if file.is_file()}
+        if not required <= present or not present <= required | {"discovery_rules.py", "evolve_research.py"}:
             raise ValueError("Incomplete screening bundle")
         write_json(root / "bundle.json", {"path": str(bundle), "run": result})
         return bundle, False
@@ -104,13 +109,18 @@ def public_events(result):
     return clean
 
 
-def simulate(bundle, dependency_dir, output):
+def simulate(bundle, dependency_dir, output, memory=None, slot=None):
     # The downloaded calculation gets public market data and no dispatch token.
     environ = {key: value for key, value in os.environ.items() if key not in {"GH_TOKEN", "GITHUB_TOKEN"}}
     environ["PYTHONPATH"] = str(dependency_dir)
     output.unlink(missing_ok=True)
+    adaptive = memory is not None and (bundle / "evolve_research.py").is_file()
+    command = [sys.executable, str(bundle / ("evolve_research.py" if adaptive else "screen_research.py")),
+               str(bundle / "input.json"), str(output)]
+    if adaptive:
+        command.extend(["--memory", str(memory), "--slot", str(slot)])
     subprocess.run(
-        [sys.executable, str(bundle / "screen_research.py"), str(bundle / "input.json"), str(output)],
+        command,
         env=environ, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60, check=True,
     )
     result = read_json(output)
@@ -126,7 +136,39 @@ def simulate(bundle, dependency_dir, output):
     dataset = result["training_input_hash"]
     if not isinstance(dataset, str) or not re.fullmatch("[0-9a-f]{64}", dataset):
         raise ValueError("Invalid training digest")
-    return dict(summary, elapsed_seconds=elapsed, training_input_hash=dataset, events=public_events(result))
+    for key in ("discovery_batch", "new_entry_rules", "total_entry_rules", "total_simulations",
+                "saved_candidates", "rejected_total", "rule_space_size"):
+        value = result.get(key)
+        if type(value) is int and value >= 0:
+            summary[key] = value
+    return dict(summary, version=result.get("version"), elapsed_seconds=elapsed,
+                training_input_hash=dataset, events=public_events(result))
+
+
+def dispatch_discovered(proposals, previous, now):
+    if proposals.get("version") != "atlas-discovery-v1" or not proposals.get("candidates"):
+        return "NO_SAVED_CANDIDATE", previous.get("last_admission_request")
+    try:
+        request = Request("https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research/research.json?t="+str(now),
+                          headers={"User-Agent": "ATLAS-PAPER-Admission-Relay/1"})
+        with urlopen(request, timeout=8) as response:
+            report = json.load(response)
+        lane = report["screening_paper"]
+        accounts = lane["accounts"]
+        if any(row.get("position") or row.get("status") not in {"RETIRED", "RESEARCH_STOPPED"} for row in accounts):
+            return "PAPER_ACCOUNT_ACTIVE", previous.get("last_admission_request")
+        tried = {row["id"].removeprefix("screen:") for row in accounts}
+        pending = [row for row in proposals["candidates"] if row["id"] not in tried]
+        if not pending:
+            return "ALREADY_TESTED", previous.get("last_admission_request")
+        candidate = pending[0]["id"]
+        last = previous.get("last_admission_request") or {}
+        if last.get("id") == candidate and now-last.get("at", 0) < 1800:
+            return "WAITING_FOR_PAPER_CONFIRMATION", last
+        gh(["workflow", "run", WORKFLOW, "--repo", REPO, "--ref", "main"], 15)
+        return "PAPER_VERIFICATION_REQUESTED", {"id": candidate, "at": now}
+    except (OSError, KeyError, ValueError, TypeError, subprocess.SubprocessError):
+        return "PAPER_RELAY_UNAVAILABLE", previous.get("last_admission_request")
 
 
 def main():
@@ -134,22 +176,50 @@ def main():
     parser.add_argument("--work-dir", type=Path, required=True)
     parser.add_argument("--dependency-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--dispatch-only", action="store_true")
     args = parser.parse_args()
     now = int(time.time())
     slot = now // INTERVAL_SECONDS
     previous = read_json(args.output)
-    if previous.get("slot") == slot and previous.get("status") == "COMPLETE" and previous.get("journal_version") == 1:
+    proposals_path = args.output.with_name("screening-proposals.json")
+    memory_path = args.output.with_name("evolution-memory.json")
+    if args.dispatch_only:
+        if previous.get("mode") != "HISTORICAL_SCREENING_5M":
+            print("No screening snapshot available for admission relay")
+            return
+        status, request = dispatch_discovered(read_json(proposals_path), previous, now)
+        previous["admission_status"] = status
+        previous["last_admission_request"] = request
+        write_json(args.output, previous)
+        print("Autonomous PAPER admission: "+status)
+        return
+    if previous.get("slot") == slot and previous.get("status") == "COMPLETE" and previous.get("journal_version") == 3:
         print("Five-minute screening already completed for this slot")
         return
     args.work_dir.mkdir(parents=True, exist_ok=True)
-    row = {"schema": 1, "journal_version": 1, "mode": "HISTORICAL_SCREENING_5M", "slot": slot, "interval_minutes": 5,
+    row = {"schema": 1, "journal_version": 3, "mode": "HISTORICAL_SCREENING_5M", "slot": slot, "interval_minutes": 5,
            "checked_at": iso(now), "stale_after_minutes": 12, "status": "INPUT_UNAVAILABLE",
            "last_success": previous.get("last_success"),
-           "recent_runs": [run for run in (previous.get("recent_runs") or []) if isinstance(run, dict)][-5:]}
+           "recent_runs": [run for run in (previous.get("recent_runs") or []) if isinstance(run, dict)][-5:],
+           "last_admission_request": previous.get("last_admission_request"),
+           "admission_status": previous.get("admission_status", "NO_SAVED_CANDIDATE")}
     bundle, cached = get_bundle(args.work_dir)
     if bundle:
         try:
-            result = simulate(bundle, args.dependency_dir.resolve(), args.work_dir / "screening.json")
+            temporary_memory = args.work_dir / "evolution-memory.json"
+            if memory_path.is_file():
+                shutil.copyfile(memory_path, temporary_memory)
+            else:
+                temporary_memory.unlink(missing_ok=True)
+            result = simulate(bundle, args.dependency_dir.resolve(), args.work_dir / "screening.json",
+                              temporary_memory, slot)
+            raw = read_json(args.work_dir / "screening.json")
+            if result.get("version") == "atlas-discovery-v1":
+                if temporary_memory.is_file():
+                    write_json(memory_path, read_json(temporary_memory))
+                keys = ("version", "mode", "generated_at", "epoch", "epoch_dataset_hash", "policy_hash",
+                        "training_input_hash", "screen_from", "screen_to", "recheck_from", "recheck_to", "candidates")
+                write_json(proposals_path, {key: raw[key] for key in keys})
             last_success = previous.get("last_success") or {}
             row["last_success"] = dict(result, completed_at=iso(time.time()),
                                        same_input=result["training_input_hash"] == last_success.get("training_input_hash"))
