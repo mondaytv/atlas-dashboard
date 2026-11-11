@@ -149,8 +149,8 @@ def dispatch_discovered(proposals, previous, now):
     if proposals.get("version") != "atlas-discovery-v1" or not proposals.get("candidates"):
         return "NO_SAVED_CANDIDATE", previous.get("last_admission_request")
     try:
-        request = Request("https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research/research.json?t="+str(now),
-                          headers={"User-Agent": "ATLAS-PAPER-Admission-Relay/1"})
+        request = Request("https://api.github.com/repos/mondaytv/atlas-dashboard/contents/research.json?ref=research&t="+str(now),
+                          headers={"User-Agent": "ATLAS-PAPER-Admission-Relay/1", "Accept": "application/vnd.github.raw+json"})
         with urlopen(request, timeout=8) as response:
             report = json.load(response)
         lane = report["screening_paper"]

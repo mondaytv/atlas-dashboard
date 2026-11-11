@@ -603,6 +603,7 @@ function exportClosedTrades(){
 const LAB_REPORT_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research/research.json';
 const LAB_WATCH_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/monitor.json';
 const LAB_SCREENING_PULSE_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/screening-5m.json';
+const LAB_SCREENING_PULSE_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/screening-5m.json?ref=research-monitor';
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
 const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media',discovered:'Strategia scoperta'};
 const labStatuses={PAPER_RESEARCH:'In osservazione',RESEARCH_QUALIFIED:'Qualificata PAPER',RESEARCH_STOPPED:'Fermata',RETIRED:'Archiviata'};
@@ -612,6 +613,7 @@ const labActions={WAIT:'Nessun ingresso nel ciclo',WAIT_FOR_NEW_CANDLE:'In attes
 let labRequest=null,labSnapshot=null,labSnapshotKey='';
 let labWatchRequest=null,labWatchSnapshot=null;
 let labScreeningRequest=null,labScreeningSnapshot=null;
+let labScreeningApiSlot=-1;
 let labDiaryPaused=readPreference('labDiaryPaused',false)===true,labDiaryKey='',labDiaryPending=0;
 const labDiaryTime=new Intl.DateTimeFormat('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Europe/Rome'});
 
@@ -909,7 +911,14 @@ async function refreshLabScreeningPulse(){
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),8000);
   try{
-   const response=await fetch(LAB_SCREENING_PULSE_URL+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+   const now=Date.now(),slot=Math.floor(now/300000);
+   const authoritative=labScreeningApiSlot!==slot&&(!labScreeningSnapshot||now%300000>=30000);
+   let response;
+   if(authoritative){
+    labScreeningApiSlot=slot;
+    try{response=await fetch(LAB_SCREENING_PULSE_API+'&t='+now,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'},signal:controller.signal})}catch{}
+   }
+   if(!response?.ok)response=await fetch(LAB_SCREENING_PULSE_URL+'?t='+now,{cache:'no-store',signal:controller.signal});
    if(!response.ok)throw new Error('Screening pulse unavailable');
    const snapshot=await response.json();
    const stamp=Date.parse(snapshot?.checked_at);
