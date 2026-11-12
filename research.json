@@ -294,11 +294,143 @@
   "research_qualified": 0,
   "schema": 1,
   "screening_paper": {
-    "accounts": [],
+    "accounts": [
+      {
+        "epoch": 1,
+        "equity_eur": 998.3601785857736,
+        "equity_stale": false,
+        "forward": {
+          "buy_hold_excess_eur": 0.00869648232263387,
+          "buy_hold_pnl_eur": -1.6485178965490235,
+          "closed_trades": 0,
+          "fees_eur": 0,
+          "max_drawdown_pct": 0.16398214142263612,
+          "net_pnl_eur": -1.6398214142263896,
+          "profit_factor": 0,
+          "profit_factor_no_losses": false,
+          "realized_pnl_eur": 0,
+          "single_asset_profit_share": null,
+          "single_trade_profit_share": null,
+          "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "wins": 0
+        },
+        "historical_eligible": true,
+        "holdout": {
+          "buy_hold_excess_eur": 0.20501061714534252,
+          "buy_hold_pnl_eur": 14.181432322254443,
+          "closed_trades": 12,
+          "fees_eur": 19.470858410801608,
+          "max_drawdown_pct": 1.8925769449086527,
+          "net_pnl_eur": 14.386442939399785,
+          "profit_factor": 1.5182995671473454,
+          "profit_factor_no_losses": false,
+          "realized_pnl_eur": 14.386442939399132,
+          "single_asset_profit_share": 0.5137363642052507,
+          "single_trade_profit_share": 0.27479291007174905,
+          "trade_fingerprint": "97ba6d7b8570fc8f6fa67e9ebc224f89f3e70d5deadb37a16408fcc3f512564b",
+          "wins": 5
+        },
+        "holdout_gate": {
+          "checks": {
+            "beats_buy_hold": true,
+            "drawdown": true,
+            "minimum_closed_trades": true,
+            "positive_net_pnl": true,
+            "profit_factor": true,
+            "single_asset": true,
+            "single_trade": true
+          },
+          "passed": true,
+          "status": "PASS"
+        },
+        "id": "screen:0232d3e79342bbb3b313",
+        "last_action": "PAPER_BUY_BTC",
+        "position": {
+          "cost_total": 100.8,
+          "entry_at": 1794447337,
+          "entry_context": {
+            "atr": 826.2428571428572,
+            "c": 66653.6,
+            "rsi": 42.222681691305816,
+            "sma20": 66566.19,
+            "sma50": 67935.95
+          },
+          "entry_fee": 0.8,
+          "entry_notional": 100.0,
+          "entry_price": 66408.47903999999,
+          "lane": "FUTURE_SHADOW_PAPER",
+          "qty": 0.0015058318071065405,
+          "signal_t": 1794427200,
+          "stop": 64755.99332571428,
+          "symbol": "BTC",
+          "target": 70952.8147542857
+        },
+        "recipe": {
+          "conditions": [
+            {
+              "op": "rsi_gt",
+              "value": 65
+            },
+            {
+              "op": "price_above",
+              "value": 10
+            },
+            {
+              "op": "momentum_gt",
+              "period": 6,
+              "value": 0.1
+            },
+            {
+              "op": "momentum_lt",
+              "period": 40,
+              "value": -0.05
+            }
+          ],
+          "family": "discovered",
+          "logic": "any",
+          "max_hold_bars": 27,
+          "stop_atr": 2.0,
+          "target_atr": 5.5
+        },
+        "source": "MASS_SCREENING",
+        "started_at": "2026-11-12T01:35:37+00:00",
+        "status": "PAPER_RESEARCH",
+        "stop_reason": null,
+        "trades": [],
+        "validation": {
+          "buy_hold_excess_eur": 6.765505238314933,
+          "buy_hold_pnl_eur": 19.88916551882657,
+          "closed_trades": 15,
+          "fees_eur": 24.408505409331784,
+          "max_drawdown_pct": 1.1213599113613526,
+          "net_pnl_eur": 26.654670757141503,
+          "profit_factor": 2.238660242467772,
+          "profit_factor_no_losses": false,
+          "realized_pnl_eur": 26.654670757141076,
+          "single_asset_profit_share": 0.6528873531242124,
+          "single_trade_profit_share": 0.2630205795504019,
+          "trade_fingerprint": "4bfb6d377d2da048d74186b6c411740be324a4cc8bf3f428e144615853dfd716",
+          "wins": 8
+        },
+        "validation_gate": {
+          "checks": {
+            "beats_buy_hold": true,
+            "drawdown": true,
+            "minimum_closed_trades": true,
+            "positive_net_pnl": true,
+            "profit_factor": true,
+            "single_asset": false,
+            "single_trade": true
+          },
+          "passed": false,
+          "status": "FAIL"
+        }
+      }
+    ],
     "slots": 1,
-    "status": "NO_ELIGIBLE_CANDIDATE"
+    "status": "ACTIVE"
   },
-  "screening_paper_updated_at": null,
+  "screening_paper_updated_at": "2026-11-12T01:35:37+00:00",
   "shadow": [
     {
       "benchmark_available": true,

@@ -14,7 +14,8 @@ Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel labor
 
 ## Conto PAPER dello screening massivo
 
-Stato: `NO_ELIGIBLE_CANDIDATE` · slot dedicati: 1
+Stato: `ACTIVE` · slot dedicati: 1
+- `screen:0232d3e79342bbb3b313` · Osservazione · 0 chiusure PAPER · ultima attività `PAPER_BUY_BTC`
 
 Il ciclo è previsto ogni quattro ore. Se lo snapshot ha più di otto ore, consideralo non aggiornato.
 
