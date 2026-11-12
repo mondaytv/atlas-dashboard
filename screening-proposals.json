@@ -1,7 +1,7 @@
 {
   "version": "atlas-discovery-v1",
   "mode": "PAPER_HISTORICAL_SCREEN_ONLY",
-  "generated_at": "2026-11-12T01:30:18.967953+00:00",
+  "generated_at": "2026-11-12T01:35:18.377824+00:00",
   "epoch": 1,
   "epoch_dataset_hash": "1d88ddc93aac262307afce138ab43c411a9b410f42a0eac01b8c4db8069de8f6",
   "policy_hash": "e1ef85343f301bb391dda46e4d39325987bde3463ab1fded23133b1e32f1efff",
@@ -10,5 +10,80 @@
   "screen_to": "2026-09-02T04:00:00+00:00",
   "recheck_from": "2026-09-02T08:00:00+00:00",
   "recheck_to": "2026-09-23T08:00:00+00:00",
-  "candidates": []
+  "candidates": [
+    {
+      "historical_recheck": {
+        "buy_hold_excess_eur": 0.20501061714534252,
+        "buy_hold_pnl_eur": 14.181432322254443,
+        "closed_trades": 12,
+        "fees_eur": 19.470858410801608,
+        "max_drawdown_pct": 1.8925769449086527,
+        "net_pnl_eur": 14.386442939399785,
+        "profit_factor": 1.5182995671473454,
+        "profit_factor_no_losses": false,
+        "realized_pnl_eur": 14.386442939399132,
+        "single_asset_profit_share": 0.5137363642052507,
+        "single_trade_profit_share": 0.27479291007174905,
+        "trade_fingerprint": "97ba6d7b8570fc8f6fa67e9ebc224f89f3e70d5deadb37a16408fcc3f512564b",
+        "wins": 5
+      },
+      "id": "0232d3e79342bbb3b313",
+      "recheck_gates": {
+        "checks": {
+          "beats_buy_hold": true,
+          "drawdown": true,
+          "minimum_closed_trades": true,
+          "positive_net_pnl": true,
+          "profit_factor": true,
+          "single_asset": true,
+          "single_trade": true
+        },
+        "passed": true,
+        "status": "PASS"
+      },
+      "recipe": {
+        "conditions": [
+          {
+            "op": "rsi_gt",
+            "value": 65
+          },
+          {
+            "op": "price_above",
+            "value": 10
+          },
+          {
+            "op": "momentum_gt",
+            "period": 6,
+            "value": 0.1
+          },
+          {
+            "op": "momentum_lt",
+            "period": 40,
+            "value": -0.05
+          }
+        ],
+        "family": "discovered",
+        "logic": "any",
+        "max_hold_bars": 27,
+        "stop_atr": 2.0,
+        "target_atr": 5.5
+      },
+      "screen": {
+        "buy_hold_excess_eur": 6.765505238314933,
+        "buy_hold_pnl_eur": 19.88916551882657,
+        "closed_trades": 15,
+        "fees_eur": 24.408505409331784,
+        "max_drawdown_pct": 1.1213599113613526,
+        "net_pnl_eur": 26.654670757141503,
+        "profit_factor": 2.238660242467772,
+        "profit_factor_no_losses": false,
+        "realized_pnl_eur": 26.654670757141076,
+        "single_asset_profit_share": 0.6528873531242124,
+        "single_trade_profit_share": 0.2630205795504019,
+        "trade_fingerprint": "4bfb6d377d2da048d74186b6c411740be324a4cc8bf3f428e144615853dfd716",
+        "wins": 8
+      },
+      "train_fingerprint": "6152159506424833117"
+    }
+  ]
 }
