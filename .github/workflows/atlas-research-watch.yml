@@ -73,7 +73,7 @@ jobs:
               echo "::warning::Screening pulse failed. The next pulse retries."
               failures=$((failures + 1))
             fi
-            for snapshot in monitor.json screening-5m.json evolution-memory.json screening-proposals.json exploration-state.json; do
+            for snapshot in monitor.json screening-5m.json evolution-memory.json screening-proposals.json exploration-state.json lab-v2-state.json; do
               if [[ -f "snapshots/$snapshot" ]]; then git -C snapshots add "$snapshot"; fi
             done
             if ! git -C snapshots diff --cached --quiet; then

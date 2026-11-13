@@ -179,7 +179,8 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  <section id="globalRiskBanner" class="risk-banner" aria-live="polite"><div class="risk-icon">✓</div><div class="risk-copy"><b>Protezione globale in caricamento</b><span>Verifica del drawdown paper nelle ultime 24 ore.</span></div><div class="risk-value"><b>—</b><span>soglia —</span></div></section>
  <section class="section">
   <div class="section-head"><div><h2>Agente IA · test e ricerca</h2><p>Prove esplorative autonome e decisioni del modello originale, separate.</p></div></div>
-  <div id="aiExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative…</p></div>
+  <div id="aiLabV2" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento Laboratorio V2…</p></div>
+  <div id="aiExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
   <div id="aiPipeline" class="pipeline-card"><div class="loading">Caricamento agenti…</div></div>
  </section>
  <section class="section">
@@ -232,7 +233,8 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
    <ol id="labEventLog" class="lab-diary-log" role="log" aria-live="off" aria-label="Passaggi registrati del Laboratorio" tabindex="0"><li class="lab-note">Il diario apparirà con il primo screening disponibile.</li></ol>
    <div class="lab-diary-foot"><div><p id="labDiaryStatus" class="lab-note" role="status">Aggiornamenti dal motore ogni cinque minuti.</p><p id="labDiaryNext" class="lab-note" aria-live="off"></p></div><button id="labDiaryLatest" class="lab-diary-control" type="button" hidden>Vai agli ultimi passaggi</button></div>
   </section>
-  <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative…</p></div>
+  <div id="labV2" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento Laboratorio V2…</p></div>
+  <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
   <div id="labCandidates"></div>
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
  </section>
@@ -635,11 +637,55 @@ function labTime(value){
 function labMetric(label,value){
  return '<div class="lab-metric"><dt>'+labEscape(label)+'</dt><dd>'+labEscape(value)+'</dd></div>';
 }
+function renderLabV2(report,unreachable=false){
+ const valid=report?.version==='atlas-laboratory-v2'&&report.paper_only===true&&report.validated===false&&Array.isArray(report.accounts);
+ const groups={TREND:'Trend',BREAKOUT:'Breakout',PULLBACK:'Pullback',REVERSION:'Ritorno alla media'};
+ for(const id of ['aiLabV2','labV2']){
+  const root=document.getElementById(id);
+  if(!valid){root.innerHTML='<h2>Laboratorio V2</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo ciclo V2.')+' I risultati V1 restano separati.</p>';continue}
+  const stamp=Date.parse(report.generated_at),stale=!Number.isFinite(stamp)||!Number.isFinite(report.stale_after_minutes)||Date.now()-stamp>report.stale_after_minutes*60000;
+  const key=report.generated_at+' '+stale+' '+unreachable;
+  if(root.dataset.snapshot===key)continue;
+  const open=new Set([...root.querySelectorAll('details[open]')].map(el=>el.dataset.v2Key));
+  const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.v2Key:null;
+  const s=report.summary||{},search=report.search||{},p=report.protocol||{},sampling=report.sampling||{},learning=report.learning||{};
+  const counts=[['Posizioni V2 aperte',labCount(s.open)],['Chiusure V2',labCount(s.closed)],['P&L netto V2',labMoney(s.net_pnl_eur,true)],['P&L realizzato V2',labMoney(s.realized_pnl_eur,true)]];
+  const familyRows=Object.entries(learning.families||{}).map(([group,row])=>'<div class="lab-lane"><span>'+labEscape(groups[group]??group)+' · '+labCount(row.closed)+' chiusure precedenti</span><b>'+labMoney(row.net_pnl_eur,true)+'</b><span>Lordo ai fill '+labMoney(row.gross_fill_pnl_eur,true)+' · fee '+labMoney(row.fees_eur)+'</span></div>').join('');
+  const filters=Object.entries(search.filtered||{}).map(([name,n])=>labEscape(name)+': '+labCount(n)).join(' · ');
+  const cards=report.accounts.map((row,index)=>{
+   const m=row.metrics||{},g=row.final_gate||{},pos=row.position?.lane==='LAB_V2_FROZEN_FUTURE_PAPER'?row.position:null;
+   const status=pos?'POSIZIONE APERTA':row.status==='FORWARD_CRITERIA_MET'?'CRITERI RACCOLTI · NON PROVA DI PROFITTO':row.feedback_sealed?'OSSERVAZIONE FUTURA':'OSSERVAZIONE CONCLUSA';
+   const minimum=g.minimum_closes;
+   const progress=Number.isFinite(minimum)&&minimum>0&&Number.isFinite(m.closed_trades)?'<progress max="'+minimum+'" value="'+Math.min(minimum,m.closed_trades)+'" aria-label="Chiusure verso il minimo tecnico del test futuro"></progress>':'';
+   const trades=(Array.isArray(row.trades)?row.trades:[]).filter(t=>t?.lane==='LAB_V2_FROZEN_FUTURE_PAPER').slice(-3).reverse();
+   const ledger=trades.map(t=>{const a=t.attribution||{};return '<li class="lab-note">'+labTime(t.exit_at)+' · netto '+labMoney(t.pnl,true)+' · lordo ai fill '+labMoney(a.gross_fill_pnl_eur,true)+' · fee '+labMoney(a.fees_eur)+' · componente mercato '+labMoney(a.mid_market_component_eur,true)+' · costo esecuzione '+labMoney(a.execution_drag_eur)+' · '+labEscape(labReasons[t.reason]??t.reason)+'</li>'}).join('');
+   return '<details class="exploration-account" data-v2-key="'+labEscape(row.id)+'"><summary><b>'+labEscape(row.symbol)+'</b> · '+labEscape(groups[row.group]??row.group)+' · '+status+' · '+labMoney(m.net_pnl_eur,true)+'</summary>'+
+    '<p class="lab-note">Avvio '+labTime(row.started_at)+' · formula congelata '+labEscape(row.frozen_recipe_hash?.slice(0,10))+' · '+(row.origin==='REFINEMENT'?'variante di una prova precedente':'nuova esplorazione')+'</p>'+
+    '<p class="lab-note">'+labCount(m.closed_trades)+' / '+labCount(minimum)+' chiusure minime tecniche · '+(Number.isFinite(g.days_observed)?num(g.days_observed):'n/d')+' / '+labCount(g.minimum_days)+' giorni. Il minimo non garantisce affidabilità.</p>'+progress+
+    '<p class="lab-note">Cash di confronto '+labMoney(row.cash_benchmark_pnl_eur)+' assunto, senza interessi · buy & hold '+labMoney(m.buy_hold_pnl_eur,true)+' · differenza '+labMoney(m.buy_hold_excess_eur,true)+'. Stesso avvio e notional della posizione.</p>'+
+    (pos?'<p class="lab-note">Ingresso '+labTime(pos.entry_at)+' a '+labMoney(pos.entry_price)+' · stop '+labMoney(pos.stop)+' · target '+labMoney(pos.target)+'</p>':'')+
+    '<p class="lab-note">Finestre storiche positive '+labCount(row.historical_windows_positive)+' / '+labCount(row.diagnostic_windows?.length)+'; finestre riutilizzate, non test finale.</p>'+
+    '<p class="lab-note">Feedback '+(row.feedback_sealed?'sigillato: queste operazioni non guidano ancora nuove formule.':'disponibile per le prossime generazioni.')+(row.equity_stale?' Valutazione del conto non aggiornata.':'')+'</p>'+
+    (ledger?'<ul>'+ledger+'</ul>':'<p class="lab-note">Nessuna chiusura V2 registrata.</p>')+'<pre>'+labEscape(JSON.stringify(row.recipe,null,2))+'</pre></details>';
+  }).join('');
+  root.innerHTML='<div class="lab-lead"><div><h2>Laboratorio V2 · ricerca guidata dagli errori</h2><p>Campione diversificato. Nuove formule e varianti delle prove precedenti, sempre PAPER.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
+   '<dl class="lab-metrics">'+counts.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
+   '<p class="lab-note">Nuovi ingressi: massimo '+labCount(p.max_new_per_check)+' per controllo e '+labCount(p.max_new_per_signal_bar)+' per candela da '+labCount(report.signal_interval_minutes)+' min. Fino a '+labCount(p.slots)+' conti V2; massimo '+labCount(p.per_asset)+' per asset e '+labCount(p.per_family)+' per famiglia. Prossimo gruppo temporale '+labTime(sampling.next_time_cohort_at)+'.</p>'+
+   '<p class="lab-note">Batch '+labCount(search.batch)+' · '+labCount(search.exploration)+' formule esplorative + '+labCount(search.refinements)+' varianti · '+labCount(search.executed_simulations)+' simulazioni storiche · '+labCount(sampling.waiting)+' candidate in attesa. Gli ingressi richiedono un segnale e un book valido; nessun veto RISK_OFF o requisito di profitto storico.</p>'+
+   '<details class="lab-detail" data-v2-key="method"><summary>Metodo, filtri e criteri della V2</summary><p class="lab-note">'+labEscape(search.historical_note)+'</p><p class="lab-note">Filtri di qualità: '+(filters||'n/d')+'</p><p class="lab-note">Finale: '+labCount(report.forward_gate?.minimum_days)+' giorni e '+labCount(report.forward_gate?.minimum_closed_trades)+' chiusure minime per formula congelata. I risultati finali in corso sono esclusi dall’ottimizzazione. Confrontare molte strategie aumenta il rischio di selezionare una vincitrice casuale.</p><pre>'+labEscape(JSON.stringify(report.assessment_criteria,null,2))+'</pre><p class="lab-note">Protocollo registrato '+labTime(report.protocol_registered_at)+' · '+labEscape(report.protocol_hash?.slice(0,12))+'</p></details>'+
+   '<details class="lab-detail" data-v2-key="learning"><summary>Errori utilizzabili e famiglie osservate</summary><p class="lab-note">Solo chiusure V1 già osservate e test V2 conclusi. '+labCount(learning.sealed_active_v2_accounts)+' conti V2 in corso esclusi dal feedback. La scomposizione è contabile, non dimostra la causa economica della perdita. Se i mid storici mancano, mercato e impatto restano n/d.</p><div class="lab-lanes">'+(familyRows||'<p class="lab-note">Nessuna evidenza precedente disponibile.</p>')+'</div></details>'+
+   '<details class="lab-detail" data-v2-key="accounts"><summary>Le '+labCount(s.accounts)+' prove V2 · posizioni, benchmark e costi</summary><div class="exploration-list">'+(cards||'<p class="lab-note">Nessun ingresso V2 ancora registrato. La ricerca continua anche in attesa dei segnali.</p>')+'</div></details>'+
+   '<p class="lab-note">Conti diagnostici indipendenti da '+labMoney(report.initial_capital_per_account)+' · size '+labMoney(report.trade_eur)+' · fee per lato '+(Number.isFinite(report.fee_per_side)?pct(report.fee_per_side*100)+'%':'n/d')+'. Esclusi dai sette conti originali e dai risultati V1; nessun ordine reale.</p>';
+  root.dataset.snapshot=key;
+  root.querySelectorAll('details').forEach(el=>{if(open.has(el.dataset.v2Key))el.open=true});
+  if(focused)[...root.querySelectorAll('details')].find(el=>el.dataset.v2Key===focused)?.querySelector('summary')?.focus({preventScroll:true});
+ }
+}
 function renderExploration(report,unreachable=false){
  const valid=report?.version==='atlas-exploration-v1'&&report.paper_only===true&&report.validated===false&&report.risk_admission_required===false&&report.historical_pass_required===false&&Array.isArray(report.accounts);
  for(const id of ['aiExploration','labExploration']){
   const root=document.getElementById(id);
-  if(!valid){root.innerHTML='<h2>Prove esplorative PAPER</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo ciclo esplorativo.')+' Nessun risultato disponibile.</p>';continue}
+  if(!valid){root.innerHTML='<h2>Prove esplorative V1</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo ciclo esplorativo.')+' Nessun risultato disponibile.</p>';continue}
   const stamp=Date.parse(report.generated_at),stale=!Number.isFinite(stamp)||!Number.isFinite(report.stale_after_minutes)||Date.now()-stamp>report.stale_after_minutes*60000;
   const key=report.generated_at+' '+unreachable+' '+stale;
   if(root.dataset.snapshot===key)continue;
@@ -659,7 +705,7 @@ function renderExploration(report,unreachable=false){
     (ledger.length?'<ul>'+ledger.map(t=>'<li class="lab-note">'+labTime(t.exit_at)+' · '+labMoney(t.pnl,true)+' · '+labEscape(labReasons[t.reason]??t.reason)+'</li>').join('')+'</ul>':'<p class="lab-note">Nessuna chiusura registrata.</p>')+
     '<pre>'+labEscape(JSON.stringify(row.recipe,null,2))+'</pre></details>';
   }).join('');
-  root.innerHTML='<div class="lab-lead"><div><h2>Prove esplorative PAPER</h2><p>Questa corsia prova anche candidate che non superano i gate storici. RISK_OFF non blocca questi conti.</p></div><p class="lab-status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'" role="status">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Aggiornamento non riuscito · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
+  root.innerHTML='<div class="lab-lead"><div><h2>Prove esplorative V1 · protocollo precedente</h2><p>Questa corsia prova anche candidate che non superano i gate storici. RISK_OFF non blocca questi conti.</p></div><p class="lab-status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'" role="status">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Aggiornamento non riuscito · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
    '<dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+
    (s.stale_accounts?'<p class="lab-note">Attenzione: '+labCount(s.stale_accounts)+' conti con valutazione non aggiornata; il totale include gli ultimi valori disponibili.</p>':'')+
    '<p class="lab-note">Campione parallelo: '+labCount(s.active)+' / '+labCount(report.slots)+' conti attivi · '+labCount(report.symbols?.length)+' mercati. Controlli ogni '+labCount(report.check_interval_minutes)+' min; segnali su candele chiuse da '+labCount(report.signal_interval_minutes)+' min. Lo screening storico continua sulle nuove combinazioni.</p>'+
@@ -928,6 +974,7 @@ function initLabDiary(){
  });
 }
 function renderLabScreeningPulse(snapshot,unreachable){
+ renderLabV2(snapshot?.lab_v2,unreachable||snapshot?.lab_v2_status==='CALCULATION_FAILED');
  renderExploration(snapshot?.exploration,unreachable||snapshot?.exploration_status==='CALCULATION_FAILED');
  const root=document.getElementById('labScreeningStatus');
  const last=snapshot?.last_success;
@@ -962,6 +1009,7 @@ async function refreshLabScreeningPulse(){
     try{response=await fetch(LAB_SCREENING_PULSE_API+'&t='+now,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'},signal:controller.signal})}catch{}
    }
    if(!response?.ok)response=await fetch(LAB_SCREENING_PULSE_URL+'?t='+now,{cache:'no-store',signal:controller.signal});
+   if(response.status===404&&!labScreeningSnapshot){renderLabScreeningPulse(null,false);return}
    if(!response.ok)throw new Error('Screening pulse unavailable');
    const snapshot=await response.json();
    const stamp=Date.parse(snapshot?.checked_at);
