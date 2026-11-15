@@ -2,7 +2,7 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-14T20:00:35+00:00 · codice: `882ecb14918c80063115fafc5044ff1e7f952110`
+Snapshot: 2026-11-15T00:00:37+00:00 · codice: `ab4bdbe9d7847868e7802b1fd3d80af56b3d2bdd`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
@@ -15,7 +15,7 @@ Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel labor
 ## Conto PAPER dello screening massivo
 
 Stato: `ACTIVE` · slot dedicati: 1
-- `screen:0232d3e79342bbb3b313` · Osservazione · 3 chiusure PAPER · ultima attività `PAPER_BUY_BTC`
+- `screen:0232d3e79342bbb3b313` · Osservazione · 3 chiusure PAPER · ultima attività `WAIT`
 
 Il ciclo è previsto ogni quattro ore. Se lo snapshot ha più di otto ore, consideralo non aggiornato.
 
