@@ -645,7 +645,7 @@ function labTime(value){
 function labMetric(label,value){
  return '<div class="lab-metric"><dt>'+labEscape(label)+'</dt><dd>'+labEscape(value)+'</dd></div>';
 }
-function observerPct(value){return Number.isFinite(value)?Math.round(value*100)+'%':'n/d'}
+function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
 function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
 function renderObservers(report,unreachable=false){
  const valid=report?.version==='atlas-observers-v1'&&report.paper_only===true&&report.advisory_only===true&&report.auto_entry_enabled===false;
