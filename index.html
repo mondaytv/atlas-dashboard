@@ -158,11 +158,17 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 @media(max-width:760px){.lab-diary-log{height:350px;padding-inline:10px}.lab-diary-line{grid-template-columns:62px minmax(0,1fr);gap:3px 8px}.lab-diary-line p{grid-column:1/-1;margin:0}.lab-diary-line time{font-size:9px}.lab-diary-line b{font-size:10px}.lab-diary-role{padding:9px}.lab-diary-role b{font-size:11px}.lab-diary-role span{font-size:9px}}
 @media(max-width:1100px){.lab-candidates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
- .bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))}
+ .bottom-nav{grid-template-columns:repeat(7,minmax(0,1fr))}.bottom-nav a{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  .bottom-nav a{min-height:44px;justify-content:center}
  .lab-surface{padding:15px}.lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lab-candidates{grid-template-columns:1fr}
 }
 @media(max-width:370px){.bottom-nav{padding-inline:3px}.bottom-nav a{padding-inline:0}.lab-metric dd{font-size:21px}}
+.signal-tier{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}.signal-tier>h3{font-size:15px;font-weight:650;margin:0}
+.paired-arms.signal-arms{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.signal-days{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;font-variant-numeric:tabular-nums}
+.signal-days th,.signal-days td{text-align:right;padding:8px;border-bottom:1px solid var(--line);color:var(--muted);font-weight:500}
+.signal-days th:first-child,.signal-days td:first-child{text-align:left}.signal-days td b{color:var(--text);font-weight:600}
+@media(max-width:1100px){.paired-arms.signal-arms{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -246,6 +252,9 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
   <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
   <div id="labCandidates"></div>
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
+ </section>
+ <section id="segnali" class="section" data-workspace-page="segnali" aria-label="Segnali giornalieri" hidden>
+  <div id="signalDay" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento segnali giornalieri…</p></div>
  </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
@@ -432,7 +441,7 @@ function updateSyncCountdown(){
  const seconds=Math.max(0,Math.ceil((nextDataRefreshAt-Date.now())/1000));updated.textContent=`· dati ${shortDate(dashboardData.generated_at)} · sync ${seconds}s`;
 }
 async function refreshData(){
- if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();await load();
+ if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();void refreshSignalDay();await load();
 }
 function stopPolling(){clearTimeout(loadTimer);clearTimeout(chartTimer);clearInterval(syncTimer);clearTimeout(aiNarrationTimer);loadTimer=chartTimer=syncTimer=aiNarrationTimer=null;}
 function scheduleDataRefresh(){
@@ -457,8 +466,9 @@ window.addEventListener('online',()=>startPolling(true));
 document.addEventListener('pointerdown',ensureFresh,{passive:true});
 document.addEventListener('touchstart',ensureFresh,{passive:true});
 // Presentation state is independent of paper engine state.
-const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},laboratorio:{title:'Laboratorio.',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
+const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},laboratorio:{title:'Laboratorio.',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio'},segnali:{title:'Segnali giornalieri.',description:'Arriva il segnale, si apre e si chiude una posizione virtuale. Risultati giorno per giorno.',label:'Segnali'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
 const workspaceIcons={overview:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',models:'<path d="M4 19V9m8 10V4m8 15v-7"/><path d="M2 21h20"/>',ai:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',activity:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',markets:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>'};
+workspaceIcons.segnali='<path d="M13 2 4 14h7l-1 8 9-12h-7Z"/>';
 workspaceIcons.laboratorio='<path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3M8 15h8"/>';
 let workspacePage='overview',workspaceFilter=(()=>{const value=readPreference('filter','all');return ['all','open','ai'].includes(value)?value:'all'})(),workspaceQuery='',narrationPaused=false;
 const expandedModels=new Set((()=>{const value=readPreference('expanded',[]);return Array.isArray(value)?value.filter(id=>typeof id==='string'):[]})());
@@ -472,6 +482,7 @@ function setWorkspacePage(page){
  document.querySelector('.workspace-chip').hidden=page==='laboratorio';
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
  if(page==='laboratorio'||page==='ai')void refreshLaboratory();
+ if(page==='segnali')void refreshSignalDay();
 }
 function applyModelFilters(){
  let visible=0;
@@ -624,8 +635,11 @@ const LAB_SCREENING_PULSE_API='https://api.github.com/repos/mondaytv/atlas-dashb
 const OBSERVERS_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/observer.json';
 const OBSERVERS_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/observer.json?ref=research-monitor';
 const PAIRED_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/paired.json';
+const SIGNAL_DAY_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/signal-day.json';
+const SIGNAL_DAY_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/signal-day.json?ref=research-monitor';
 const PAIRED_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/paired.json?ref=research-monitor';
 let pairedSnapshot=null,pairedRequest=null,pairedApiSlot=-1;
+let signalDaySnapshot=null,signalDayRequest=null,signalDayApiSlot=-1;
 let observerSnapshot=null,observerRequest=null,observerApiSlot=-1,observerSelection=readPreference('observerPair','');
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
 const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media',discovered:'Strategia scoperta'};
@@ -705,6 +719,71 @@ async function refreshPaired(){
   }catch{renderPaired(pairedSnapshot,true)}finally{clearTimeout(timeout)}
  })();
  try{return await pairedRequest}finally{pairedRequest=null}
+}
+function signalDayValid(report){
+ return report?.version==='atlas-signal-day-v1'&&report.paper_only===true&&report.real_orders_enabled===false&&!!report.tiers?.kraken?.accounts&&!!report.tiers?.low?.accounts;
+}
+function renderSignalDay(report,unreachable=false){
+ const root=document.getElementById('signalDay');
+ if(!signalDayValid(report)){root.innerHTML='<h2>Segnali giornalieri</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo controllo.')+' Conti dei segnali: n/d.</p>';delete root.dataset.snapshot;return}
+ const stamp=Date.parse(report.generated_at),stale=!Number.isFinite(stamp)||!Number.isFinite(report.stale_after_minutes)||Date.now()-stamp>report.stale_after_minutes*60000;
+ const key=report.generated_at+' '+stale+' '+unreachable;
+ if(root.dataset.snapshot===key)return;
+ const rendered=!!root.dataset.snapshot,open=new Set([...root.querySelectorAll('details[open]')].map(el=>el.dataset.signalKey));
+ const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.signalKey:null;
+ const p=report.protocol||{};
+ const actions={WAIT_FOR_SIGNAL:'In attesa di un segnale.',WAIT_FOR_NEW_CANDLE:'In attesa di una nuova candela.',MANAGING_OPEN_POSITION:'Posizione aperta: controllo di stop, obiettivo e durata.',EXIT_WAITING_FOR_FRESH_BID:'Uscita in attesa di un prezzo di vendita aggiornato.',SIGNAL_WAITING_FOR_EXECUTABLE_BOOK:'Segnale presente: in attesa di prezzi eseguibili.',SIGNAL_SKIPPED_EXECUTION_LIMITS:'Segnale scartato: condizioni di esecuzione non idonee.',SIGNAL_SKIPPED_TARGET_TOO_SMALL_FOR_COSTS:'Segnale scartato: obiettivo troppo piccolo rispetto ai costi.',CAPITAL_LIMIT_NO_RESET:'Capitale virtuale insufficiente: nessun reset.'};
+ const verdicts={COLLECTING_NO_FINAL_CONCLUSION:'Raccolta in corso · nessuna conclusione',DATA_INCOMPLETE_NO_CONCLUSION:'Dati incompleti · nessuna conclusione',INSUFFICIENT_CLOSED_SAMPLE:'Chiusure insufficienti per il minimo previsto',OBSERVED_POSITIVE_IN_THIS_SAMPLE_NOT_VALIDATED:'Risultato positivo in questo campione · non validato',NO_PROFIT_DEMONSTRATED:'Nessun guadagno dimostrato'};
+ const day=value=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value??'');return m?m[3]+'/'+m[2]+'/'+m[1]:'n/d'};
+ const fee=value=>Number.isFinite(value)?pct(value*100)+'%':'n/d';
+ const action=value=>actions[value]??(typeof value==='string'&&value.startsWith('PAPER_BUY_')?'Acquisto virtuale eseguito.':typeof value==='string'&&value.startsWith('PAPER_SELL_')?'Posizione chiusa: '+(labReasons[value.slice(11)]??(value.slice(11)==='STUDY_END'?'fine della prova':'motivo n/d'))+'.':'Stato in aggiornamento.');
+ const tiers=Object.entries(report.tiers).map(([tierKey,tier])=>{
+  const t=tier.summary||{};
+  const cards=Object.entries(tier.accounts||{}).map(([rule,row])=>{
+   const m=row.metrics||{},c=row.counters||{},pos=row.position;
+   const metrics=[['Realizzato',labMoney(m.realized_pnl_eur,true)],['Chiusure',labCount(m.closed_trades)],['Segnali visti',labCount(c.signals)],['Scartati per costi',labCount(c.skipped_costs)]];
+   return '<article class="paired-arm" data-signal-rule="'+labEscape(rule)+'"><h3>'+labEscape(row.label)+'</h3><span class="lab-note">Valore del conto virtuale</span><strong>'+labMoney(row.equity)+'</strong><p class="lab-note">Risultato '+labMoney(m.net_pnl_eur,true)+(row.equity_stale?' · VALORE NON AGGIORNATO':'')+'</p><dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl><p class="lab-note">'+(pos?'Posizione aperta '+labEscape(pos.symbol)+' · ingresso '+labTime(pos.entry_at)+' a '+observerPrice(pos.entry_price)+' · stop '+observerPrice(pos.stop)+' · obiettivo '+observerPrice(pos.target):'Nessuna posizione aperta.')+'</p><p class="lab-note">'+labEscape(action(row.last_action))+'</p></article>';
+  }).join('');
+  const days=Array.isArray(tier.daily)?tier.daily:[];
+  const table=days.length?'<table class="signal-days"><thead><tr><th scope="col">Giorno</th><th scope="col">Chiuse</th><th scope="col">In guadagno</th><th scope="col">Fee</th><th scope="col">Risultato</th></tr></thead><tbody>'+days.map(d=>'<tr><td>'+labEscape(day(d.date))+'</td><td>'+labCount(d.closed)+'</td><td>'+labCount(d.wins)+'</td><td>'+labMoney(d.fees_eur)+'</td><td><b>'+labMoney(d.pnl_eur,true)+'</b></td></tr>').join('')+'</tbody></table>':'<p class="lab-note">Nessuna operazione chiusa finora: nessun risultato giornaliero viene inventato.</p>';
+  return '<section class="signal-tier" data-signal-tier="'+labEscape(tierKey)+'"><h3>'+labEscape(tier.label)+' · commissione '+fee(tier.fee_per_side)+' per lato</h3>'+
+   (tier.hypothetical_costs?'<p class="lab-note">IPOTESI: stessi segnali e stessi prezzi Kraken, con una commissione più bassa. Non misura un altro exchange.</p>':'<p class="lab-note">Costi usati in tutti gli altri test Atlas.</p>')+
+   '<p class="lab-note">Risultato totale '+labMoney(t.net_pnl_eur,true)+' (posizioni aperte comprese) · realizzato '+labMoney(t.realized_pnl_eur,true)+' · chiusure '+labCount(t.closed_trades)+' · fee '+labMoney(t.fees_eur)+'.</p>'+
+   '<p class="lab-note">Giorni in guadagno '+labCount(t.positive_days)+' · in perdita '+labCount(t.negative_days)+' · giorno migliore '+labMoney(t.best_day_eur,true)+' · peggiore '+labMoney(t.worst_day_eur,true)+' · media al giorno '+labMoney(t.average_net_per_elapsed_day_eur,true)+'.</p>'+
+   '<p class="lab-note">Confronto: comprare e tenere '+(t.benchmark_stale?'n/d · riferimento non aggiornato':labMoney(t.buy_hold_pnl_eur,true))+' nello stesso periodo. '+labEscape(verdicts[t.verdict]??'Esito n/d')+'.</p>'+
+   '<div class="paired-arms signal-arms">'+cards+'</div><details class="lab-detail" data-signal-key="days-'+labEscape(tierKey)+'" open><summary>Risultati giorno per giorno</summary>'+table+'</details></section>';
+ }).join('');
+ const rules=Object.values(p.rules||{}).map(rule=>'<p class="lab-note"><b>'+labEscape(rule.label)+'.</b> '+labEscape(rule.plain)+' Stop '+labCount(rule.recipe?.stop_atr)+' ATR, obiettivo '+labCount(rule.recipe?.target_atr)+' ATR, durata massima '+labCount(rule.recipe?.max_hold_bars)+' ore.</p>').join('');
+ root.innerHTML='<div class="lab-lead"><div><h2>Segnali giornalieri · conti virtuali</h2><p>Quando arriva un segnale su '+labEscape((p.symbols||[]).join(' o ')||'n/d')+', Atlas apre una posizione finta e la chiude entro un giorno. Ogni regola gira con due livelli di costo.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
+  '<div class="paired-delta"><p class="lab-note">Quanto pesano i costi: risultato con costi bassi meno risultato con costi Kraken</p><strong>'+labMoney(report.cost_effect_net_eur,true)+'</strong><p class="lab-note">Inizio '+labTime(report.market_started_at)+' · fine prevista '+labTime(report.study_end_at)+' · controlli eseguiti '+labCount(report.cycles)+'. Soldi virtuali: nessun ordine reale.</p></div>'+
+  tiers+
+  '<details class="lab-detail" data-signal-key="rules"><summary>Regole fissate prima della prova</summary>'+(rules||'<p class="lab-note">Regole n/d.</p>')+'<p class="lab-note">Conto '+labMoney(p.initial_capital_per_account)+' per regola · posizione '+labMoney(p.trade_eur)+' · candele '+labCount(p.interval_minutes)+' min · una posizione alla volta, solo acquisti, senza leva. Un segnale viene scartato se l’obiettivo è meno di '+labCount(p.minimum_target_to_cost)+' volte il costo di andata e ritorno.</p><p class="lab-note">Durata '+labCount(p.study_days)+' giorni · minimo tecnico '+labCount(p.minimum_closed_per_account)+' chiusure per conto, che non è una garanzia. Le regole non vengono modificate durante la prova. Protocollo '+labEscape(report.protocol_hash?.slice(0,16))+'.</p></details>'+
+  '<details class="lab-detail" data-signal-key="limits"><summary>Limiti da tenere presenti</summary><ul><li>Simulazione su prezzi pubblici osservati: nessun ordine viene inviato.</li><li>I controlli sono previsti ogni cinque minuti: lo stop può essere superato da un movimento brusco.</li><li>Tre regole su due monete: un mese positivo può essere fortuna, non un vantaggio dimostrato.</li><li>Gli importi giornalieri riguardano operazioni virtuali da '+labMoney(p.trade_eur)+' e non sono una previsione di guadagno reale.</li><li>Gli altri conti Atlas non vengono letti né modificati da questa prova.</li></ul></details>';
+ root.dataset.snapshot=key;
+ if(rendered)root.querySelectorAll('details').forEach(el=>{el.open=open.has(el.dataset.signalKey)});
+ if(focused)[...root.querySelectorAll('details')].find(el=>el.dataset.signalKey===focused)?.querySelector('summary')?.focus({preventScroll:true});
+}
+async function refreshSignalDay(){
+ if(workspacePage!=='segnali'||document.visibilityState!=='visible')return;
+ if(signalDayRequest)return signalDayRequest;
+ signalDayRequest=(async()=>{
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const now=Date.now(),slot=Math.floor(now/300000);let response;
+   if(signalDayApiSlot!==slot&&(!signalDaySnapshot||now%300000>=30000)){
+    signalDayApiSlot=slot;
+    try{response=await fetch(SIGNAL_DAY_API+'&t='+now,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'},signal:controller.signal})}catch{}
+   }
+   if(!response?.ok)response=await fetch(SIGNAL_DAY_URL+'?t='+now,{cache:'no-store',signal:controller.signal});
+   if(response.status===404&&!signalDaySnapshot){renderSignalDay(null,false);return}
+   if(!response.ok)throw new Error('Signal-day report unavailable');
+   const report=await response.json(),stamp=Date.parse(report?.generated_at);
+   if(!signalDayValid(report)||!Number.isFinite(stamp))throw new Error('Invalid signal-day report');
+   if(!signalDaySnapshot||stamp>=Date.parse(signalDaySnapshot.generated_at))signalDaySnapshot=report;
+   renderSignalDay(signalDaySnapshot);
+  }catch{renderSignalDay(signalDaySnapshot,true)}finally{clearTimeout(timeout)}
+ })();
+ try{return await signalDayRequest}finally{signalDayRequest=null}
 }
 function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
 function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
