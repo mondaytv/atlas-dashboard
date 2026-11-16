@@ -1,0 +1,470 @@
+{
+  "check_interval_minutes": 5,
+  "cost_effect_net_eur": 1.099703681889082,
+  "cycles": 1,
+  "day_timezone": "Europe/Rome",
+  "errors": {},
+  "generated_at": "2026-11-16T14:20:28+00:00",
+  "lane": "SIGNAL_DAY_PAPER",
+  "limits": [
+    "PAPER only: no order is sent anywhere; results are simulated on observed public books.",
+    "Checks are planned every five minutes; stops are sampled, gaps can exceed them.",
+    "Three fixed rules on two assets: a positive month can be chance, not a proven edge.",
+    "A signal whose target is smaller than twice the round-trip cost is skipped, not traded.",
+    "The low-cost tier applies a hypothetical fee to Kraken books; another exchange's real spread and depth are not measured.",
+    "Daily euro figures refer to EUR100 virtual trades and are not a forecast of real income.",
+    "Other Atlas accounts and their records are never read, reset or modified by this module."
+  ],
+  "market_started_at": "2026-11-16T14:20:28+00:00",
+  "paper_only": true,
+  "protocol": {
+    "algorithm_hash": "e9e515cc4681a17172e6ed7315d8e4730cdfe8d8a155b40d90bdc2ba88f18003",
+    "benchmark": "Buy and hold of the same assets from the same start, EUR100 each, same tier fee and book execution",
+    "book_latency_buffer": 0.0002,
+    "cost_tiers": {
+      "kraken": {
+        "fee_per_side": 0.008,
+        "label": "Costi Kraken attuali",
+        "observed_venue": true
+      },
+      "low": {
+        "fee_per_side": 0.0025,
+        "label": "Ipotesi costi bassi",
+        "observed_venue": false
+      }
+    },
+    "entry_limits": {
+      "max_impact_pct": 0.35,
+      "max_spread_pct": 0.25,
+      "min_depth_multiple": 20,
+      "min_volume_eur_24h": 500000
+    },
+    "feedback_to_other_models": false,
+    "frozen_atlas_fee_per_side": 0.008,
+    "initial_capital_per_account": 1000.0,
+    "interval_minutes": 60,
+    "lane": "SIGNAL_DAY_PAPER",
+    "leverage": false,
+    "long_only": true,
+    "low_cost_tier_limit": "Hypothetical fee applied to observed Kraken books; not a measurement of another exchange",
+    "minima_are_not_proof": true,
+    "minimum_closed_per_account": 10,
+    "minimum_target_to_cost": 2.0,
+    "one_position_per_account": true,
+    "paper_only": true,
+    "parameter_tuning_during_study": false,
+    "quote_currency": "EUR",
+    "real_orders_enabled": false,
+    "rules": {
+      "breakout": {
+        "label": "Rottura dei massimi",
+        "plain": "Compra quando la candela da 1 ora chiude sopra il massimo delle 20 ore precedenti, con volume sopra la media e prezzo sopra la media a 50 ore.",
+        "recipe": {
+          "family": "breakout",
+          "lookback": 20,
+          "max_hold_bars": 24,
+          "stop_atr": 2.0,
+          "target_atr": 6.0,
+          "trend_filter": true,
+          "volume_filter": true
+        }
+      },
+      "pullback": {
+        "label": "Rientro nel trend",
+        "plain": "Compra quando il trend a 1 ora e' positivo (media 20 sopra media 50), il prezzo e' sceso sotto la media a 20 ore con RSI fino a 40 e l'ultima candela torna a salire.",
+        "recipe": {
+          "family": "pullback",
+          "fast": 20,
+          "max_hold_bars": 24,
+          "rsi": 40,
+          "slow": 50,
+          "stop_atr": 2.0,
+          "target_atr": 6.0,
+          "trend_filter": false,
+          "volume_filter": false
+        }
+      },
+      "trend": {
+        "label": "Spinta di tendenza",
+        "plain": "Compra quando il prezzo e' sopra la media a 10 ore, la media a 10 e' sopra quella a 50 e il prezzo e' salito nelle ultime 6 ore.",
+        "recipe": {
+          "family": "trend",
+          "fast": 10,
+          "max_hold_bars": 24,
+          "momentum": 6,
+          "slow": 50,
+          "stop_atr": 2.0,
+          "target_atr": 6.0,
+          "trend_filter": false,
+          "volume_filter": false
+        }
+      }
+    },
+    "study_days": 28,
+    "symbols": [
+      "BTC",
+      "ETH"
+    ],
+    "trade_eur": 100.0,
+    "version": "atlas-signal-day-v1"
+  },
+  "protocol_hash": "ba9ae1aea8132000e9c20e1cd0555f0a21fce644db2b0cbff66eb4a68ff77a5d",
+  "real_orders_enabled": false,
+  "registered_at": "2026-11-16T14:20:28+00:00",
+  "schema": 1,
+  "signal_interval_minutes": 60,
+  "stale_after_minutes": 12,
+  "status": "COLLECTING",
+  "study_end_at": "2026-12-14T14:20:28+00:00",
+  "tiers": {
+    "kraken": {
+      "accounts": {
+        "breakout": {
+          "cash": 1000.0,
+          "counters": {
+            "entered": 0,
+            "signals": 0,
+            "skipped_costs": 0,
+            "skipped_execution": 0
+          },
+          "daily": [],
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Rottura dei massimi",
+          "last_action": "WAIT_FOR_SIGNAL",
+          "metrics": {
+            "buy_hold_excess_eur": 1.6466433093210853,
+            "buy_hold_pnl_eur": -1.6466433093210853,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "recipe": {
+            "family": "breakout",
+            "lookback": 20,
+            "max_hold_bars": 24,
+            "stop_atr": 2.0,
+            "target_atr": 6.0,
+            "trend_filter": true,
+            "volume_filter": true
+          },
+          "rule": "Compra quando la candela da 1 ora chiude sopra il massimo delle 20 ore precedenti, con volume sopra la media e prezzo sopra la media a 50 ore.",
+          "trades": []
+        },
+        "pullback": {
+          "cash": 899.2,
+          "counters": {
+            "entered": 1,
+            "signals": 1,
+            "skipped_costs": 0,
+            "skipped_execution": 0
+          },
+          "daily": [],
+          "equity": 998.3465549880056,
+          "equity_stale": false,
+          "label": "Rientro nel trend",
+          "last_action": "PAPER_BUY_ETH",
+          "metrics": {
+            "buy_hold_excess_eur": -0.006801702673364218,
+            "buy_hold_pnl_eur": -1.6466433093210853,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.1653445011994492,
+            "net_pnl_eur": -1.6534450119944495,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": {
+            "cost_total": 100.8,
+            "entry_at": 1794838828,
+            "entry_context": {
+              "atr": 15.202857142857104,
+              "c": 1636.73,
+              "rsi": 37.43478260869566,
+              "sma20": 1647.6735,
+              "sma50": 1647.6257999999998
+            },
+            "entry_fee": 0.8,
+            "entry_notional": 100.0,
+            "entry_price": 1652.6799741960076,
+            "lane": "SIGNAL_DAY_PAPER",
+            "qty": 0.060507782245408884,
+            "signal_t": 1794834000,
+            "stop": 1622.2742599102935,
+            "symbol": "ETH",
+            "target": 1743.8971170531502
+          },
+          "recipe": {
+            "family": "pullback",
+            "fast": 20,
+            "max_hold_bars": 24,
+            "rsi": 40,
+            "slow": 50,
+            "stop_atr": 2.0,
+            "target_atr": 6.0,
+            "trend_filter": false,
+            "volume_filter": false
+          },
+          "rule": "Compra quando il trend a 1 ora e' positivo (media 20 sopra media 50), il prezzo e' sceso sotto la media a 20 ore con RSI fino a 40 e l'ultima candela torna a salire.",
+          "trades": []
+        },
+        "trend": {
+          "cash": 1000.0,
+          "counters": {
+            "entered": 0,
+            "signals": 0,
+            "skipped_costs": 0,
+            "skipped_execution": 0
+          },
+          "daily": [],
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Spinta di tendenza",
+          "last_action": "WAIT_FOR_SIGNAL",
+          "metrics": {
+            "buy_hold_excess_eur": 1.6466433093210853,
+            "buy_hold_pnl_eur": -1.6466433093210853,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "recipe": {
+            "family": "trend",
+            "fast": 10,
+            "max_hold_bars": 24,
+            "momentum": 6,
+            "slow": 50,
+            "stop_atr": 2.0,
+            "target_atr": 6.0,
+            "trend_filter": false,
+            "volume_filter": false
+          },
+          "rule": "Compra quando il prezzo e' sopra la media a 10 ore, la media a 10 e' sopra quella a 50 e il prezzo e' salito nelle ultime 6 ore.",
+          "trades": []
+        }
+      },
+      "daily": [],
+      "fee_per_side": 0.008,
+      "hypothetical_costs": false,
+      "label": "Costi Kraken attuali",
+      "observed_venue": true,
+      "summary": {
+        "accounts_positive_and_above_buy_hold": [],
+        "average_net_per_elapsed_day_eur": null,
+        "benchmark_stale": false,
+        "best_day_eur": null,
+        "buy_hold_pnl_eur": -1.6466433093210853,
+        "closed_trades": 0,
+        "days_elapsed": 0.0,
+        "days_with_closes": 0,
+        "fees_eur": 0,
+        "minimum_sample_met": false,
+        "negative_days": 0,
+        "net_pnl_eur": -1.6534450119944495,
+        "positive_days": 0,
+        "realized_pnl_eur": 0,
+        "validated": false,
+        "verdict": "COLLECTING_NO_FINAL_CONCLUSION",
+        "worst_day_eur": null
+      }
+    },
+    "low": {
+      "accounts": {
+        "breakout": {
+          "cash": 1000.0,
+          "counters": {
+            "entered": 0,
+            "signals": 0,
+            "skipped_costs": 0,
+            "skipped_execution": 0
+          },
+          "daily": [],
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Rottura dei massimi",
+          "last_action": "WAIT_FOR_SIGNAL",
+          "metrics": {
+            "buy_hold_excess_eur": 0.5469019163788076,
+            "buy_hold_pnl_eur": -0.5469019163788076,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "recipe": {
+            "family": "breakout",
+            "lookback": 20,
+            "max_hold_bars": 24,
+            "stop_atr": 2.0,
+            "target_atr": 6.0,
+            "trend_filter": true,
+            "volume_filter": true
+          },
+          "rule": "Compra quando la candela da 1 ora chiude sopra il massimo delle 20 ore precedenti, con volume sopra la media e prezzo sopra la media a 50 ore.",
+          "trades": []
+        },
+        "pullback": {
+          "cash": 899.75,
+          "counters": {
+            "entered": 1,
+            "signals": 1,
+            "skipped_costs": 0,
+            "skipped_execution": 0
+          },
+          "daily": [],
+          "equity": 999.4462586698946,
+          "equity_stale": false,
+          "label": "Rientro nel trend",
+          "last_action": "PAPER_BUY_ETH",
+          "metrics": {
+            "buy_hold_excess_eur": -0.00683941372655994,
+            "buy_hold_pnl_eur": -0.5469019163788076,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.055374133010532844,
+            "net_pnl_eur": -0.5537413301053675,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": {
+            "cost_total": 100.25,
+            "entry_at": 1794838828,
+            "entry_context": {
+              "atr": 15.202857142857104,
+              "c": 1636.73,
+              "rsi": 37.43478260869566,
+              "sma20": 1647.6735,
+              "sma50": 1647.6257999999998
+            },
+            "entry_fee": 0.25,
+            "entry_notional": 100.0,
+            "entry_price": 1652.6799741960076,
+            "lane": "SIGNAL_DAY_PAPER",
+            "qty": 0.060507782245408884,
+            "signal_t": 1794834000,
+            "stop": 1622.2742599102935,
+            "symbol": "ETH",
+            "target": 1743.8971170531502
+          },
+          "recipe": {
+            "family": "pullback",
+            "fast": 20,
+            "max_hold_bars": 24,
+            "rsi": 40,
+            "slow": 50,
+            "stop_atr": 2.0,
+            "target_atr": 6.0,
+            "trend_filter": false,
+            "volume_filter": false
+          },
+          "rule": "Compra quando il trend a 1 ora e' positivo (media 20 sopra media 50), il prezzo e' sceso sotto la media a 20 ore con RSI fino a 40 e l'ultima candela torna a salire.",
+          "trades": []
+        },
+        "trend": {
+          "cash": 1000.0,
+          "counters": {
+            "entered": 0,
+            "signals": 0,
+            "skipped_costs": 0,
+            "skipped_execution": 0
+          },
+          "daily": [],
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Spinta di tendenza",
+          "last_action": "WAIT_FOR_SIGNAL",
+          "metrics": {
+            "buy_hold_excess_eur": 0.5469019163788076,
+            "buy_hold_pnl_eur": -0.5469019163788076,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "recipe": {
+            "family": "trend",
+            "fast": 10,
+            "max_hold_bars": 24,
+            "momentum": 6,
+            "slow": 50,
+            "stop_atr": 2.0,
+            "target_atr": 6.0,
+            "trend_filter": false,
+            "volume_filter": false
+          },
+          "rule": "Compra quando il prezzo e' sopra la media a 10 ore, la media a 10 e' sopra quella a 50 e il prezzo e' salito nelle ultime 6 ore.",
+          "trades": []
+        }
+      },
+      "daily": [],
+      "fee_per_side": 0.0025,
+      "hypothetical_costs": true,
+      "label": "Ipotesi costi bassi",
+      "observed_venue": false,
+      "summary": {
+        "accounts_positive_and_above_buy_hold": [],
+        "average_net_per_elapsed_day_eur": null,
+        "benchmark_stale": false,
+        "best_day_eur": null,
+        "buy_hold_pnl_eur": -0.5469019163788076,
+        "closed_trades": 0,
+        "days_elapsed": 0.0,
+        "days_with_closes": 0,
+        "fees_eur": 0,
+        "minimum_sample_met": false,
+        "negative_days": 0,
+        "net_pnl_eur": -0.5537413301053675,
+        "positive_days": 0,
+        "realized_pnl_eur": 0,
+        "validated": false,
+        "verdict": "COLLECTING_NO_FINAL_CONCLUSION",
+        "worst_day_eur": null
+      }
+    }
+  },
+  "version": "atlas-signal-day-v1"
+}
