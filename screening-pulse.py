@@ -69,7 +69,7 @@ def get_bundle(root):
         gh(["run", "download", result, "--repo", REPO, "--name", ARTIFACT, "--dir", str(bundle)], 25)
         required = {"atlas_research.py", "screen_research.py", "policy.json", "input.json"}
         present = {file.name for file in bundle.iterdir() if file.is_file()}
-        if not required <= present or not present <= required | {"discovery_rules.py", "evolve_research.py", "explore_research.py", "lab_v2_rules.py", "lab_v2.py"}:
+        if not required <= present or not present <= required | {"discovery_rules.py", "evolve_research.py", "explore_research.py", "lab_v2_rules.py", "lab_v2.py", "scenario_lab.py", "market_agents.py"}:
             raise ValueError("Incomplete screening bundle")
         write_json(root / "bundle.json", {"path": str(bundle), "run": result})
         return bundle, False
@@ -188,6 +188,26 @@ def run_lab_v2(bundle, dependency_dir, work, output, seed):
     return result
 
 
+def run_observers(bundle, dependency_dir, work, output):
+    environ = {key:value for key,value in os.environ.items() if key not in {"GH_TOKEN","GITHUB_TOKEN"}}
+    environ["PYTHONPATH"] = str(dependency_dir)
+    state_path = output.with_name("observer-state.json")
+    temporary,result_path = work/"pending-observer-state.json",work/"observer.json"
+    if state_path.is_file():
+        shutil.copyfile(state_path,temporary)
+    else:
+        temporary.unlink(missing_ok=True)
+    result_path.unlink(missing_ok=True)
+    subprocess.run([sys.executable,str(bundle/"market_agents.py"),"--state",str(temporary),"--output",str(result_path)],
+                   env=environ,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=120,check=True)
+    result=read_json(result_path)
+    if result.get("version")!="atlas-observers-v1" or result.get("paper_only") is not True or result.get("auto_entry_enabled") is not False:
+        raise ValueError("Invalid read-only observer report")
+    write_json(state_path,read_json(temporary))
+    write_json(output.with_name("observer.json"),result)
+    return result
+
+
 def dispatch_discovered(proposals, previous, now):
     if proposals.get("version") != "atlas-discovery-v1" or not proposals.get("candidates"):
         return "NO_SAVED_CANDIDATE", previous.get("last_admission_request")
@@ -236,11 +256,11 @@ def main():
         write_json(args.output, previous)
         print("Autonomous PAPER admission: "+status)
         return
-    if previous.get("slot") == slot and previous.get("status") == "COMPLETE" and previous.get("journal_version") == 5:
+    if previous.get("slot") == slot and previous.get("status") == "COMPLETE" and previous.get("journal_version") == 6:
         print("Five-minute screening already completed for this slot")
         return
     args.work_dir.mkdir(parents=True, exist_ok=True)
-    row = {"schema": 1, "journal_version": 5, "mode": "HISTORICAL_SCREENING_5M", "slot": slot, "interval_minutes": 5,
+    row = {"schema": 1, "journal_version": 6, "mode": "HISTORICAL_SCREENING_5M", "slot": slot, "interval_minutes": 5,
            "checked_at": iso(now), "stale_after_minutes": 12, "status": "INPUT_UNAVAILABLE",
            "last_success": previous.get("last_success"), "exploration": previous.get("exploration"),
            "exploration_status": "INPUT_UNAVAILABLE", "lab_v2": previous.get("lab_v2"), "lab_v2_status": "INPUT_UNAVAILABLE",
@@ -285,6 +305,12 @@ def main():
                 row["lab_v2_status"] = "COMPLETE"
             except (OSError, ValueError, KeyError, subprocess.SubprocessError):
                 row["lab_v2_status"] = "CALCULATION_FAILED"
+        if (bundle / "market_agents.py").is_file():
+            try:
+                observation=run_observers(bundle,args.dependency_dir.resolve(),args.work_dir,args.output)
+                row["observers"]={"status":"COMPLETE","generated_at":observation["generated_at"]}
+            except (OSError,ValueError,KeyError,subprocess.SubprocessError):
+                row["observers"]={"status":"CALCULATION_FAILED"}
     write_json(args.output, row)
     count = row["last_success"]["executed_simulations"] if row["status"] == "COMPLETE" else 0
     print(f"Five-minute screening: {row['status']}; {count} simulations in slot {slot}")

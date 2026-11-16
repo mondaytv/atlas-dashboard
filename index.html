@@ -135,6 +135,9 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .exploration-panel{margin:0 0 18px}.exploration-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;color:var(--muted)}
 .exploration-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.exploration-account{min-width:0;border:1px solid var(--line);border-radius:9px;padding:10px}
 .exploration-account summary{color:var(--text);font-size:12px;cursor:pointer;line-height:1.8;overflow-wrap:anywhere}.exploration-account summary:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.observer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.observer-card{min-width:0;border:1px solid var(--line);border-radius:11px;padding:14px;background:var(--bg)}.observer-card h3{font-size:14px;margin:0 0 9px}.observer-wide{grid-column:1/-1}.observer-card select{width:100%;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:12px}.observer-card select:focus-visible{outline:2px solid var(--mint);outline-offset:3px}.observer-card ul{padding-left:17px;margin:9px 0}.observer-card li{margin:9px 0}.observer-card a{overflow-wrap:anywhere;color:var(--blue)}.observer-card progress{width:100%;height:7px;accent-color:var(--blue)}.observer-card .lab-metrics{margin-top:12px}.observer-card .lab-metric dd{font-size:19px}
+.observer-card .lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.observer-grid{grid-template-columns:1fr}.observer-card{padding:12px}}
 @media(max-width:760px){.exploration-list{grid-template-columns:1fr}}
 .lab-link{color:var(--blue);text-underline-offset:3px}
 .lab-diary{margin:0 0 18px}.lab-diary-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:12px}
@@ -179,6 +182,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  <section id="globalRiskBanner" class="risk-banner" aria-live="polite"><div class="risk-icon">✓</div><div class="risk-copy"><b>Protezione globale in caricamento</b><span>Verifica del drawdown paper nelle ultime 24 ore.</span></div><div class="risk-value"><b>—</b><span>soglia —</span></div></section>
  <section class="section">
   <div class="section-head"><div><h2>Agente IA · test e ricerca</h2><p>Prove esplorative autonome e decisioni del modello originale, separate.</p></div></div>
+  <div id="aiObservers" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento moduli di analisi…</p></div>
   <div id="aiLabV2" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento Laboratorio V2…</p></div>
   <div id="aiExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
   <div id="aiPipeline" class="pipeline-card"><div class="loading">Caricamento agenti…</div></div>
@@ -233,6 +237,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
    <ol id="labEventLog" class="lab-diary-log" role="log" aria-live="off" aria-label="Passaggi registrati del Laboratorio" tabindex="0"><li class="lab-note">Il diario apparirà con il primo screening disponibile.</li></ol>
    <div class="lab-diary-foot"><div><p id="labDiaryStatus" class="lab-note" role="status">Aggiornamenti dal motore ogni cinque minuti.</p><p id="labDiaryNext" class="lab-note" aria-live="off"></p></div><button id="labDiaryLatest" class="lab-diary-control" type="button" hidden>Vai agli ultimi passaggi</button></div>
   </section>
+  <div id="labObservers" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento moduli di analisi…</p></div>
   <div id="labV2" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento Laboratorio V2…</p></div>
   <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
   <div id="labCandidates"></div>
@@ -612,6 +617,9 @@ const LAB_REPORT_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard
 const LAB_WATCH_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/monitor.json';
 const LAB_SCREENING_PULSE_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/screening-5m.json';
 const LAB_SCREENING_PULSE_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/screening-5m.json?ref=research-monitor';
+const OBSERVERS_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/observer.json';
+const OBSERVERS_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/observer.json?ref=research-monitor';
+let observerSnapshot=null,observerRequest=null,observerApiSlot=-1,observerSelection=readPreference('observerPair','');
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
 const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media',discovered:'Strategia scoperta'};
 const labStatuses={PAPER_RESEARCH:'In osservazione',RESEARCH_QUALIFIED:'Qualificata PAPER',RESEARCH_STOPPED:'Fermata',RETIRED:'Archiviata'};
@@ -636,6 +644,68 @@ function labTime(value){
 }
 function labMetric(label,value){
  return '<div class="lab-metric"><dt>'+labEscape(label)+'</dt><dd>'+labEscape(value)+'</dd></div>';
+}
+function observerPct(value){return Number.isFinite(value)?Math.round(value*100)+'%':'n/d'}
+function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
+function renderObservers(report,unreachable=false){
+ const valid=report?.version==='atlas-observers-v1'&&report.paper_only===true&&report.advisory_only===true&&report.auto_entry_enabled===false;
+ for(const id of ['aiObservers','labObservers']){
+  const root=document.getElementById(id);
+  if(!valid){root.innerHTML='<h2>Scanner, notizie e scenari</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo passaggio dei moduli.')+' Dati disponibili: n/d.</p>';continue}
+  const stamp=Date.parse(report.generated_at),stale=!Number.isFinite(stamp)||!Number.isFinite(report.stale_after_minutes)||Date.now()-stamp>report.stale_after_minutes*60000;
+  const entries=Array.isArray(report.entry_reviews)?report.entry_reviews:[];
+  const selected=entries.find(r=>r.pair===observerSelection)||entries[0];
+  const key=report.generated_at+' '+observerSelection+' '+stale+' '+unreachable;
+  if(root.dataset.snapshot===key)continue;
+  const open=new Set([...root.querySelectorAll('details[open]')].map(el=>el.dataset.observerKey));
+  const focused=root.contains(document.activeElement)?document.activeElement:null;
+  const wasSelect=focused?.matches('[data-observer-select]');
+  const s=report.scanner||{},n=report.news||{},model=selected?.scenarios||{},plan=selected?.entry_plan||{};
+  const status={WAIT_FOR_SETUP:'In attesa di un setup',SETUP_AND_EXECUTION_CHECKS_PASS:'Setup presente · controlli del book superati',EXECUTION_FILTERS_FAILED:'Setup presente · condizioni del book non idonee',DATA_UNAVAILABLE:'Dati eseguibili non disponibili'};
+  const items=Array.isArray(n.items)?n.items:[];
+  const news=items.length?'<ul>'+items.map(item=>{const link=typeof item.url==='string'&&item.url.startsWith('https://')?'<a href="'+labEscape(item.url)+'" target="_blank" rel="noopener noreferrer">'+labEscape(item.title)+'</a>':labEscape(item.title);return '<li class="lab-note">'+link+'<br>'+labEscape(item.source)+' · pubblicata '+labTime(item.published_at)+'</li>'}).join('')+'</ul>':'<p class="lab-note">'+(n.status==='UNAVAILABLE'?'Fonti non raggiungibili: notizie n/d.':'Nessun titolo dell’ultima ora nei feed letti.')+'</p>';
+  const options=entries.map(row=>'<option value="'+labEscape(row.pair)+'"'+(row.pair===selected?.pair?' selected':'')+'>'+labEscape(row.market)+'</option>').join('');
+  const metrics=[['Perdita · stima del modello',observerPct(model.estimated_loss_probability)],['Media dei percorsi',labMoney(model.mean_net_pnl_eur,true)],['5° percentile simulato',labMoney(model.p05_net_pnl_eur,true)],['95° percentile simulato',labMoney(model.p95_net_pnl_eur,true)]];
+  const labels={STOP:'Stop',TARGET:'Obiettivo',TIME_LIMIT:'Limite di tempo'};
+  const outcomes=Object.entries(model.outcomes||{}).map(([name,row])=>'<div class="lab-note">'+labEscape(labels[name]??name)+' · '+labCount(row.count)+' percorsi · '+observerPct(row.probability)+' · media netta '+labMoney(row.mean_net_pnl_eur,true)+'<progress max="1" value="'+(Number.isFinite(row.probability)?Math.max(0,Math.min(1,row.probability)):0)+'" aria-label="Frazione di percorsi simulati terminati con '+labEscape(labels[name]??name)+'"></progress></div>').join('');
+  const simulation=model.status==='COMPLETE'?'<p class="lab-note">'+labCount(model.paths)+' percorsi campionati · '+labCount(model.historical_bars)+' candele storiche · orizzonte '+labCount(plan.horizon_bars)+' candele da '+labCount(plan.interval_minutes)+' min.</p><dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl>'+outcomes+
+   '<details class="lab-detail" data-observer-key="assumptions"><summary>Ipotesi, stress e limiti delle statistiche</summary><p class="lab-note">Bootstrap a blocchi di '+labCount(model.block_bars)+' candele, dal '+labTime(model.history_from)+' al '+labTime(model.history_to)+'. Fee per lato '+(Number.isFinite(model.fee_per_side)?pct(model.fee_per_side*100)+'%':'n/d')+'; spread e impatto attuali sono mantenuti nel modello. Il book futuro è sconosciuto; l’effetto delle notizie non è modellato.</p><p class="lab-note">Valore minimo/massimo tra i soli percorsi campionati: '+labMoney(model.sample_min_net_pnl_eur,true)+' / '+labMoney(model.sample_max_net_pnl_eur,true)+'. Non sono limiti alle perdite o ai guadagni possibili.</p><ul>'+(model.stress_tests||[]).map(row=>'<li class="lab-note">'+(Number.isFinite(row.gap_return)?'Gap ipotetico '+Math.round(row.gap_return*100)+'%':'Nessuna liquidità eseguibile')+' · P&L '+labMoney(row.net_pnl_eur,true)+' · probabilità n/d</li>').join('')+'</ul><p class="lab-note">L’intervallo statistico del campionamento misura l’errore della simulazione, non l’incertezza del mercato futuro. Uno stop può essere superato da un gap. Il modello non esamina tutti i futuri possibili.</p></details>':
+   '<p class="lab-note">Scenari '+(model.status==='INSUFFICIENT_HISTORY'?'non calcolabili: campione storico insufficiente.':'n/d: mancano dati o un’ipotesi eseguibile.')+'</p>';
+  root.innerHTML='<div class="lab-lead"><div><h2>Scanner, notizie e scenari</h2><p>Quattro moduli automatici. Controllo previsto ogni '+labCount(report.check_interval_minutes)+' minuti, con fonti e orari reali.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Analisi · ')+labTime(report.generated_at)+'</p></div><div class="observer-grid">'+
+   '<article class="observer-card"><h3>1 · Cerca setup nei grafici</h3><dl class="lab-metrics">'+labMetric('Grafici letti dall’avvio',labCount(s.unique_charts_ever_observed))+labMetric('Grafici nel catalogo',labCount(s.chart_universe))+'</dl><p class="lab-note">Questo giro: '+labCount(s.charts_this_check)+' letti · '+labCount(s.fresh_charts)+' aggiornati · '+labCount(s.fresh_setup_charts)+' con setup. '+labCount(s.markets_in_universe)+' mercati EUR su '+labCount(s.timeframes?.length)+' intervalli. La scansione ruota: il catalogo non è il numero già analizzato.</p></article>'+
+   '<article class="observer-card"><h3>2 · Notizie dell’ultima ora</h3><p class="lab-note">'+labCount(n.sources_available)+' / '+labCount(n.sources?.length)+' fonti raggiunte · controllo '+labTime(n.checked_at)+'. Un titolo recente per fonte; copertura parziale del mercato.</p>'+news+'</article>'+
+   '<article class="observer-card observer-wide"><h3>3 · Controlla un possibile ingresso</h3>'+(options?'<label class="lab-note">Mercato<select data-observer-select aria-label="Mercato per controlli d’ingresso e scenari">'+options+'</select></label>':'<p class="lab-note">Mercati pronti per l’analisi: n/d.</p>')+
+   '<p class="lab-note"><b>'+labEscape(status[selected?.status]??'In attesa di dati')+'</b>. '+(selected?.hypothesis_only?'L’ingresso sotto è solo un’ipotesi: non c’è un segnale valido.':'Il controllo descrive un setup al momento della rilevazione.')+'</p><p class="lab-note">Book '+labTime(selected?.quote_at)+' · candela completata '+labTime(selected?.candle_at)+'. Ingresso ipotetico '+observerPrice(plan.entry_price)+' · stop '+observerPrice(plan.stop)+' · target '+observerPrice(plan.target)+'. Nessun momento perfetto garantito e nessun ordine autorizzato.</p></article>'+
+   '<article class="observer-card observer-wide"><h3>4 · “Macchina del tempo”: scenari campionati</h3><p class="lab-note">Sono stime condizionate al modello, non probabilità precise del futuro. Le crisi mai osservate possono produrre esiti diversi.</p>'+simulation+'</article></div>'+
+   '<details class="lab-detail" data-observer-key="activity"><summary>Ultimo passaggio e disponibilità delle fonti</summary><ul>'+(report.events||[]).map(event=>'<li class="lab-note">'+labTime(event.at)+' · '+labEscape({SCANNER:'Scanner · grafici letti',NEWS:'Notizie · titoli mostrati',ENTRY:'Ingressi · ipotesi controllate',SCENARIOS:'Scenari · percorsi complessivi'}[event.agent]??event.agent)+' · '+labCount(event.count)+'</li>').join('')+'</ul><p class="lab-note">'+(n.sources||[]).map(row=>labEscape(row.source)+': '+labEscape(row.status)).join(' · ')+'</p></details><p class="lab-note">Analisi algoritmiche, senza un modello linguistico esterno. Modalità consultiva: i modelli congelati, le posizioni e i costi dei test restano invariati. Nessun ordine reale.</p>';
+  root.dataset.snapshot=key;
+  root.querySelectorAll('details').forEach(el=>{if(open.has(el.dataset.observerKey))el.open=true});
+  if(wasSelect)root.querySelector('[data-observer-select]')?.focus({preventScroll:true});
+ }
+}
+document.addEventListener('change',event=>{
+ if(event.target.matches('[data-observer-select]')){observerSelection=event.target.value;writePreference('observerPair',observerSelection);if(observerSnapshot)renderObservers(observerSnapshot)}
+});
+async function refreshObservers(){
+ if(observerRequest)return observerRequest;
+ observerRequest=(async()=>{
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const now=Date.now(),slot=Math.floor(now/300000);let response;
+   if(observerApiSlot!==slot&&(!observerSnapshot||now%300000>=30000)){
+    observerApiSlot=slot;
+    try{response=await fetch(OBSERVERS_API+'&t='+now,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'},signal:controller.signal})}catch{}
+   }
+   if(!response?.ok)response=await fetch(OBSERVERS_URL+'?t='+now,{cache:'no-store',signal:controller.signal});
+   if(response.status===404&&!observerSnapshot){renderObservers(null,false);return}
+   if(!response.ok)throw new Error('Observers unavailable');
+   const report=await response.json(),stamp=Date.parse(report?.generated_at);
+   if(report.version!=='atlas-observers-v1'||report.paper_only!==true||report.advisory_only!==true||report.auto_entry_enabled!==false||!Number.isFinite(stamp))throw new Error('Invalid observer report');
+   if(!observerSnapshot||stamp>=Date.parse(observerSnapshot.generated_at))observerSnapshot=report;
+   renderObservers(observerSnapshot);
+  }catch{renderObservers(observerSnapshot,true)}finally{clearTimeout(timeout)}
+ })();
+ try{return await observerRequest}finally{observerRequest=null}
 }
 function renderLabV2(report,unreachable=false){
  const valid=report?.version==='atlas-laboratory-v2'&&report.paper_only===true&&report.validated===false&&Array.isArray(report.accounts);
@@ -1023,6 +1093,7 @@ async function refreshLabScreeningPulse(){
  try{return await labScreeningRequest;}finally{labScreeningRequest=null;}
 }
 async function refreshLaboratory(){
+ if((workspacePage==='ai'||workspacePage==='laboratorio')&&document.visibilityState==='visible')void refreshObservers();
  if(workspacePage==='ai'&&document.visibilityState==='visible'){void refreshLabScreeningPulse();return}
  if(workspacePage!=='laboratorio'||document.visibilityState!=='visible')return;
  void refreshLabWatch();
