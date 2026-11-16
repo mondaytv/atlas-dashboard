@@ -137,6 +137,8 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .exploration-account summary{color:var(--text);font-size:12px;cursor:pointer;line-height:1.8;overflow-wrap:anywhere}.exploration-account summary:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
 .observer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.observer-card{min-width:0;border:1px solid var(--line);border-radius:11px;padding:14px;background:var(--bg)}.observer-card h3{font-size:14px;margin:0 0 9px}.observer-wide{grid-column:1/-1}.observer-card select{width:100%;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:12px}.observer-card select:focus-visible{outline:2px solid var(--mint);outline-offset:3px}.observer-card ul{padding-left:17px;margin:9px 0}.observer-card li{margin:9px 0}.observer-card a{overflow-wrap:anywhere;color:var(--blue)}.observer-card progress{width:100%;height:7px;accent-color:var(--blue)}.observer-card .lab-metrics{margin-top:12px}.observer-card .lab-metric dd{font-size:19px}
 .observer-card .lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.paired-arms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.paired-arm{min-width:0;padding:16px;border:1px solid var(--line);border-radius:11px;background:var(--bg)}.paired-arm h3{font-size:14px;margin:0 0 14px}.paired-arm>strong{font-size:27px;font-weight:650;font-variant-numeric:tabular-nums;display:block;margin:6px 0}.paired-arm .lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:13px}.paired-arm .lab-metric dd{font-size:18px}.paired-delta{padding:13px 0}.paired-delta strong{font-size:22px;font-variant-numeric:tabular-nums}.paired-trial{padding:10px 0;border-top:1px solid var(--line)}
+@media(max-width:760px){.paired-arms{grid-template-columns:1fr}}
 @media(max-width:760px){.observer-grid{grid-template-columns:1fr}.observer-card{padding:12px}}
 @media(max-width:760px){.exploration-list{grid-template-columns:1fr}}
 .lab-link{color:var(--blue);text-underline-offset:3px}
@@ -182,6 +184,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  <section id="globalRiskBanner" class="risk-banner" aria-live="polite"><div class="risk-icon">✓</div><div class="risk-copy"><b>Protezione globale in caricamento</b><span>Verifica del drawdown paper nelle ultime 24 ore.</span></div><div class="risk-value"><b>—</b><span>soglia —</span></div></section>
  <section class="section">
   <div class="section-head"><div><h2>Agente IA · test e ricerca</h2><p>Prove esplorative autonome e decisioni del modello originale, separate.</p></div></div>
+  <div id="aiPaired" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento confronto A/B…</p></div>
   <div id="aiObservers" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento moduli di analisi…</p></div>
   <div id="aiLabV2" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento Laboratorio V2…</p></div>
   <div id="aiExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
@@ -237,6 +240,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
    <ol id="labEventLog" class="lab-diary-log" role="log" aria-live="off" aria-label="Passaggi registrati del Laboratorio" tabindex="0"><li class="lab-note">Il diario apparirà con il primo screening disponibile.</li></ol>
    <div class="lab-diary-foot"><div><p id="labDiaryStatus" class="lab-note" role="status">Aggiornamenti dal motore ogni cinque minuti.</p><p id="labDiaryNext" class="lab-note" aria-live="off"></p></div><button id="labDiaryLatest" class="lab-diary-control" type="button" hidden>Vai agli ultimi passaggi</button></div>
   </section>
+  <div id="labPaired" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento confronto A/B…</p></div>
   <div id="labObservers" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento moduli di analisi…</p></div>
   <div id="labV2" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento Laboratorio V2…</p></div>
   <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
@@ -619,6 +623,9 @@ const LAB_SCREENING_PULSE_URL='https://raw.githubusercontent.com/mondaytv/atlas-
 const LAB_SCREENING_PULSE_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/screening-5m.json?ref=research-monitor';
 const OBSERVERS_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/observer.json';
 const OBSERVERS_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/observer.json?ref=research-monitor';
+const PAIRED_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/paired.json';
+const PAIRED_API='https://api.github.com/repos/mondaytv/atlas-dashboard/contents/paired.json?ref=research-monitor';
+let pairedSnapshot=null,pairedRequest=null,pairedApiSlot=-1;
 let observerSnapshot=null,observerRequest=null,observerApiSlot=-1,observerSelection=readPreference('observerPair','');
 const labDateFormat=new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'});
 const labFamilies={breakout:'Breakout',trend:'Trend',pullback:'Pullback',reversion:'Ritorno alla media',discovered:'Strategia scoperta'};
@@ -644,6 +651,60 @@ function labTime(value){
 }
 function labMetric(label,value){
  return '<div class="lab-metric"><dt>'+labEscape(label)+'</dt><dd>'+labEscape(value)+'</dd></div>';
+}
+function renderPaired(report,unreachable=false){
+ const valid=report?.version==='atlas-paired-entry-v1'&&report.paper_only===true&&report.real_orders_enabled===false&&report.accounts?.control&&report.accounts?.filtered;
+ for(const id of ['aiPaired','labPaired']){
+  const root=document.getElementById(id);
+  if(!valid){root.innerHTML='<h2>Confronto A/B · gli agenti alla prova</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo controllo A/B.')+' Conti del confronto: n/d.</p>';continue}
+  const stamp=Date.parse(report.generated_at),stale=!Number.isFinite(stamp)||!Number.isFinite(report.stale_after_minutes)||Date.now()-stamp>report.stale_after_minutes*60000;
+  const key=report.generated_at+' '+stale+' '+unreachable;
+  if(root.dataset.snapshot===key)continue;
+  const open=new Set([...root.querySelectorAll('details[open]')].map(el=>el.dataset.pairedKey));
+  const focused=root.contains(document.activeElement)?document.activeElement.closest('details')?.dataset.pairedKey:null;
+  const p=report.protocol||{},c=report.comparison||{},last=report.recent_trials?.[0],analysis=last?.analysis;
+  const reasons={NONPOSITIVE_MODEL_MEAN:'Media netta simulata non positiva',HIGH_MODEL_LOSS_FRACTION:'Troppi percorsi simulati in perdita',RELEVANT_HEADLINE_HAZARD:'Allarme in un titolo recente pertinente',NEWS_UNAVAILABLE_OR_STALE:'Notizie insufficienti o non aggiornate',SCENARIOS_UNAVAILABLE:'Scenari non disponibili'};
+  const decisions={ACCEPT:'B accetta',VETO:'B salta',ANALYSIS_UNAVAILABLE:'B resta in liquidità: analisi incompleta'};
+  const actions={NO_BASE_SIGNAL_BOTH_CASH:'Nessun segnale della strategia: entrambi in liquidità.',WAITING_FOR_NEXT_SIGNAL_CANDLE:'In attesa di una nuova candela per il prossimo segnale.',MANAGING_SHARED_TRIAL:'Operazione in corso: gli stessi prezzi e le stesse uscite valgono per entrambi i conti esposti.',WAITING_FOR_MARKET_DATA:'In attesa dei dati comuni.',WAITING_FOR_SHARED_MARKET_DATA:'In attesa di prezzi eseguibili comuni.',EXIT_WAITING_FOR_FRESH_BID:'Uscita in attesa di un prezzo di vendita aggiornato.',WAITING_FOR_FRESH_CLOSED_CANDLE:'In attesa di una candela completata aggiornata.',SHARED_EXECUTION_FILTERS_FAILED:'Condizioni di esecuzione non idonee per entrambi.',WAITING_FOR_SHARED_EXECUTABLE_BOOK:'Book comune non disponibile.',CAPITAL_LIMIT_NO_RESET:'Capitale virtuale insufficiente: nessun reset.',STUDY_COMPLETE:'Periodo di confronto concluso.'};
+  const verdicts={COLLECTING_NO_FINAL_CONCLUSION:'Raccolta in corso · nessuna conclusione finale',DATA_INCOMPLETE_NO_CONCLUSION:'Dati incompleti · confronto non conclusivo',INSUFFICIENT_CLOSED_SAMPLE:'Chiusure insufficienti per il minimo previsto',OBSERVED_ADVANTAGE_IN_THIS_SAMPLE_NOT_VALIDATED:'Vantaggio osservato in questo campione · non validato',NO_PROFITABLE_ADVANTAGE_DEMONSTRATED:'Nessun vantaggio profittevole dimostrato'};
+  const cards=Object.entries(report.accounts).map(([arm,row])=>{
+   const m=row.metrics||{},pos=row.position;
+   const metrics=[['Realizzato',labMoney(m.realized_pnl_eur,true)],['Chiusure',labCount(m.closed_trades)],['Fee pagate simulate',labMoney(row.fees_paid_eur)],['Vincite / perdite',labCount(m.wins)+' / '+(Number.isFinite(m.closed_trades)&&Number.isFinite(m.wins)?labCount(m.closed_trades-m.wins):'n/d')]];
+   return '<article class="paired-arm" data-paired-arm="'+labEscape(arm)+'"><h3>'+labEscape(row.label)+'</h3><span class="lab-note">Equity virtuale netta</span><strong>'+labMoney(row.equity)+'</strong><p class="lab-note">P&L '+labMoney(m.net_pnl_eur,true)+(row.equity_stale?' · VALORE NON AGGIORNATO':'')+'</p><dl class="lab-metrics">'+metrics.map(([label,value])=>labMetric(label,value)).join('')+'</dl><p class="lab-note">'+(pos?'Posizione '+labEscape(pos.symbol)+' · ingresso '+labTime(pos.entry_at)+' a '+observerPrice(pos.entry_price):'Nessuna posizione aperta.')+'</p></article>';
+  }).join('');
+  const trials=(report.recent_trials||[]).map(t=>'<div class="paired-trial"><p class="lab-note"><b>'+labEscape(decisions[t.analysis?.decision]??'Decisione n/d')+'</b> · '+labTime(t.opened_at)+' · '+(t.closed_at?'chiusa '+labTime(t.closed_at):'operazione A ancora aperta')+'</p><p class="lab-note">A '+labMoney(t.control_pnl_eur,true)+' · B '+(t.analysis?.decision==='ACCEPT'?labMoney(t.filtered_pnl_eur,true):'nessuna operazione')+' · differenza chiusa '+labMoney(t.paired_delta_eur,true)+'</p><p class="lab-note">'+((t.analysis?.reasons||[]).map(reason=>labEscape(reasons[reason]??reason)).join(' · ')||'Filtro superato.')+'</p></div>').join('');
+  root.innerHTML='<div class="lab-lead"><div><h2>Confronto A/B · gli agenti alla prova</h2><p>Due conti nuovi, stessa strategia su '+labEscape(p.symbol)+'/'+labEscape(p.quote_currency)+'. Solo B usa le analisi per accettare o saltare gli ingressi.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Controllo · ')+labTime(report.generated_at)+'</p></div><div class="paired-arms">'+cards+'</div>'+
+   '<div class="paired-delta"><p class="lab-note">Differenza B − A, compresa la valutazione delle posizioni aperte</p><strong>'+labMoney(c.filtered_minus_control_eur,true)+'</strong><p class="lab-note">'+labEscape(verdicts[c.verdict]??'Esito n/d')+'. Se B resta fermo e perde meno, questo non è un profitto da trading.</p></div>'+
+   '<p class="lab-note">Occasioni comuni '+labCount(c.opportunities)+' · B accetta '+labCount(c.accepted)+' · B salta '+labCount(c.skipped)+' · analisi incomplete '+labCount(c.missing_analysis)+'. Perdite nette evitate '+labMoney(c.avoided_net_losses_eur)+' · guadagni netti mancati '+labMoney(c.missed_net_gains_eur)+'.</p>'+
+   '<p class="lab-note">'+labEscape(actions[report.last_action]??(report.last_action?.startsWith('BASE_ENTERED_FILTER_')?'A è entrato; '+(decisions[analysis?.decision]??'decisione B n/d')+'.':report.last_action?.startsWith('PAIRED_CLOSE_')?'Operazione comune chiusa.':'Stato in aggiornamento.'))+'</p>'+
+   '<p class="lab-note">Riferimenti sullo stesso periodo: liquidità '+labMoney(report.cash_benchmark_pnl_eur,true)+' senza interessi · acquisto passivo '+(report.benchmark_stale?'n/d · riferimento non aggiornato':labMoney(report.buy_hold_pnl_eur,true))+' con '+labMoney(p.trade_eur)+' investiti e resto fermo.</p>'+
+   '<details class="lab-detail" data-paired-key="decision"><summary>Ultima decisione di B e occasioni registrate</summary>'+(analysis?'<p class="lab-note">Media simulata '+labMoney(analysis.scenarios?.mean_net_pnl_eur,true)+' · percorsi in perdita '+labEscape(observerPct(analysis.scenarios?.estimated_loss_probability))+' · fonti notizie '+labCount(analysis.news?.sources_available)+' · controllo '+labTime(analysis.evaluated_at)+'. Sono stime del modello, non garanzie.</p>':'<p class="lab-note">Nessuna occasione comune ancora registrata; nessuna decisione viene inventata.</p>')+(trials||'')+'</details>'+
+   '<details class="lab-detail" data-paired-key="protocol"><summary>Regole fissate prima della prova</summary><p class="lab-note">Conto '+labMoney(p.initial_capital_per_arm)+' per lato · posizione '+labMoney(p.trade_eur)+' · fee '+(Number.isFinite(p.fee_per_side)?pct(p.fee_per_side*100)+'%':'n/d')+' per lato · candele '+labCount(p.interval_minutes)+' min. Gli ingressi accettati condividono esattamente prezzi e uscite.</p><p class="lab-note">B richiede media netta simulata maggiore di '+labMoney(p.filter?.mean_net_pnl_gt)+', perdite in non più del '+observerPct(p.filter?.loss_probability_lte)+' dei percorsi e nessun allarme pertinente nei titoli recenti. Con dati d’analisi mancanti, B rimane in liquidità e il problema viene registrato.</p><p class="lab-note">Strategia: medie '+labCount(p.recipe?.fast)+'/'+labCount(p.recipe?.slow)+', momentum '+labCount(p.recipe?.momentum)+'; stop '+labCount(p.recipe?.stop_atr)+' ATR, target '+labCount(p.recipe?.target_atr)+' ATR, durata massima '+labCount(p.recipe?.max_hold_bars)+' candele. Il filtro è sperimentale e non viene ottimizzato durante il confronto.</p><p class="lab-note">Registrazione '+labTime(report.registered_at)+' · inizio prezzi '+labTime(report.market_started_at)+' · fine prevista '+labTime(report.study_end_at)+' · '+labCount(p.study_days)+' giorni. Minimo tecnico: '+labCount(p.minimum_closed_per_arm)+' chiusure per conto; non è una garanzia di affidabilità.</p><p class="lab-note">Protocollo '+labEscape(report.protocol_hash?.slice(0,16))+'. I test precedenti e i loro saldi restano separati. Nessun ordine reale.</p></details>';
+  root.dataset.snapshot=key;
+  root.querySelectorAll('details').forEach(el=>{if(open.has(el.dataset.pairedKey))el.open=true});
+  if(focused)[...root.querySelectorAll('details')].find(el=>el.dataset.pairedKey===focused)?.querySelector('summary')?.focus({preventScroll:true});
+ }
+}
+async function refreshPaired(){
+ if(pairedRequest)return pairedRequest;
+ pairedRequest=(async()=>{
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const now=Date.now(),slot=Math.floor(now/300000);let response;
+   if(pairedApiSlot!==slot&&(!pairedSnapshot||now%300000>=30000)){
+    pairedApiSlot=slot;
+    try{response=await fetch(PAIRED_API+'&t='+now,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'},signal:controller.signal})}catch{}
+   }
+   if(!response?.ok)response=await fetch(PAIRED_URL+'?t='+now,{cache:'no-store',signal:controller.signal});
+   if(response.status===404&&!pairedSnapshot){renderPaired(null,false);return}
+   if(!response.ok)throw new Error('Paired report unavailable');
+   const report=await response.json(),stamp=Date.parse(report?.generated_at);
+   if(report.version!=='atlas-paired-entry-v1'||report.paper_only!==true||report.real_orders_enabled!==false||!Number.isFinite(stamp))throw new Error('Invalid paired report');
+   if(!pairedSnapshot||stamp>=Date.parse(pairedSnapshot.generated_at))pairedSnapshot=report;
+   renderPaired(pairedSnapshot);
+  }catch{renderPaired(pairedSnapshot,true)}finally{clearTimeout(timeout)}
+ })();
+ try{return await pairedRequest}finally{pairedRequest=null}
 }
 function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
 function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
@@ -1093,7 +1154,7 @@ async function refreshLabScreeningPulse(){
  try{return await labScreeningRequest;}finally{labScreeningRequest=null;}
 }
 async function refreshLaboratory(){
- if((workspacePage==='ai'||workspacePage==='laboratorio')&&document.visibilityState==='visible')void refreshObservers();
+ if((workspacePage==='ai'||workspacePage==='laboratorio')&&document.visibilityState==='visible'){void refreshObservers();void refreshPaired()}
  if(workspacePage==='ai'&&document.visibilityState==='visible'){void refreshLabScreeningPulse();return}
  if(workspacePage!=='laboratorio'||document.visibilityState!=='visible')return;
  void refreshLabWatch();
