@@ -1,10 +1,10 @@
 {
   "check_interval_minutes": 5,
-  "cost_effect_net_eur": 3.2792473911891875,
-  "cycles": 305,
+  "cost_effect_net_eur": 3.273659509847107,
+  "cycles": 306,
   "day_timezone": "Europe/Rome",
   "errors": {},
-  "generated_at": "2026-11-17T15:40:28+00:00",
+  "generated_at": "2026-11-17T15:45:28+00:00",
   "lane": "SIGNAL_DAY_PAPER",
   "limits": [
     "PAPER only: no order is sent anywhere; results are simulated on observed public books.",
@@ -141,8 +141,8 @@
           "label": "Rottura dei massimi",
           "last_action": "WAIT_FOR_SIGNAL",
           "metrics": {
-            "buy_hold_excess_eur": -1.8488648437500856,
-            "buy_hold_pnl_eur": -2.061391878250582,
+            "buy_hold_excess_eur": -0.9133127410276458,
+            "buy_hold_pnl_eur": -2.996943980973022,
             "closed_trades": 1,
             "fees_eur": 1.58136889740322,
             "max_drawdown_pct": 0.3910256722000627,
@@ -209,8 +209,8 @@
           "label": "Rientro nel trend",
           "last_action": "WAIT_FOR_SIGNAL",
           "metrics": {
-            "buy_hold_excess_eur": 0.7986231324910236,
-            "buy_hold_pnl_eur": -2.061391878250582,
+            "buy_hold_excess_eur": 1.7341752352134634,
+            "buy_hold_pnl_eur": -2.996943980973022,
             "closed_trades": 1,
             "fees_eur": 1.6027196068890355,
             "max_drawdown_pct": 0.3206915886548978,
@@ -258,53 +258,42 @@
           ]
         },
         "trend": {
-          "cash": 899.2,
+          "cash": 995.6221588802348,
           "counters": {
             "entered": 1,
             "signals": 1,
             "skipped_costs": 0,
             "skipped_execution": 0
           },
-          "daily": [],
-          "equity": 996.6300094786488,
+          "daily": [
+            {
+              "closed": 1,
+              "date": "2026-11-17",
+              "fees_eur": 1.577598055485764,
+              "pnl_eur": -4.377841119765279,
+              "wins": 0
+            }
+          ],
+          "equity": 995.6221588802348,
           "equity_stale": false,
           "label": "Spinta di tendenza",
-          "last_action": "MANAGING_OPEN_POSITION",
+          "last_action": "PAPER_SELL_STOP",
           "metrics": {
-            "buy_hold_excess_eur": -1.3085986431005736,
-            "buy_hold_pnl_eur": -2.061391878250582,
-            "closed_trades": 0,
-            "fees_eur": 0,
-            "max_drawdown_pct": 0.36220424330987155,
-            "net_pnl_eur": -3.3699905213511556,
-            "profit_factor": 0,
+            "buy_hold_excess_eur": -1.3808971387921858,
+            "buy_hold_pnl_eur": -2.996943980973022,
+            "closed_trades": 1,
+            "fees_eur": 1.577598055485764,
+            "max_drawdown_pct": 0.43778411197652467,
+            "net_pnl_eur": -4.377841119765208,
+            "profit_factor": 0.0,
             "profit_factor_no_losses": false,
-            "realized_pnl_eur": 0,
+            "realized_pnl_eur": -4.377841119765279,
             "single_asset_profit_share": null,
             "single_trade_profit_share": null,
-            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "trade_fingerprint": "bc299913e8b5b286a9c832935721f784dddd402c95ac88391cf0acefe4a518a9",
             "wins": 0
           },
-          "position": {
-            "cost_total": 100.8,
-            "entry_at": 1794848428,
-            "entry_context": {
-              "atr": 19.16785714285707,
-              "c": 1661.53,
-              "rsi": 52.10995234477515,
-              "sma20": 1649.0884999999998,
-              "sma50": 1644.9726
-            },
-            "entry_fee": 0.8,
-            "entry_notional": 100.0,
-            "entry_price": 1660.53204,
-            "lane": "SIGNAL_DAY_PAPER",
-            "qty": 0.060221662449825415,
-            "signal_t": 1794844800,
-            "stop": 1622.1963257142859,
-            "symbol": "ETH",
-            "target": 1775.5391828571424
-          },
+          "position": null,
           "recipe": {
             "family": "trend",
             "fast": 10,
@@ -317,15 +306,34 @@
             "volume_filter": false
           },
           "rule": "Compra quando il prezzo e' sopra la media a 10 ore, la media a 10 e' sopra quella a 50 e il prezzo e' salito nelle ultime 6 ore.",
-          "trades": []
+          "trades": [
+            {
+              "entry_at": 1794848428,
+              "entry_context": {
+                "atr": 19.16785714285707,
+                "c": 1661.53,
+                "rsi": 52.10995234477515,
+                "sma20": 1649.0884999999998,
+                "sma50": 1644.9726
+              },
+              "entry_price": 1660.53204,
+              "exit_at": 1794930328,
+              "exit_price": 1614.033106719761,
+              "fees": 1.577598055485764,
+              "lane": "SIGNAL_DAY_PAPER",
+              "pnl": -4.377841119765279,
+              "reason": "STOP",
+              "symbol": "ETH"
+            }
+          ]
         }
       },
       "daily": [
         {
-          "closed": 2,
+          "closed": 3,
           "date": "2026-11-17",
-          "fees_eur": 3.1840885042922555,
-          "pnl_eur": -5.173025467760354,
+          "fees_eur": 4.76168655977802,
+          "pnl_eur": -9.550866587525633,
           "wins": 0
         }
       ],
@@ -335,22 +343,22 @@
       "observed_venue": true,
       "summary": {
         "accounts_positive_and_above_buy_hold": [],
-        "average_net_per_elapsed_day_eur": -8.093383568631834,
+        "average_net_per_elapsed_day_eur": -9.018523203958443,
         "benchmark_stale": false,
-        "best_day_eur": -5.173025467760354,
-        "buy_hold_pnl_eur": -2.061391878250582,
-        "closed_trades": 2,
-        "days_elapsed": 1.0555555555555556,
+        "best_day_eur": -9.550866587525633,
+        "buy_hold_pnl_eur": -2.996943980973022,
+        "closed_trades": 3,
+        "days_elapsed": 1.0590277777777777,
         "days_with_closes": 1,
-        "fees_eur": 3.1840885042922555,
+        "fees_eur": 4.76168655977802,
         "minimum_sample_met": false,
         "negative_days": 1,
-        "net_pnl_eur": -8.543015989111382,
+        "net_pnl_eur": -9.550866587525434,
         "positive_days": 0,
-        "realized_pnl_eur": -5.173025467760354,
+        "realized_pnl_eur": -9.550866587525633,
         "validated": false,
         "verdict": "COLLECTING_NO_FINAL_CONCLUSION",
-        "worst_day_eur": -5.173025467760354
+        "worst_day_eur": -9.550866587525633
       }
     },
     "low": {
@@ -377,8 +385,8 @@
           "label": "Rottura dei massimi",
           "last_action": "WAIT_FOR_SIGNAL",
           "metrics": {
-            "buy_hold_excess_eur": -1.8591156064927432,
-            "buy_hold_pnl_eur": -0.9639499985433062,
+            "buy_hold_excess_eur": -0.9183764709427109,
+            "buy_hold_pnl_eur": -1.9046891340933385,
             "closed_trades": 1,
             "fees_eur": 0.49417778043850624,
             "max_drawdown_pct": 0.282306560503609,
@@ -445,8 +453,8 @@
           "label": "Rientro nel trend",
           "last_action": "WAIT_FOR_SIGNAL",
           "metrics": {
-            "buy_hold_excess_eur": 0.8030509825198564,
-            "buy_hold_pnl_eur": -0.9639499985433062,
+            "buy_hold_excess_eur": 1.7437901180698887,
+            "buy_hold_pnl_eur": -1.9046891340933385,
             "closed_trades": 1,
             "fees_eur": 0.5008498771528236,
             "max_drawdown_pct": 0.32211236880582694,
@@ -494,53 +502,42 @@
           ]
         },
         "trend": {
-          "cash": 899.75,
+          "cash": 996.7067575433812,
           "counters": {
             "entered": 1,
             "signals": 1,
             "skipped_costs": 0,
             "skipped_execution": 0
           },
-          "daily": [],
-          "equity": 997.7201960231373,
+          "daily": [
+            {
+              "closed": 1,
+              "date": "2026-11-17",
+              "fees_eur": 0.49299939233930123,
+              "pnl_eur": -3.293242456618813,
+              "wins": 0
+            }
+          ],
+          "equity": 996.7067575433812,
           "equity_stale": false,
           "label": "Spinta di tendenza",
-          "last_action": "MANAGING_OPEN_POSITION",
+          "last_action": "PAPER_SELL_STOP",
           "metrics": {
-            "buy_hold_excess_eur": -1.3158539783193888,
-            "buy_hold_pnl_eur": -0.9639499985433062,
-            "closed_trades": 0,
-            "fees_eur": 0,
-            "max_drawdown_pct": 0.26692627151299053,
-            "net_pnl_eur": -2.279803976862695,
-            "profit_factor": 0,
+            "buy_hold_excess_eur": -1.388553322525489,
+            "buy_hold_pnl_eur": -1.9046891340933385,
+            "closed_trades": 1,
+            "fees_eur": 0.49299939233930123,
+            "max_drawdown_pct": 0.34291481897532616,
+            "net_pnl_eur": -3.2932424566188274,
+            "profit_factor": 0.0,
             "profit_factor_no_losses": false,
-            "realized_pnl_eur": 0,
+            "realized_pnl_eur": -3.293242456618813,
             "single_asset_profit_share": null,
             "single_trade_profit_share": null,
-            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "trade_fingerprint": "c407bd60dcb40122cb18821c5afbd52dc06e204b019d6f30c767a09d3996aee4",
             "wins": 0
           },
-          "position": {
-            "cost_total": 100.25,
-            "entry_at": 1794848428,
-            "entry_context": {
-              "atr": 19.16785714285707,
-              "c": 1661.53,
-              "rsi": 52.10995234477515,
-              "sma20": 1649.0884999999998,
-              "sma50": 1644.9726
-            },
-            "entry_fee": 0.25,
-            "entry_notional": 100.0,
-            "entry_price": 1660.53204,
-            "lane": "SIGNAL_DAY_PAPER",
-            "qty": 0.060221662449825415,
-            "signal_t": 1794844800,
-            "stop": 1622.1963257142859,
-            "symbol": "ETH",
-            "target": 1775.5391828571424
-          },
+          "position": null,
           "recipe": {
             "family": "trend",
             "fast": 10,
@@ -553,15 +550,34 @@
             "volume_filter": false
           },
           "rule": "Compra quando il prezzo e' sopra la media a 10 ore, la media a 10 e' sopra quella a 50 e il prezzo e' salito nelle ultime 6 ore.",
-          "trades": []
+          "trades": [
+            {
+              "entry_at": 1794848428,
+              "entry_context": {
+                "atr": 19.16785714285707,
+                "c": 1661.53,
+                "rsi": 52.10995234477515,
+                "sma20": 1649.0884999999998,
+                "sma50": 1644.9726
+              },
+              "entry_price": 1660.53204,
+              "exit_at": 1794930328,
+              "exit_price": 1614.033106719761,
+              "fees": 0.49299939233930123,
+              "lane": "SIGNAL_DAY_PAPER",
+              "pnl": -3.293242456618813,
+              "reason": "STOP",
+              "symbol": "ETH"
+            }
+          ]
         }
       },
       "daily": [
         {
-          "closed": 2,
+          "closed": 3,
           "date": "2026-11-17",
-          "fees_eur": 0.9950276575913298,
-          "pnl_eur": -2.983964621059414,
+          "fees_eur": 1.488027049930631,
+          "pnl_eur": -6.277207077678227,
           "wins": 0
         }
       ],
@@ -571,22 +587,22 @@
       "observed_venue": false,
       "summary": {
         "accounts_positive_and_above_buy_hold": [],
-        "average_net_per_elapsed_day_eur": -4.986728145399973,
+        "average_net_per_elapsed_day_eur": -5.927329961873306,
         "benchmark_stale": false,
-        "best_day_eur": -2.983964621059414,
-        "buy_hold_pnl_eur": -0.9639499985433062,
-        "closed_trades": 2,
-        "days_elapsed": 1.0555555555555556,
+        "best_day_eur": -6.277207077678227,
+        "buy_hold_pnl_eur": -1.9046891340933385,
+        "closed_trades": 3,
+        "days_elapsed": 1.0590277777777777,
         "days_with_closes": 1,
-        "fees_eur": 0.9950276575913298,
+        "fees_eur": 1.488027049930631,
         "minimum_sample_met": false,
         "negative_days": 1,
-        "net_pnl_eur": -5.263768597922194,
+        "net_pnl_eur": -6.277207077678327,
         "positive_days": 0,
-        "realized_pnl_eur": -2.983964621059414,
+        "realized_pnl_eur": -6.277207077678227,
         "validated": false,
         "verdict": "COLLECTING_NO_FINAL_CONCLUSION",
-        "worst_day_eur": -2.983964621059414
+        "worst_day_eur": -6.277207077678227
       }
     }
   },
