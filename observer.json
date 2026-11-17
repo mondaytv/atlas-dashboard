@@ -2,21 +2,150 @@
   "advisory_only": true,
   "auto_entry_enabled": false,
   "check_interval_minutes": 5,
-  "cycles": 287,
+  "cycles": 288,
   "entry_reviews": [
     {
       "candle_at": "2026-11-17T04:00:00+00:00",
-      "checked_at": "2026-11-17T11:35:26+00:00",
+      "checked_at": "2026-11-17T11:40:26+00:00",
       "entry_plan": {
-        "entry_price": 58747.847219999996,
-        "exit_ratio": 0.999795744506975,
+        "entry_price": 0.0004276072364388349,
+        "exit_ratio": 0.9705404002820514,
+        "horizon_bars": 24,
+        "hypothesis_only": false,
+        "interval_minutes": 240,
+        "mid": 0.0004155,
+        "stop": 0.00041146437929597777,
+        "symbol": "SNEK",
+        "target": 0.0004679643792959778
+      },
+      "has_setup": true,
+      "hypothesis_only": false,
+      "interval_minutes": 240,
+      "market": "SNEK/EUR",
+      "observed_execution_filters": [
+        "SPREAD",
+        "IMPACT",
+        "VOLUME"
+      ],
+      "order_authorized": false,
+      "pair": "SNEKEUR",
+      "perfect_timing_claim": false,
+      "quote_at": "2026-11-17T11:40:26+00:00",
+      "recipe": {
+        "family": "breakout",
+        "lookback": 20,
+        "max_hold_bars": 24,
+        "stop_atr": 2.0,
+        "target_atr": 5.0,
+        "trend_filter": false,
+        "volume_filter": false
+      },
+      "scenarios": {
+        "all_possible_outcomes": false,
+        "block_bars": 6,
+        "common_random_paths": true,
+        "estimated_loss_probability": 0.76025390625,
+        "expected_shortfall_05_eur": -18.630815268842472,
+        "fee_per_side": 0.008,
+        "historical_bars": 360,
+        "history_from": "2026-09-18T08:00:00+00:00",
+        "history_to": "2026-11-17T08:00:00+00:00",
+        "limitations": [
+          "Only sampled historical return paths, not every possible future.",
+          "Unseen crises, regime changes and current news are not assigned invented probabilities.",
+          "Future spread/depth are unknown; current observed exit friction is held constant in the simulation.",
+          "Stop before target if both touched in a sampled bar; stops may be exceeded by gaps.",
+          "No setup or order is authorized by these statistics. No parameters are optimized to improve this output."
+        ],
+        "mean_net_pnl_eur": -7.307702061948711,
+        "median_net_pnl_eur": -8.698801208597303,
+        "method": "MOVING_BLOCK_BOOTSTRAP_OHLC_WITH_GAPS",
+        "monte_carlo_sampling_interval_95": [
+          0.7412874950353536,
+          0.7782458224231448
+        ],
+        "news_effects_modelled": false,
+        "notional_eur": 100.0,
+        "outcomes": {
+          "STOP": {
+            "count": 1512,
+            "mean_net_pnl_eur": -11.215637898491805,
+            "probability": 0.73828125
+          },
+          "TARGET": {
+            "count": 472,
+            "mean_net_pnl_eur": 4.564191930860545,
+            "probability": 0.23046875
+          },
+          "TIME_LIMIT": {
+            "count": 64,
+            "mean_net_pnl_eur": -2.5379361205863677,
+            "probability": 0.03125
+          }
+        },
+        "p05_net_pnl_eur": -17.829398467005362,
+        "p95_net_pnl_eur": 4.564191930860545,
+        "paths": 2048,
+        "plan": {
+          "entry_price": 0.0004276072364388349,
+          "exit_ratio": 0.9705404002820514,
+          "horizon_bars": 24,
+          "hypothesis_only": false,
+          "interval_minutes": 240,
+          "mid": 0.0004155,
+          "stop": 0.00041146437929597777,
+          "symbol": "SNEK",
+          "target": 0.0004679643792959778
+        },
+        "predictive_guarantee": false,
+        "sample_max_net_pnl_eur": 4.564191930860545,
+        "sample_min_net_pnl_eur": -19.945428506276386,
+        "seed": 17043613021769180740,
+        "status": "COMPLETE",
+        "stress_tests": [
+          {
+            "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
+            "gap_return": -0.1,
+            "net_pnl_eur": -16.603549766284615,
+            "probability": null
+          },
+          {
+            "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
+            "gap_return": -0.3,
+            "net_pnl_eur": -35.313872040443584,
+            "probability": null
+          },
+          {
+            "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
+            "gap_return": 0.2,
+            "net_pnl_eur": 4.564191930860545,
+            "probability": null
+          },
+          {
+            "event": "NO_EXECUTABLE_LIQUIDITY",
+            "net_pnl_eur": null,
+            "probability": null
+          }
+        ],
+        "uncertainty_note": "Sampling interval describes Monte Carlo sampling error conditional on this model, not future market uncertainty.",
+        "version": "atlas-scenario-bootstrap-v1"
+      },
+      "status": "EXECUTION_FILTERS_FAILED",
+      "symbol": "SNEK"
+    },
+    {
+      "candle_at": "2026-11-17T04:00:00+00:00",
+      "checked_at": "2026-11-17T11:40:26+00:00",
+      "entry_plan": {
+        "entry_price": 58852.16808,
+        "exit_ratio": 0.9997898048599756,
         "horizon_bars": 24,
         "hypothesis_only": true,
         "interval_minutes": 240,
-        "mid": 58735.85,
-        "stop": 56419.790077142854,
+        "mid": 58839.8,
+        "stop": 56524.11093714286,
         "symbol": "XBT",
-        "target": 64567.99007714286
+        "target": 64672.310937142865
       },
       "has_setup": false,
       "hypothesis_only": true,
@@ -26,7 +155,7 @@
       "order_authorized": false,
       "pair": "XBTEUR",
       "perfect_timing_claim": false,
-      "quote_at": "2026-11-17T11:35:26+00:00",
+      "quote_at": "2026-11-17T11:40:26+00:00",
       "recipe": {
         "family": "trend",
         "fast": 20,
@@ -42,8 +171,8 @@
         "all_possible_outcomes": false,
         "block_bars": 6,
         "common_random_paths": true,
-        "estimated_loss_probability": 0.79638671875,
-        "expected_shortfall_05_eur": -5.5505524970903934,
+        "estimated_loss_probability": 0.796875,
+        "expected_shortfall_05_eur": -5.544151602409684,
         "fee_per_side": 0.008,
         "historical_bars": 360,
         "history_from": "2026-09-18T08:00:00+00:00",
@@ -55,68 +184,68 @@
           "Stop before target if both touched in a sampled bar; stops may be exceeded by gaps.",
           "No setup or order is authorized by these statistics. No parameters are optimized to improve this output."
         ],
-        "mean_net_pnl_eur": -2.6124771170396137,
-        "median_net_pnl_eur": -3.205165262379772,
+        "mean_net_pnl_eur": -2.6117682289769966,
+        "median_net_pnl_eur": -3.206324845143392,
         "method": "MOVING_BLOCK_BOOTSTRAP_OHLC_WITH_GAPS",
         "monte_carlo_sampling_interval_95": [
-          0.7783992551275182,
-          0.8132643915841299
+          0.7789021552787232,
+          0.8137362256120215
         ],
         "news_effects_modelled": false,
         "notional_eur": 100.0,
         "outcomes": {
           "STOP": {
-            "count": 823,
-            "mean_net_pnl_eur": -5.5505524970903934,
-            "probability": 0.40185546875
+            "count": 824,
+            "mean_net_pnl_eur": -5.544151602409684,
+            "probability": 0.40234375
           },
           "TARGET": {
             "count": 24,
-            "mean_net_pnl_eur": 8.205463735547667,
+            "mean_net_pnl_eur": 8.187399253407776,
             "probability": 0.01171875
           },
           "TIME_LIMIT": {
-            "count": 1201,
-            "mean_net_pnl_eur": -0.8153035472480251,
-            "probability": 0.58642578125
+            "count": 1200,
+            "mean_net_pnl_eur": -0.8141816622009134,
+            "probability": 0.5859375
           }
         },
-        "p05_net_pnl_eur": -5.5505524970903934,
-        "p95_net_pnl_eur": 3.307608536575546,
+        "p05_net_pnl_eur": -5.544151602409684,
+        "p95_net_pnl_eur": 3.3063715716403883,
         "paths": 2048,
         "plan": {
-          "entry_price": 58747.847219999996,
-          "exit_ratio": 0.999795744506975,
+          "entry_price": 58852.16808,
+          "exit_ratio": 0.9997898048599756,
           "horizon_bars": 24,
           "hypothesis_only": true,
           "interval_minutes": 240,
-          "mid": 58735.85,
-          "stop": 56419.790077142854,
+          "mid": 58839.8,
+          "stop": 56524.11093714286,
           "symbol": "XBT",
-          "target": 64567.99007714286
+          "target": 64672.310937142865
         },
         "predictive_guarantee": false,
-        "sample_max_net_pnl_eur": 8.205463735547667,
-        "sample_min_net_pnl_eur": -5.5505524970903934,
+        "sample_max_net_pnl_eur": 8.187399253407776,
+        "sample_min_net_pnl_eur": -5.544151602409684,
         "seed": 8849260365806428020,
         "status": "COMPLETE",
         "stress_tests": [
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.1,
-            "net_pnl_eur": -11.556464564687417,
+            "net_pnl_eur": -11.557524920655396,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.3,
-            "net_pnl_eur": -31.388361328090213,
+            "net_pnl_eur": -31.389186049398646,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": 0.2,
-            "net_pnl_eur": 8.205463735547667,
+            "net_pnl_eur": 8.187399253407776,
             "probability": null
           },
           {
@@ -133,17 +262,17 @@
     },
     {
       "candle_at": "2026-11-17T04:00:00+00:00",
-      "checked_at": "2026-11-17T11:35:26+00:00",
+      "checked_at": "2026-11-17T11:40:26+00:00",
       "entry_plan": {
-        "entry_price": 1647.049344,
-        "exit_ratio": 0.9997666058366456,
+        "entry_price": 1650.149964,
+        "exit_ratio": 0.9997515172087724,
         "horizon_bars": 24,
         "hypothesis_only": true,
         "interval_minutes": 240,
-        "mid": 1646.665,
-        "stop": 1568.6950582857144,
+        "mid": 1649.74,
+        "stop": 1571.7956782857143,
         "symbol": "ETH",
-        "target": 1842.9350582857144
+        "target": 1846.0356782857143
       },
       "has_setup": false,
       "hypothesis_only": true,
@@ -153,7 +282,7 @@
       "order_authorized": false,
       "pair": "ETHEUR",
       "perfect_timing_claim": false,
-      "quote_at": "2026-11-17T11:35:27+00:00",
+      "quote_at": "2026-11-17T11:40:27+00:00",
       "recipe": {
         "family": "trend",
         "fast": 20,
@@ -170,7 +299,7 @@
         "block_bars": 6,
         "common_random_paths": true,
         "estimated_loss_probability": 0.80029296875,
-        "expected_shortfall_05_eur": -6.341245123563994,
+        "expected_shortfall_05_eur": -6.33380558111095,
         "fee_per_side": 0.008,
         "historical_bars": 360,
         "history_from": "2026-09-18T08:00:00+00:00",
@@ -182,8 +311,8 @@
           "Stop before target if both touched in a sampled bar; stops may be exceeded by gaps.",
           "No setup or order is authorized by these statistics. No parameters are optimized to improve this output."
         ],
-        "mean_net_pnl_eur": -3.407428890603811,
-        "median_net_pnl_eur": -6.3412451235639935,
+        "mean_net_pnl_eur": -3.407242534902826,
+        "median_net_pnl_eur": -6.333805581110951,
         "method": "MOVING_BLOCK_BOOTSTRAP_OHLC_WITH_GAPS",
         "monte_carlo_sampling_interval_95": [
           0.7824235674358433,
@@ -193,57 +322,57 @@
         "notional_eur": 100.0,
         "outcomes": {
           "STOP": {
-            "count": 1061,
-            "mean_net_pnl_eur": -6.341245123563994,
-            "probability": 0.51806640625
+            "count": 1064,
+            "mean_net_pnl_eur": -6.33380558111095,
+            "probability": 0.51953125
           },
           "TARGET": {
             "count": 7,
-            "mean_net_pnl_eur": 10.172078355393339,
+            "mean_net_pnl_eur": 10.148240727663165,
             "probability": 0.00341796875
           },
           "TIME_LIMIT": {
-            "count": 980,
-            "mean_net_pnl_eur": -0.32812024524791994,
-            "probability": 0.478515625
+            "count": 977,
+            "mean_net_pnl_eur": -0.31719678431174886,
+            "probability": 0.47705078125
           }
         },
-        "p05_net_pnl_eur": -6.3412451235639935,
-        "p95_net_pnl_eur": 3.7613947729620687,
+        "p05_net_pnl_eur": -6.333805581110951,
+        "p95_net_pnl_eur": 3.758238813432905,
         "paths": 2048,
         "plan": {
-          "entry_price": 1647.049344,
-          "exit_ratio": 0.9997666058366456,
+          "entry_price": 1650.149964,
+          "exit_ratio": 0.9997515172087724,
           "horizon_bars": 24,
           "hypothesis_only": true,
           "interval_minutes": 240,
-          "mid": 1646.665,
-          "stop": 1568.6950582857144,
+          "mid": 1649.74,
+          "stop": 1571.7956782857143,
           "symbol": "ETH",
-          "target": 1842.9350582857144
+          "target": 1846.0356782857143
         },
         "predictive_guarantee": false,
-        "sample_max_net_pnl_eur": 10.172078355393339,
-        "sample_min_net_pnl_eur": -6.3412451235639935,
+        "sample_max_net_pnl_eur": 10.148240727663165,
+        "sample_min_net_pnl_eur": -6.333805581110951,
         "seed": 2582612932449170415,
         "status": "COMPLETE",
         "stress_tests": [
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.1,
-            "net_pnl_eur": -11.561666329384721,
+            "net_pnl_eur": -11.564359795459154,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.3,
-            "net_pnl_eur": -31.392407145077016,
+            "net_pnl_eur": -31.394502063134908,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": 0.2,
-            "net_pnl_eur": 10.172078355393339,
+            "net_pnl_eur": 10.148240727663165,
             "probability": null
           },
           {
@@ -257,169 +386,42 @@
       },
       "status": "WAIT_FOR_SETUP",
       "symbol": "ETH"
-    },
-    {
-      "candle_at": "2026-11-17T04:00:00+00:00",
-      "checked_at": "2026-11-17T11:35:26+00:00",
-      "entry_plan": {
-        "entry_price": 66.683334,
-        "exit_ratio": 0.9997250131253281,
-        "horizon_bars": 24,
-        "hypothesis_only": true,
-        "interval_minutes": 240,
-        "mid": 66.66499999999999,
-        "stop": 63.03619114285714,
-        "symbol": "SOL",
-        "target": 75.80119114285716
-      },
-      "has_setup": false,
-      "hypothesis_only": true,
-      "interval_minutes": 240,
-      "market": "SOL/EUR",
-      "observed_execution_filters": [],
-      "order_authorized": false,
-      "pair": "SOLEUR",
-      "perfect_timing_claim": false,
-      "quote_at": "2026-11-17T11:35:27+00:00",
-      "recipe": {
-        "family": "trend",
-        "fast": 20,
-        "max_hold_bars": 24,
-        "momentum": 3,
-        "slow": 50,
-        "stop_atr": 2.0,
-        "target_atr": 5.0,
-        "trend_filter": false,
-        "volume_filter": false
-      },
-      "scenarios": {
-        "all_possible_outcomes": false,
-        "block_bars": 6,
-        "common_random_paths": true,
-        "estimated_loss_probability": 0.79931640625,
-        "expected_shortfall_05_eur": -7.051378850490223,
-        "fee_per_side": 0.008,
-        "historical_bars": 360,
-        "history_from": "2026-09-18T08:00:00+00:00",
-        "history_to": "2026-11-17T08:00:00+00:00",
-        "limitations": [
-          "Only sampled historical return paths, not every possible future.",
-          "Unseen crises, regime changes and current news are not assigned invented probabilities.",
-          "Future spread/depth are unknown; current observed exit friction is held constant in the simulation.",
-          "Stop before target if both touched in a sampled bar; stops may be exceeded by gaps.",
-          "No setup or order is authorized by these statistics. No parameters are optimized to improve this output."
-        ],
-        "mean_net_pnl_eur": -3.7673909450152547,
-        "median_net_pnl_eur": -7.051378850490224,
-        "method": "MOVING_BLOCK_BOOTSTRAP_OHLC_WITH_GAPS",
-        "monte_carlo_sampling_interval_95": [
-          0.7814172501908475,
-          0.8160948015953803
-        ],
-        "news_effects_modelled": false,
-        "notional_eur": 100.0,
-        "outcomes": {
-          "STOP": {
-            "count": 1068,
-            "mean_net_pnl_eur": -7.051378850490223,
-            "probability": 0.521484375
-          },
-          "TARGET": {
-            "count": 15,
-            "mean_net_pnl_eur": 11.932971683339531,
-            "probability": 0.00732421875
-          },
-          "TIME_LIMIT": {
-            "count": 965,
-            "mean_net_pnl_eur": -0.37693121069199514,
-            "probability": 0.47119140625
-          }
-        },
-        "p05_net_pnl_eur": -7.051378850490224,
-        "p95_net_pnl_eur": 4.645228892941583,
-        "paths": 2048,
-        "plan": {
-          "entry_price": 66.683334,
-          "exit_ratio": 0.9997250131253281,
-          "horizon_bars": 24,
-          "hypothesis_only": true,
-          "interval_minutes": 240,
-          "mid": 66.66499999999999,
-          "stop": 63.03619114285714,
-          "symbol": "SOL",
-          "target": 75.80119114285716
-        },
-        "predictive_guarantee": false,
-        "sample_max_net_pnl_eur": 11.932971683339531,
-        "sample_min_net_pnl_eur": -7.051378850490224,
-        "seed": 1543638705829486817,
-        "status": "COMPLETE",
-        "stress_tests": [
-          {
-            "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
-            "gap_return": -0.1,
-            "net_pnl_eur": -11.56909083400059,
-            "probability": null
-          },
-          {
-            "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
-            "gap_return": -0.3,
-            "net_pnl_eur": -31.39818175977824,
-            "probability": null
-          },
-          {
-            "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
-            "gap_return": 0.2,
-            "net_pnl_eur": 11.932971683339531,
-            "probability": null
-          },
-          {
-            "event": "NO_EXECUTABLE_LIQUIDITY",
-            "net_pnl_eur": null,
-            "probability": null
-          }
-        ],
-        "uncertainty_note": "Sampling interval describes Monte Carlo sampling error conditional on this model, not future market uncertainty.",
-        "version": "atlas-scenario-bootstrap-v1"
-      },
-      "status": "WAIT_FOR_SETUP",
-      "symbol": "SOL"
     }
   ],
   "events": [
     {
       "agent": "SCANNER",
-      "at": "2026-11-17T11:35:26+00:00",
+      "at": "2026-11-17T11:40:26+00:00",
       "count": 12
     },
     {
       "agent": "NEWS",
-      "at": "2026-11-17T11:35:26+00:00",
+      "at": "2026-11-17T11:40:26+00:00",
       "count": 2
     },
     {
       "agent": "ENTRY",
-      "at": "2026-11-17T11:35:27+00:00",
+      "at": "2026-11-17T11:40:27+00:00",
       "count": 3
     },
     {
       "agent": "SCENARIOS",
-      "at": "2026-11-17T11:35:27+00:00",
+      "at": "2026-11-17T11:40:27+00:00",
       "count": 6144
     }
   ],
-  "generated_at": "2026-11-17T11:35:27+00:00",
+  "generated_at": "2026-11-17T11:40:27+00:00",
   "llm_enabled": false,
   "news": {
-    "checked_at": "2026-11-17T11:35:26+00:00",
+    "checked_at": "2026-11-17T11:40:26+00:00",
     "items": [
       {
-        "published_at": "2026-11-17T11:29:51+00:00",
-        "published_epoch": 1794914991.0,
+        "published_at": "2026-11-17T11:36:07+00:00",
+        "published_epoch": 1794915367.0,
         "source": "CoinDesk",
-        "title": "Solana Foundation takes majority stake in crypto data provider CoinGecko",
+        "title": "Bitcoin remains penned in near $64,000 even as ETF outflow streak ends",
         "untrusted_source_text": true,
-        "url": "https://www.coindesk.com/business/2026/11/17/solana-foundation-takes-majority-stake-in-crypto-data-provider-coingecko"
+        "url": "https://www.coindesk.com/markets/2026/11/17/bitcoin-remains-penned-in-near-usd64-000-even-as-etf-outflow-streak-ends"
       },
       {
         "published_at": "2026-11-17T11:18:18+00:00",
@@ -485,144 +487,175 @@
     "chart_budget_per_check": 12,
     "chart_universe": 1964,
     "charts_this_check": 12,
-    "checked_at": "2026-11-17T11:35:26+00:00",
+    "checked_at": "2026-11-17T11:40:26+00:00",
     "count_note": "Chart = actual asset/timeframe series inspected; universe size is not processed count.",
     "errors": {},
-    "fresh_charts": 583,
-    "fresh_setup_charts": 61,
+    "fresh_charts": 595,
+    "fresh_setup_charts": 63,
     "markets_in_universe": 491,
     "recent_charts": [
       {
         "candle_t": 1794787200,
-        "checked_at": 1794915326,
-        "history_bars": 300,
+        "checked_at": 1794915625,
+        "history_bars": 568,
         "interval_minutes": 1440,
-        "market": "SKR/EUR",
-        "pair": "SKREUR",
+        "market": "SNEK/EUR",
+        "pair": "SNEKEUR",
         "setups": [],
-        "symbol": "SKR",
-        "ticker_key": "SKREUR"
+        "symbol": "SNEK",
+        "ticker_key": "SNEKEUR"
       },
       {
         "candle_t": 1794888000,
-        "checked_at": 1794915325,
+        "checked_at": 1794915625,
         "history_bars": 720,
         "interval_minutes": 240,
-        "market": "SKR/EUR",
-        "pair": "SKREUR",
+        "market": "SNEK/EUR",
+        "pair": "SNEKEUR",
+        "setups": [
+          {
+            "family": "breakout",
+            "lookback": 20,
+            "max_hold_bars": 24,
+            "stop_atr": 2.0,
+            "target_atr": 5.0,
+            "trend_filter": false,
+            "volume_filter": false
+          }
+        ],
+        "symbol": "SNEK",
+        "ticker_key": "SNEKEUR"
+      },
+      {
+        "candle_t": 1794909600,
+        "checked_at": 1794915625,
+        "history_bars": 720,
+        "interval_minutes": 60,
+        "market": "SNEK/EUR",
+        "pair": "SNEKEUR",
         "setups": [],
-        "symbol": "SKR",
-        "ticker_key": "SKREUR"
+        "symbol": "SNEK",
+        "ticker_key": "SNEKEUR"
       },
       {
         "candle_t": 1794787200,
-        "checked_at": 1794915324,
-        "history_bars": 214,
+        "checked_at": 1794915624,
+        "history_bars": 176,
         "interval_minutes": 1440,
-        "market": "SIGN/EUR",
-        "pair": "SIGNEUR",
+        "market": "SLX/EUR",
+        "pair": "SLXEUR",
         "setups": [],
-        "symbol": "SIGN",
-        "ticker_key": "SIGNEUR"
+        "symbol": "SLX",
+        "ticker_key": "SLXEUR"
       },
       {
         "candle_t": 1794914100,
-        "checked_at": 1794915324,
+        "checked_at": 1794915624,
         "history_bars": 720,
         "interval_minutes": 15,
-        "market": "SKR/EUR",
-        "pair": "SKREUR",
+        "market": "SNEK/EUR",
+        "pair": "SNEKEUR",
         "setups": [],
-        "symbol": "SKR",
-        "ticker_key": "SKREUR"
-      },
-      {
-        "candle_t": 1794909600,
-        "checked_at": 1794915324,
-        "history_bars": 720,
-        "interval_minutes": 60,
-        "market": "SKR/EUR",
-        "pair": "SKREUR",
-        "setups": [],
-        "symbol": "SKR",
-        "ticker_key": "SKREUR"
+        "symbol": "SNEK",
+        "ticker_key": "SNEKEUR"
       },
       {
         "candle_t": 1794888000,
-        "checked_at": 1794915323,
+        "checked_at": 1794915623,
         "history_bars": 720,
         "interval_minutes": 240,
-        "market": "SIGN/EUR",
-        "pair": "SIGNEUR",
+        "market": "SLX/EUR",
+        "pair": "SLXEUR",
         "setups": [],
-        "symbol": "SIGN",
-        "ticker_key": "SIGNEUR"
-      },
-      {
-        "candle_t": 1794914100,
-        "checked_at": 1794915322,
-        "history_bars": 720,
-        "interval_minutes": 15,
-        "market": "SIGN/EUR",
-        "pair": "SIGNEUR",
-        "setups": [],
-        "symbol": "SIGN",
-        "ticker_key": "SIGNEUR"
+        "symbol": "SLX",
+        "ticker_key": "SLXEUR"
       },
       {
         "candle_t": 1794909600,
-        "checked_at": 1794915322,
+        "checked_at": 1794915623,
         "history_bars": 720,
         "interval_minutes": 60,
-        "market": "SIGN/EUR",
-        "pair": "SIGNEUR",
+        "market": "SLX/EUR",
+        "pair": "SLXEUR",
         "setups": [],
-        "symbol": "SIGN",
-        "ticker_key": "SIGNEUR"
+        "symbol": "SLX",
+        "ticker_key": "SLXEUR"
       },
       {
         "candle_t": 1794787200,
-        "checked_at": 1794915321,
-        "history_bars": 658,
+        "checked_at": 1794915622,
+        "history_bars": 720,
         "interval_minutes": 1440,
-        "market": "SIGMA/EUR",
-        "pair": "SIGMAEUR",
+        "market": "SKY/EUR",
+        "pair": "SKYEUR",
         "setups": [],
-        "symbol": "SIGMA",
-        "ticker_key": "SIGMAEUR"
-      },
-      {
-        "candle_t": 1794888000,
-        "checked_at": 1794915321,
-        "history_bars": 720,
-        "interval_minutes": 240,
-        "market": "SIGMA/EUR",
-        "pair": "SIGMAEUR",
-        "setups": [],
-        "symbol": "SIGMA",
-        "ticker_key": "SIGMAEUR"
-      },
-      {
-        "candle_t": 1794909600,
-        "checked_at": 1794915321,
-        "history_bars": 720,
-        "interval_minutes": 60,
-        "market": "SIGMA/EUR",
-        "pair": "SIGMAEUR",
-        "setups": [],
-        "symbol": "SIGMA",
-        "ticker_key": "SIGMAEUR"
+        "symbol": "SKY",
+        "ticker_key": "SKYEUR"
       },
       {
         "candle_t": 1794914100,
-        "checked_at": 1794915320,
+        "checked_at": 1794915622,
         "history_bars": 720,
         "interval_minutes": 15,
-        "market": "SIGMA/EUR",
-        "pair": "SIGMAEUR",
+        "market": "SLX/EUR",
+        "pair": "SLXEUR",
         "setups": [],
-        "symbol": "SIGMA",
-        "ticker_key": "SIGMAEUR"
+        "symbol": "SLX",
+        "ticker_key": "SLXEUR"
+      },
+      {
+        "candle_t": 1794888000,
+        "checked_at": 1794915621,
+        "history_bars": 720,
+        "interval_minutes": 240,
+        "market": "SKY/EUR",
+        "pair": "SKYEUR",
+        "setups": [],
+        "symbol": "SKY",
+        "ticker_key": "SKYEUR"
+      },
+      {
+        "candle_t": 1794909600,
+        "checked_at": 1794915621,
+        "history_bars": 720,
+        "interval_minutes": 60,
+        "market": "SKY/EUR",
+        "pair": "SKYEUR",
+        "setups": [],
+        "symbol": "SKY",
+        "ticker_key": "SKYEUR"
+      },
+      {
+        "candle_t": 1794914100,
+        "checked_at": 1794915620,
+        "history_bars": 720,
+        "interval_minutes": 15,
+        "market": "SKY/EUR",
+        "pair": "SKYEUR",
+        "setups": [
+          {
+            "family": "breakout",
+            "lookback": 20,
+            "max_hold_bars": 24,
+            "stop_atr": 2.0,
+            "target_atr": 5.0,
+            "trend_filter": false,
+            "volume_filter": false
+          },
+          {
+            "family": "trend",
+            "fast": 20,
+            "max_hold_bars": 24,
+            "momentum": 3,
+            "slow": 50,
+            "stop_atr": 2.0,
+            "target_atr": 5.0,
+            "trend_filter": false,
+            "volume_filter": false
+          }
+        ],
+        "symbol": "SKY",
+        "ticker_key": "SKYEUR"
       }
     ],
     "status": "COMPLETE",
