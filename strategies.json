@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T20:12:17.195027+00:00",
+  "generated_at": "2026-11-17T20:41:54.506069+00:00",
   "mode": "PAPER",
   "paper_only": true,
   "account_capital": 1000.0,
@@ -14,7 +14,7 @@
   "experimental_capital": 3000.0,
   "test_plan_id": "definitive-paper-experimental-v1-2026-11",
   "test_until": "2026-12-03T08:00:00+00:00",
-  "cycle_mode": "SIGNAL",
+  "cycle_mode": "STOP_ONLY",
   "stale_after_minutes": 75,
   "global_risk": {
     "version": "global-24h-circuit-and-auto-demotion-v1",
@@ -23,9 +23,9 @@
     "manual_stop": false,
     "lock_reason": null,
     "locked_at": null,
-    "equity": 6868.341589087684,
+    "equity": 6868.428003951437,
     "peak_equity_24h": 6876.126102884047,
-    "drawdown_24h_pct": 0.11321074802712126,
+    "drawdown_24h_pct": 0.11195401040393163,
     "threshold_pct": 7.0,
     "history_points": 48,
     "entries_allowed": true
@@ -303,26 +303,31 @@
       "retired_reason": null,
       "initial_capital": 1000.0,
       "trade_size": 100.0,
-      "cash": 872.3223153394922,
-      "equity": 965.3378015431294,
-      "realized_pnl": -26.877684660508038,
-      "open_positions": 1,
-      "closed_trades": 4,
+      "cash": 965.4242164068819,
+      "equity": 965.4242164068819,
+      "realized_pnl": -34.57578359311837,
+      "open_positions": 0,
+      "closed_trades": 5,
       "win_rate": 0.0,
       "max_drawdown_pct": 3.747699925497159,
       "cycles": 91,
       "new_candles": 21,
       "unique_market_candles": 1808,
       "passes": 0,
-      "positions": [
+      "positions": [],
+      "trades": [
         {
           "symbol": "VVV",
+          "entry_ts": "2026-11-17T12:11:49.468053+00:00",
+          "exit_ts": "2026-11-17T20:41:54.495722+00:00",
           "entry_price": 19.6569306,
+          "exit_price": 18.448564596872423,
           "qty": 5.087264234427322,
-          "entry_ts": "2026-11-17T12:11:49.468053+00:00"
-        }
-      ],
-      "trades": [
+          "pnl": -7.6980989326103355,
+          "reason": "INTRABAR_HARD_STOP_6PCT",
+          "fees": 1.5508217828015294,
+          "execution_lane": "PAPER_EXPERIMENTAL"
+        },
         {
           "symbol": "NIGHT",
           "entry_ts": "2026-11-14T16:07:44.918838+00:00",
@@ -1324,21 +1329,21 @@
       "evidence": {
         "version": "paper-observability-v1",
         "scope": "complete_private_closed_paper_trades",
-        "closed_trades": 4,
+        "closed_trades": 5,
         "target_trades": 50,
         "win_rate": 0.0,
-        "avg_net_pnl": -6.7194211651270095,
+        "avg_net_pnl": -6.915156718623675,
         "profit_factor": 0.0,
-        "total_fees_eur": 6.234857381770096,
+        "total_fees_eur": 7.785679164571626,
         "total_slippage_eur": null,
         "cost_drag_pct": null,
         "cost_coverage": {
-          "fee_trades": 4,
+          "fee_trades": 5,
           "slippage_trades": 0,
-          "closed_trades": 4,
+          "closed_trades": 5,
           "note": "Closed-trade fees exclude open-position entry fees; historical spread/impact is embedded in fills and not separately itemized."
         },
-        "max_drawdown_closed": 2.6877684660508065,
+        "max_drawdown_closed": 3.457578359311844,
         "max_drawdown_closed_unit": "percent",
         "bootstrap_ci_mean_pnl": null,
         "insufficient_sample": true,
@@ -1354,9 +1359,10 @@
           "UNI": 1,
           "ZEC": 1,
           "PEPE": 1,
-          "NIGHT": 1
+          "NIGHT": 1,
+          "VVV": 1
         },
-        "largest_closed_asset_share_pct": 25.0,
+        "largest_closed_asset_share_pct": 20.0,
         "limitations": [
           "No proof of profitability",
           "Serial dependence and strategy selection can overstate apparent evidence",
