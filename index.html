@@ -171,7 +171,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 @media(max-width:1100px){.paired-arms.signal-arms{grid-template-columns:1fr}}
 
 .squad{margin:0 0 26px}.squad-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.squad-head h2{margin:0;font-size:17px;font-weight:650}.squad-head p{margin:2px 0 0;color:var(--muted);font-size:12px}
-.squad-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.squad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
 .squad-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .squad-top{display:flex;align-items:center;gap:12px;min-width:0}.squad-puppet{width:76px;height:76px;flex:none}
 .squad-name{min-width:0}.squad-name b{display:block;font-size:14px;font-weight:650}.squad-name span{display:block;font-size:11px;color:var(--muted)}
@@ -200,7 +200,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .boss-quick button:hover,.boss-form button:hover{border-color:var(--blue)}
 .boss-form{display:flex;gap:8px}.boss-form input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:9px 11px;font-size:13px}
 .squad-card[data-called]{border-color:var(--red);box-shadow:0 0 0 2px #f18b9633}
-@media(max-width:1100px){.squad-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1100px){.squad-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.squad-card[data-role=seeker]{grid-column:1/-1}}
 @media(max-width:760px){.squad-grid{grid-template-columns:1fr}.squad-head{flex-direction:column;align-items:flex-start}.squad-puppet{width:64px;height:64px}.boss{grid-template-columns:1fr}.boss-side{flex-direction:row;align-items:center}.boss-side .squad-puppet{width:64px;height:64px}.boss-log{height:260px}.boss-msg{max-width:100%}}
 @media(prefers-reduced-motion:reduce){.squad-puppet *{animation:none!important}}
 </style>
@@ -288,12 +288,12 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
  </section>
  <section id="squad" class="section squad" data-workspace-page="overview" aria-labelledby="squadTitle">
-  <div class="squad-head"><div><h2 id="squadTitle">La squadra</h2><p>Quattro aiutanti raccontano cosa stanno facendo i calcoli, con i dati veri.</p></div><span id="squadStamp" class="squad-time"></span></div>
+  <div class="squad-head"><div><h2 id="squadTitle">La squadra</h2><p>Cinque aiutanti raccontano cosa stanno facendo i calcoli, con i dati veri.</p></div><span id="squadStamp" class="squad-time"></span></div>
   <div class="boss" aria-labelledby="bossTitle">
    <div class="boss-side"><span id="bossPuppet"></span><div class="squad-name"><b id="bossTitle">Il Capo</b><span>Parla con te e dà gli ordini alla squadra</span></div></div>
    <div class="boss-main">
     <div id="bossLog" class="boss-log" role="log" aria-live="polite"></div>
-    <div class="boss-quick" aria-label="Ordini rapidi"><button type="button" data-boss="riassunto">Rapporto generale</button><button type="button" data-boss="mercati">Esploratore, cosa vedi?</button><button type="button" data-boss="segnali">Analista, ci sono segnali?</button><button type="button" data-boss="rischio">Guardiano, siamo al sicuro?</button><button type="button" data-boss="conti">Contabile, come vanno i conti?</button></div>
+    <div class="boss-quick" aria-label="Ordini rapidi"><button type="button" data-boss="riassunto">Rapporto generale</button><button type="button" data-boss="mercati">Esploratore, cosa vedi?</button><button type="button" data-boss="segnali">Analista, ci sono segnali?</button><button type="button" data-boss="rischio">Guardiano, siamo al sicuro?</button><button type="button" data-boss="conti">Contabile, come vanno i conti?</button><button type="button" data-boss="strategie">Cercatore, che strategie provi?</button></div>
     <form id="bossForm" class="boss-form"><input id="bossInput" type="text" maxlength="200" autocomplete="off" placeholder="Scrivi un ordine al Capo…" aria-label="Scrivi un ordine al Capo"><button type="submit">Invia</button></form>
    </div>
   </div>
@@ -836,28 +836,33 @@ async function refreshSignalDay(){
 
 // ---- La squadra: puppet agents that only narrate existing public reports (no decisions, no orders).
 const SQUAD_SOURCES={observer:OBSERVERS_URL,signal:SIGNAL_DAY_URL,paired:PAIRED_URL};
-const squadData={observer:null,signal:null,paired:null},squadFailed={observer:false,signal:false,paired:false};
+const squadData={observer:null,signal:null,paired:null,screening:null},squadFailed={observer:false,signal:false,paired:false,screening:false};
+const SQUAD_SCREENING_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/screening-5m.json';let squadScreeningSlot=-1;
+function squadStamp(r){return Date.parse(r?.generated_at??r?.checked_at)}
 let squadRequest=null,squadKey='';
 const squadValid={
  observer:r=>r?.version==='atlas-observers-v1'&&r.paper_only===true&&!!r.scanner,
  signal:r=>signalDayValid(r),
+ screening:r=>r?.mode!=null&&!!r?.exploration?.summary&&!!r?.last_success&&Number.isFinite(Date.parse(r?.checked_at)),
  paired:r=>r?.version==='atlas-paired-entry-v1'&&r.paper_only===true&&r.real_orders_enabled===false&&!!r.accounts?.control&&!!r.accounts?.filtered
 };
 function squadNewest(key,candidate){
  if(!squadValid[key](candidate))return;
- const current=squadData[key],stamp=Date.parse(candidate.generated_at);
+ const current=squadData[key],stamp=squadStamp(candidate);
  if(!Number.isFinite(stamp))return;
- if(!current||stamp>=Date.parse(current.generated_at))squadData[key]=candidate;
+ if(!current||stamp>=squadStamp(current))squadData[key]=candidate;
 }
 function squadStale(report){
- const stamp=Date.parse(report?.generated_at),limit=Number(report?.stale_after_minutes);
+ const stamp=squadStamp(report),limit=Number(report?.stale_after_minutes);
  return !Number.isFinite(stamp)||!Number.isFinite(limit)||Date.now()-stamp>limit*60000;
 }
 async function refreshSquad(){
  if(workspacePage!=='overview'||document.visibilityState!=='visible')return;
  if(squadRequest)return squadRequest;
  squadRequest=(async()=>{
-  await Promise.allSettled(Object.entries(SQUAD_SOURCES).map(async([key,url])=>{
+  const sources=Object.entries(SQUAD_SOURCES),slot=Math.floor(Date.now()/300000);
+  if(slot!==squadScreeningSlot||!squadData.screening){squadScreeningSlot=slot;sources.push(['screening',SQUAD_SCREENING_URL])}
+  await Promise.allSettled(sources.map(async([key,url])=>{
    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
    try{
     const response=await fetch(url+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
@@ -876,8 +881,9 @@ async function refreshSquad(){
  try{return await squadRequest}finally{squadRequest=null}
 }
 function squadPuppet(role){
- const colors={scout:'var(--blue)',analyst:'var(--mint)',guard:'var(--amber)',accountant:'#c9a7ff',boss:'var(--red)'};
+ const colors={scout:'var(--blue)',analyst:'var(--mint)',guard:'var(--amber)',accountant:'#c9a7ff',boss:'var(--red)',seeker:'#f6a06b'};
  const props={
+  seeker:'<g><path d="M30 24h22l-4 6H34z" fill="#1d2733"/><path d="M80 72h10v8l9 16a4 4 0 0 1-3.5 6h-21a4 4 0 0 1-3.5-6l9-16z" fill="#1d2733"/><path d="M76 94h18" stroke="#f6a06b" stroke-width="3" stroke-linecap="round"/><circle cx="40" cy="84" r="9" fill="none" stroke="#1d2733" stroke-width="4"/><path d="M33 91l-7 7" stroke="#1d2733" stroke-width="5" stroke-linecap="round"/></g>',
   boss:'<g><path d="M36 26l8-14 8 9 8-12 8 12 8-9 8 14z" fill="#e9bb74" stroke="#1d2733" stroke-width="2" stroke-linejoin="round"/><path d="M52 82h16l-3 4 3 14-8 5-8-5 3-14z" fill="#1d2733"/></g>',
   scout:'<g><rect x="38" y="70" width="18" height="14" rx="5" fill="#1d2733"/><rect x="64" y="70" width="18" height="14" rx="5" fill="#1d2733"/><rect x="54" y="74" width="12" height="6" fill="#1d2733"/><circle cx="47" cy="77" r="4" fill="var(--blue)" opacity=".6"/><circle cx="73" cy="77" r="4" fill="var(--blue)" opacity=".6"/></g>',
   analyst:'<g fill="none" stroke="#1d2733" stroke-width="3"><rect x="37" y="45" width="19" height="14" rx="5"/><rect x="64" y="45" width="19" height="14" rx="5"/><path d="M56 51h8"/></g><g><rect x="78" y="74" width="30" height="22" rx="4" fill="#1d2733"/><path d="M82 91l7-7 5 4 9-10" fill="none" stroke="var(--mint)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>',
@@ -964,10 +970,27 @@ function squadAccountant(d,s,p){
  const at=[d,s,p].filter(Boolean).map(r=>r.generated_at).sort()[0];
  return{mood:stale?'stale':diff<0?'down':positive?'ok':'wait',chip:stale?'Dati vecchi':diff<0?'Conti in rosso':positive?'Conti aggiornati':'Conti in pari',lines,at};
 }
+function squadSeeker(r){
+ if(!r)return{mood:'missing',chip:'Senza dati',lines:['Il rapporto della ricerca non è ancora arrivato: valori n/d.'],at:null};
+ const ls=r.last_success||{},v1=r.exploration||{},s1=v1.summary||{},s2=r.lab_v2?.summary||{},lines=[];
+ lines.push('Ho provato '+labCount(ls.total_simulations)+' simulazioni sullo storico, con '+labCount(ls.total_entry_rules)+' regole di ingresso diverse. In questo giro: '+labCount(ls.executed_simulations)+'.');
+ lines.push('Formule scartate: '+labCount(ls.rejected_total)+'. Messe da parte: '+labCount(ls.saved_candidates)+'. Superano la ricontrollata in questo giro: '+labCount(ls.passed_historical_recheck)+'.');
+ lines.push('Provo formule con soldi finti senza il permesso del Guardiano e senza filtri: '+labCount(s1.active)+' conti liberi, '+labCount(s1.closed)+' operazioni chiuse, risultato '+labMoney(s1.net_pnl_eur,true)+'.');
+ const accounts=Array.isArray(v1.accounts)?v1.accounts.filter(a=>Number.isFinite(a?.metrics?.net_pnl_eur)&&Number(a?.metrics?.closed_trades)>=1):[];
+ const best=accounts.slice().sort((a,b)=>b.metrics.net_pnl_eur-a.metrics.net_pnl_eur)[0],winners=accounts.filter(a=>a.metrics.net_pnl_eur>0).length;
+ let lead=false;
+ if(best){const closed=Number(best.metrics.closed_trades),up=best.metrics.net_pnl_eur>0;lead=up&&closed>=10;
+  lines.push('Conti con operazioni chiuse in guadagno: '+labCount(winners)+' su '+labCount(accounts.length)+'. '+(up?'Il migliore':'Nessuno in guadagno; il meno peggio')+': '+squadMarketName(best.symbol)+' '+(labFamilies[best.recipe?.family]??'formula')+', '+labMoney(best.metrics.net_pnl_eur,true)+' con '+labCount(closed)+(closed===1?' chiusura':' chiusure')+(closed>=10?'.':': troppo poche per dire che funziona.'))}
+ else lines.push('Nessun conto libero ha ancora chiuso operazioni.');
+ lines.push('Laboratorio V2: '+labCount(s2.accounts)+' conti, '+labCount(s2.closed)+' chiusure, risultato '+labMoney(s2.net_pnl_eur,true)+'.');
+ lines.push('Uso solo soldi virtuali e non tocco i test congelati.');
+ const stale=squadStale(r);
+ return{mood:stale?'stale':lead?'ok':'wait',chip:stale?'Dati vecchi':lead?'Pista da seguire':'Sperimenta',lines,at:r.checked_at};
+}
 function renderSquad(){
  const grid=document.getElementById('squadGrid');if(!grid)return;
  const o=squadData.observer,s=squadData.signal,p=squadData.paired,d=dashboardData;
- const members=[['scout','Esploratore','Guarda i mercati e le notizie',squadScout(o)],['analyst','Analista','Cerca segnali di ingresso',squadAnalyst(o,s,p)],['guard','Guardiano','Controlla rischio e costi',squadGuard(d,s)],['accountant','Contabile','Tiene i conti virtuali',squadAccountant(d,s,p)]];
+ const members=[['scout','Esploratore','Guarda i mercati e le notizie',squadScout(o)],['analyst','Analista','Cerca segnali di ingresso',squadAnalyst(o,s,p)],['guard','Guardiano','Controlla rischio e costi',squadGuard(d,s)],['accountant','Contabile','Tiene i conti virtuali',squadAccountant(d,s,p)],['seeker','Cercatore','Cerca e prova strategie nuove',squadSeeker(squadData.screening)]];
  const failed=Object.values(squadFailed).some(Boolean);
  const key=JSON.stringify(members.map(m=>m[3]))+failed;
  if(key===squadKey)return;squadKey=key;
@@ -975,23 +998,23 @@ function renderSquad(){
  document.getElementById('squadStamp').textContent=failed?'Un rapporto non è stato aggiornato: mostro l’ultimo valido.':'';
 }
 // ---- Il Capo: turns the owner's words into report requests for the squad. It never sends orders to any engine.
-const bossNames={scout:'Esploratore',analyst:'Analista',guard:'Guardiano',accountant:'Contabile'};
+const bossNames={scout:'Esploratore',analyst:'Analista',guard:'Guardiano',accountant:'Contabile',seeker:'Cercatore'};
 let bossCallTimer=null,bossReady=false;
 function bossReports(){
  const o=squadData.observer,s=squadData.signal,p=squadData.paired,d=dashboardData;
- return{scout:squadScout(o),analyst:squadAnalyst(o,s,p),guard:squadGuard(d,s),accountant:squadAccountant(d,s,p)};
+ return{scout:squadScout(o),analyst:squadAnalyst(o,s,p),guard:squadGuard(d,s),accountant:squadAccountant(d,s,p),seeker:squadSeeker(squadData.screening)};
 }
 function bossIntent(text){
  const t=text.toLocaleLowerCase('it').normalize('NFD').replace(/[̀-ͯ]/g,'');
  const has=words=>words.some(w=>t.includes(w));
  if(has(['compra','vendi','acquista','apri posizione','chiudi posizione','ordine reale','investi','leva','short','soldi veri','metti soldi']))return'refuse';
  if(has(['cambia','modifica','resetta','reset','azzera','cancella','spegni','ferma','stop']))return'locked';
- for(const [role,word] of [['scout','esplorat'],['analyst','analist'],['guard','guardian'],['accountant','contabil']])if(t.includes(word))return role;
+ for(const [role,word] of [['seeker','cercator'],['scout','esplorat'],['analyst','analist'],['guard','guardian'],['accountant','contabil']])if(t.includes(word))return role;
+ if(has(['strategi','formula','formule','regola nuova','scopri','esperiment','cerca']))return'seeker';
  if(has(['esplorat','mercat','notizi','news','grafic','scanner','guarda']))return'scout';
  if(has(['analist','segnal','ingress','entrar','setup','occasion','opportun']))return'analyst';
  if(has(['guardian','rischi','sicur','cost','commission','freno','fee','perdere']))return'guard';
  if(has(['contabil','conti','conto','guadagn','soldi','perdit','risultat','quanto','equity','bilancio']))return'accountant';
- if(has(['strategi','formula','regola','regole']))return'strategy';
  if(has(['riassunto','rapporto generale','tutti','squadra','come va','stato','situazione','novita']))return'all';
  if(has(['ciao','salve','buongiorno','buonasera','hey']))return'hello';
  return'help';
@@ -1017,13 +1040,8 @@ function bossHandle(text){
  if(intent==='locked'){bossSay('boss','Capo',['Le regole dei test sono congelate: i 7 modelli fino al '+labTime(dashboardData?.test_until)+', A/B fino al '+labTime(squadData.paired?.study_end_at)+', Segnali giornalieri fino al '+labTime(squadData.signal?.study_end_at)+'. Non cambio, non azzero e non fermo niente da qui. Un’idea nuova si prova come test separato.']);return}
  if(intent==='hello'){bossSay('boss','Capo',['Ciao! Sono il Capo della squadra. Chiedimi un rapporto generale, oppure chiedi a un aiutante: mercati, segnali, rischio o conti.']);return}
  if(intent==='help'){bossSay('boss','Capo',['Non ho capito l’ordine. Puoi chiedermi: “rapporto generale”, “cosa vedi sui mercati”, “ci sono segnali”, “siamo al sicuro”, “come vanno i conti”.']);return}
- if(intent==='strategy'){
-  const acc=reports.accountant;
-  bossSay('boss','Capo',['Le strategie in prova sono fisse fino alla fine dei test. Contabile, dimmi se qualcuna sta guadagnando.']);bossCall(['accountant']);
-  bossSay('agent','Contabile',[acc.lines[acc.lines.length-1]]);return;
- }
  const roles=intent==='all'?Object.keys(bossNames):[intent];
- bossSay('boss','Capo',[intent==='all'?'Squadra, rapporto generale!':bossNames[intent]+', fai rapporto!']);
+ bossSay('boss','Capo',[intent==='all'?'Squadra, rapporto generale!':intent==='seeker'?'Cercatore, cosa stai provando? Ricorda: prove libere, ma solo con soldi finti.':bossNames[intent]+', fai rapporto!']);
  bossCall(roles);
  roles.forEach(r=>{const rep=reports[r];bossSay('agent',bossNames[r]+' · '+rep.chip,intent==='all'?[rep.lines[0]]:rep.lines)});
 }
