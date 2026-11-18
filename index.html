@@ -169,6 +169,40 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .signal-days th,.signal-days td{text-align:right;padding:8px;border-bottom:1px solid var(--line);color:var(--muted);font-weight:500}
 .signal-days th:first-child,.signal-days td:first-child{text-align:left}.signal-days td b{color:var(--text);font-weight:600}
 @media(max-width:1100px){.paired-arms.signal-arms{grid-template-columns:1fr}}
+
+.squad{margin:0 0 26px}.squad-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.squad-head h2{margin:0;font-size:17px;font-weight:650}.squad-head p{margin:2px 0 0;color:var(--muted);font-size:12px}
+.squad-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.squad-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.squad-top{display:flex;align-items:center;gap:12px;min-width:0}.squad-puppet{width:76px;height:76px;flex:none}
+.squad-name{min-width:0}.squad-name b{display:block;font-size:14px;font-weight:650}.squad-name span{display:block;font-size:11px;color:var(--muted)}
+.squad-chip{display:inline-block;margin-top:5px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:#ffffff0a;color:var(--muted)}
+.squad-card[data-mood=ok] .squad-chip{color:var(--mint);background:#62d6b114}.squad-card[data-mood=alert] .squad-chip,.squad-card[data-mood=down] .squad-chip{color:var(--red);background:#f18b9614}.squad-card[data-mood=stale] .squad-chip,.squad-card[data-mood=missing] .squad-chip{color:var(--amber);background:#e9bb7414}
+.squad-bubble{position:relative;background:var(--surface2);border-radius:12px;padding:11px 12px;font-size:12px;line-height:1.55;color:var(--text);overflow-wrap:anywhere}
+.squad-bubble:before{content:"";position:absolute;top:-6px;left:30px;width:12px;height:12px;background:var(--surface2);transform:rotate(45deg)}
+.squad-bubble ul{margin:0;padding:0 0 0 16px}.squad-bubble li+li{margin-top:5px}.squad-time{font-size:10px;color:var(--muted);margin-top:auto}
+.squad-note{font-size:11px;color:var(--muted);margin:12px 0 0}
+.squad-puppet .p-body{transform-origin:60px 110px}.squad-card[data-mood=ok] .p-body{animation:squadBob 3.2s ease-in-out infinite}
+.squad-puppet .p-eye{transform-box:fill-box;transform-origin:center;animation:squadBlink 5s infinite}
+.squad-card[data-mood=ok] .p-light{animation:squadPulse 1.6s ease-in-out infinite}
+.squad-card[data-mood=stale] .p-skin,.squad-card[data-mood=missing] .p-skin{filter:saturate(.25)}
+@keyframes squadBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes squadBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes squadPulse{0%,100%{opacity:1}50%{opacity:.25}}
+.boss{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.boss-side{display:flex;flex-direction:column;align-items:flex-start;gap:8px}.boss-side .squad-puppet{width:96px;height:96px}
+.boss-main{display:flex;flex-direction:column;gap:10px;min-width:0}
+.boss-log{height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;overscroll-behavior:contain}
+.boss-msg{max-width:88%;padding:9px 12px;border-radius:12px;font-size:12px;line-height:1.55;background:var(--surface2);overflow-wrap:anywhere}
+.boss-msg b{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.boss-msg[data-from=user]{align-self:flex-end;background:#85b8ff1f}.boss-msg[data-from=boss] b{color:var(--red)}
+.boss-msg ul{margin:0;padding-left:16px}
+.boss-quick{display:flex;flex-wrap:wrap;gap:6px}.boss-quick button,.boss-form button{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:999px;padding:7px 11px;font-size:11px;cursor:pointer;min-height:34px}
+.boss-quick button:hover,.boss-form button:hover{border-color:var(--blue)}
+.boss-form{display:flex;gap:8px}.boss-form input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:9px 11px;font-size:13px}
+.squad-card[data-called]{border-color:var(--red);box-shadow:0 0 0 2px #f18b9633}
+@media(max-width:1100px){.squad-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.squad-grid{grid-template-columns:1fr}.squad-head{flex-direction:column;align-items:flex-start}.squad-puppet{width:64px;height:64px}.boss{grid-template-columns:1fr}.boss-side{flex-direction:row;align-items:center}.boss-side .squad-puppet{width:64px;height:64px}.boss-log{height:260px}.boss-msg{max-width:100%}}
+@media(prefers-reduced-motion:reduce){.squad-puppet *{animation:none!important}}
 </style>
 </head>
 <body>
@@ -252,6 +286,19 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
   <div id="labExploration" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento prove esplorative V1…</p></div>
   <div id="labCandidates"></div>
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
+ </section>
+ <section id="squad" class="section squad" data-workspace-page="overview" aria-labelledby="squadTitle">
+  <div class="squad-head"><div><h2 id="squadTitle">La squadra</h2><p>Quattro aiutanti raccontano cosa stanno facendo i calcoli, con i dati veri.</p></div><span id="squadStamp" class="squad-time"></span></div>
+  <div class="boss" aria-labelledby="bossTitle">
+   <div class="boss-side"><span id="bossPuppet"></span><div class="squad-name"><b id="bossTitle">Il Capo</b><span>Parla con te e dà gli ordini alla squadra</span></div></div>
+   <div class="boss-main">
+    <div id="bossLog" class="boss-log" role="log" aria-live="polite"></div>
+    <div class="boss-quick" aria-label="Ordini rapidi"><button type="button" data-boss="riassunto">Rapporto generale</button><button type="button" data-boss="mercati">Esploratore, cosa vedi?</button><button type="button" data-boss="segnali">Analista, ci sono segnali?</button><button type="button" data-boss="rischio">Guardiano, siamo al sicuro?</button><button type="button" data-boss="conti">Contabile, come vanno i conti?</button></div>
+    <form id="bossForm" class="boss-form"><input id="bossInput" type="text" maxlength="200" autocomplete="off" placeholder="Scrivi un ordine al Capo…" aria-label="Scrivi un ordine al Capo"><button type="submit">Invia</button></form>
+   </div>
+  </div>
+  <div id="squadGrid" class="squad-grid"><p class="lab-note" role="status">La squadra si sta preparando…</p></div>
+  <p class="squad-note">I pupazzi descrivono calcoli già fatti dal sistema. Non decidono, non comprano e non prevedono il futuro. Soldi virtuali, nessun ordine reale.</p>
  </section>
  <section id="segnali" class="section" data-workspace-page="segnali" aria-label="Segnali giornalieri" hidden>
   <div id="signalDay" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento segnali giornalieri…</p></div>
@@ -432,7 +479,7 @@ document.querySelectorAll('.segmented button').forEach(button=>button.addEventLi
 async function load(){
  if(document.visibilityState!=='visible')return;if(loadPromise)return loadPromise;
  document.getElementById('liveLabel').textContent=dashboardData?'Aggiorno…':'Sincronizzazione';
-  loadPromise=(async()=>{const [crypto,sp500,history]=await Promise.allSettled([fetchState('strategies.json'),fetchState('sp500.json'),fetchState('equity_history.json')]);historyUnavailable=history.status!=='fulfilled';if(history.status==='fulfilled'&&history.value&&Array.isArray(history.value.points))equityHistory=history.value;else if(history.status==='fulfilled')historyUnavailable=true;if(crypto.status==='fulfilled'){render(crypto.value);renderWorkspace(crypto.value,crypto.value.strategies||[]);lastSuccessfulDataAt=Date.now();}else{document.getElementById('liveDot').classList.add('stale');document.getElementById('liveLabel').textContent=dashboardData?'Dati non aggiornati':'Dati non disponibili';updateSyncCountdown();}renderHistoryPanel();if(sp500.status==='fulfilled'){renderSp500(sp500.value);sp500Loaded=true;}else if(!sp500Loaded){renderSp500(null);}})();
+  loadPromise=(async()=>{const [crypto,sp500,history]=await Promise.allSettled([fetchState('strategies.json'),fetchState('sp500.json'),fetchState('equity_history.json')]);historyUnavailable=history.status!=='fulfilled';if(history.status==='fulfilled'&&history.value&&Array.isArray(history.value.points))equityHistory=history.value;else if(history.status==='fulfilled')historyUnavailable=true;if(crypto.status==='fulfilled'){render(crypto.value);renderWorkspace(crypto.value,crypto.value.strategies||[]);renderSquad();lastSuccessfulDataAt=Date.now();}else{document.getElementById('liveDot').classList.add('stale');document.getElementById('liveLabel').textContent=dashboardData?'Dati non aggiornati':'Dati non disponibili';updateSyncCountdown();}renderHistoryPanel();if(sp500.status==='fulfilled'){renderSp500(sp500.value);sp500Loaded=true;}else if(!sp500Loaded){renderSp500(null);}})();
  try{return await loadPromise;}finally{loadPromise=null;}
 }
 function updateSyncCountdown(){
@@ -441,7 +488,7 @@ function updateSyncCountdown(){
  const seconds=Math.max(0,Math.ceil((nextDataRefreshAt-Date.now())/1000));updated.textContent=`· dati ${shortDate(dashboardData.generated_at)} · sync ${seconds}s`;
 }
 async function refreshData(){
- if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();void refreshSignalDay();await load();
+ if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();void refreshSignalDay();void refreshSquad();await load();
 }
 function stopPolling(){clearTimeout(loadTimer);clearTimeout(chartTimer);clearInterval(syncTimer);clearTimeout(aiNarrationTimer);loadTimer=chartTimer=syncTimer=aiNarrationTimer=null;}
 function scheduleDataRefresh(){
@@ -483,6 +530,7 @@ function setWorkspacePage(page){
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
  if(page==='laboratorio'||page==='ai')void refreshLaboratory();
  if(page==='segnali')void refreshSignalDay();
+ if(page==='overview')void refreshSquad();
 }
 function applyModelFilters(){
  let visible=0;
@@ -510,7 +558,7 @@ function initWorkspace(){
  const market=document.querySelector('.market-panel').closest('section');market.id='marketWorkspace';market.dataset.workspacePage='markets';document.querySelector('.market-panel').open=true;
  document.querySelector('#sp500').dataset.workspacePage='overview';
  const portfolio=document.createElement('section');portfolio.className='section';portfolio.dataset.workspacePage='overview';portfolio.innerHTML='<div class="section-head"><div><h2>I modelli, a colpo d’occhio</h2><p>Risultati paper attuali. Replay storico separato.</p></div><button class="section-link" type="button" data-go-models>Esplora tutti →</button></div><div id="workspacePortfolio" class="portfolio-panel"></div><div id="workspaceExposure" class="portfolio-foot"></div>';
- spotlight.before(portfolio);
+ spotlight.before(portfolio);layout.after(document.getElementById('squad'));initBoss();
  const toolbar=document.createElement('div');toolbar.className='models-toolbar';toolbar.dataset.workspacePage='models';toolbar.innerHTML='<div class="models-filters" aria-label="Filtra modelli"><button type="button" class="active" data-model-filter="all">Tutti</button><button type="button" data-model-filter="open">Con posizioni</button><button type="button" data-model-filter="ai">Agente IA</button></div><input id="modelSearch" class="models-search" type="search" placeholder="Cerca un modello…" aria-label="Cerca un modello">';
  document.querySelector('#strategies').before(toolbar);
  const filterEmpty=document.createElement('div');filterEmpty.className='empty-model-filter';filterEmpty.id='modelFilterEmpty';filterEmpty.hidden=true;filterEmpty.dataset.workspacePage='models';filterEmpty.textContent='Nessun modello corrisponde alla ricerca.';document.querySelector('#replayLab').after(filterEmpty);
@@ -784,6 +832,208 @@ async function refreshSignalDay(){
   }catch{renderSignalDay(signalDaySnapshot,true)}finally{clearTimeout(timeout)}
  })();
  try{return await signalDayRequest}finally{signalDayRequest=null}
+}
+
+// ---- La squadra: puppet agents that only narrate existing public reports (no decisions, no orders).
+const SQUAD_SOURCES={observer:OBSERVERS_URL,signal:SIGNAL_DAY_URL,paired:PAIRED_URL};
+const squadData={observer:null,signal:null,paired:null},squadFailed={observer:false,signal:false,paired:false};
+let squadRequest=null,squadKey='';
+const squadValid={
+ observer:r=>r?.version==='atlas-observers-v1'&&r.paper_only===true&&!!r.scanner,
+ signal:r=>signalDayValid(r),
+ paired:r=>r?.version==='atlas-paired-entry-v1'&&r.paper_only===true&&r.real_orders_enabled===false&&!!r.accounts?.control&&!!r.accounts?.filtered
+};
+function squadNewest(key,candidate){
+ if(!squadValid[key](candidate))return;
+ const current=squadData[key],stamp=Date.parse(candidate.generated_at);
+ if(!Number.isFinite(stamp))return;
+ if(!current||stamp>=Date.parse(current.generated_at))squadData[key]=candidate;
+}
+function squadStale(report){
+ const stamp=Date.parse(report?.generated_at),limit=Number(report?.stale_after_minutes);
+ return !Number.isFinite(stamp)||!Number.isFinite(limit)||Date.now()-stamp>limit*60000;
+}
+async function refreshSquad(){
+ if(workspacePage!=='overview'||document.visibilityState!=='visible')return;
+ if(squadRequest)return squadRequest;
+ squadRequest=(async()=>{
+  await Promise.allSettled(Object.entries(SQUAD_SOURCES).map(async([key,url])=>{
+   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+   try{
+    const response=await fetch(url+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+    if(!response.ok)throw new Error('unavailable');
+    const report=await response.json();
+    if(!squadValid[key](report))throw new Error('invalid');
+    squadNewest(key,report);squadFailed[key]=false;
+   }catch{squadFailed[key]=true}finally{clearTimeout(timeout)}
+  }));
+  // Reuse newer snapshots already fetched by other pages.
+  squadNewest('observer',typeof observerSnapshot!=='undefined'?observerSnapshot:null);
+  squadNewest('paired',typeof pairedSnapshot!=='undefined'?pairedSnapshot:null);
+  squadNewest('signal',typeof signalDaySnapshot!=='undefined'?signalDaySnapshot:null);
+  renderSquad();
+ })();
+ try{return await squadRequest}finally{squadRequest=null}
+}
+function squadPuppet(role){
+ const colors={scout:'var(--blue)',analyst:'var(--mint)',guard:'var(--amber)',accountant:'#c9a7ff',boss:'var(--red)'};
+ const props={
+  boss:'<g><path d="M36 26l8-14 8 9 8-12 8 12 8-9 8 14z" fill="#e9bb74" stroke="#1d2733" stroke-width="2" stroke-linejoin="round"/><path d="M52 82h16l-3 4 3 14-8 5-8-5 3-14z" fill="#1d2733"/></g>',
+  scout:'<g><rect x="38" y="70" width="18" height="14" rx="5" fill="#1d2733"/><rect x="64" y="70" width="18" height="14" rx="5" fill="#1d2733"/><rect x="54" y="74" width="12" height="6" fill="#1d2733"/><circle cx="47" cy="77" r="4" fill="var(--blue)" opacity=".6"/><circle cx="73" cy="77" r="4" fill="var(--blue)" opacity=".6"/></g>',
+  analyst:'<g fill="none" stroke="#1d2733" stroke-width="3"><rect x="37" y="45" width="19" height="14" rx="5"/><rect x="64" y="45" width="19" height="14" rx="5"/><path d="M56 51h8"/></g><g><rect x="78" y="74" width="30" height="22" rx="4" fill="#1d2733"/><path d="M82 91l7-7 5 4 9-10" fill="none" stroke="var(--mint)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>',
+  guard:'<g><path d="M86 70l16 5v10c0 10-7 16-16 19-9-3-16-9-16-19V75z" fill="#1d2733"/><path d="M79 86l5 5 9-10" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>',
+  accountant:'<g><circle cx="90" cy="86" r="13" fill="#1d2733"/><text x="90" y="91.5" text-anchor="middle" font-size="15" font-weight="700" fill="#c9a7ff" font-family="system-ui,sans-serif">€</text></g>'
+ };
+ return '<svg class="squad-puppet" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g class="p-body">'+
+  '<line x1="60" y1="22" x2="60" y2="10" stroke="#5c6b7d" stroke-width="3" stroke-linecap="round"/><circle class="p-light" cx="60" cy="9" r="5" fill="'+colors[role]+'"/>'+
+  '<rect class="p-skin" x="26" y="22" width="68" height="84" rx="30" fill="'+colors[role]+'"/>'+
+  '<ellipse cx="60" cy="56" rx="26" ry="20" fill="#fff" opacity=".18"/>'+
+  '<g class="p-eye"><circle cx="47" cy="52" r="5.5" fill="#0b1016"/><circle cx="73" cy="52" r="5.5" fill="#0b1016"/><circle cx="48.6" cy="50.4" r="1.7" fill="#fff"/><circle cx="74.6" cy="50.4" r="1.7" fill="#fff"/></g>'+
+  '<path class="p-mouth" fill="none" stroke="#0b1016" stroke-width="3" stroke-linecap="round"/>'+
+  props[role]+'</g></svg>';
+}
+const squadMouths={ok:'M50 64q10 8 20 0',wait:'M51 66h18',down:'M50 69q10-7 20 0',alert:'M48 67l6-3 6 3 6-3 6 3',stale:'M56 66a4 4 0 1 0 8 0a4 4 0 1 0-8 0',missing:'M56 66a4 4 0 1 0 8 0a4 4 0 1 0-8 0'};
+function squadMarketName(value){return String(value??'n/d').replace('XBT','BTC')}
+function squadScout(o){
+ if(!o)return{mood:'missing',chip:'Senza dati',lines:['Il rapporto degli osservatori non è ancora arrivato: valori n/d.'],at:null};
+ const sc=o.scanner||{},news=o.news||{},sources=Array.isArray(news.sources)?news.sources:[],ok=sources.filter(s=>s?.status==='OK').length,items=Array.isArray(news.items)?news.items.length:null;
+ const lines=['Ho controllato '+labCount(sc.charts_this_check)+' grafici in questo giro, su '+labCount(sc.chart_universe)+' possibili in '+labCount(sc.markets_in_universe)+' mercati.',
+  labCount(sc.fresh_setup_charts)+' grafici recenti su '+labCount(sc.fresh_charts)+' mostrano una configurazione da tenere d’occhio.',
+  'Notizie: '+labCount(ok)+' fonti lette su '+labCount(sources.length)+', '+labCount(items)+' titoli nell’ultima ora.'];
+ const stale=squadStale(o);
+ return{mood:stale?'stale':Number(sc.charts_this_check)>0?'ok':'wait',chip:stale?'Dati vecchi':Number(sc.charts_this_check)>0?'Al lavoro':'In attesa',lines,at:o.generated_at};
+}
+function squadAnalyst(o,s,p){
+ if(!o&&!s&&!p)return{mood:'missing',chip:'Senza dati',lines:['Nessun rapporto sui segnali disponibile: valori n/d.'],at:null};
+ const lines=[];let busy=false,stale=false;
+ if(o){
+  const reviews=Array.isArray(o.entry_reviews)?o.entry_reviews:[],setups=reviews.filter(r=>r?.has_setup===true),names=reviews.map(r=>squadMarketName(r?.market)).join(', ');
+  if(setups.length){busy=true;lines.push('Configurazione di ingresso presente su '+setups.map(r=>squadMarketName(r.market)).join(', ')+'.')}
+  else lines.push('Su '+(names||'n/d')+' nessuna configurazione di ingresso adesso: aspetto.');
+  const first=reviews.find(r=>Number.isFinite(r?.scenarios?.estimated_loss_probability));
+  if(first)lines.push('Se si entrasse ora su '+squadMarketName(first.market)+', nei percorsi simulati si finirebbe in perdita '+observerPct(first.scenarios.estimated_loss_probability)+' delle volte. È una simulazione, non una previsione.');
+  stale=stale||squadStale(o);
+ }
+ if(s){
+  const accounts=Object.values(s.tiers?.kraken?.accounts||{}),open=accounts.filter(a=>a?.position);
+  if(open.length)busy=true;
+  lines.push('Segnali giornalieri: '+(open.length?'posizione aperta su '+open.map(a=>squadMarketName(a.position.symbol)+' ('+a.label+')').join(', '):'nessuna posizione aperta')+'; '+labCount(s.tiers?.kraken?.summary?.closed_trades)+' operazioni chiuse finora.');
+  stale=stale||squadStale(s);
+ }
+ if(p){
+  const actions={WAITING_FOR_NEXT_SIGNAL_CANDLE:'aspetto la prossima candela da 4 ore',MANAGING_OPEN_TRIAL:'una prova è aperta'};
+  if(p.accounts.control.position)busy=true;
+  lines.push('Test A/B: '+labCount(p.comparison?.opportunities)+' occasioni comuni finora, '+(actions[p.last_action]??'stato '+String(p.last_action??'n/d').toLowerCase().replaceAll('_',' '))+'.');
+  stale=stale||squadStale(p);
+ }
+ const at=[o,s,p].filter(Boolean).map(r=>r.generated_at).sort()[0];
+ return{mood:stale?'stale':busy?'ok':'wait',chip:stale?'Dati vecchi':busy?'Al lavoro':'In attesa',lines,at};
+}
+function squadGuard(d,s){
+ if(!d)return{mood:'missing',chip:'Senza dati',lines:['Dati dei modelli non ancora caricati: valori n/d.'],at:null};
+ const g=d.global_risk||{},lines=[];
+ lines.push('Freno d’emergenza '+(g.locked?'SCATTATO':'armato')+': calo nelle ultime 24 ore '+(Number.isFinite(g.drawdown_24h_pct)?pct(g.drawdown_24h_pct)+'%':'n/d')+', scatta al '+(Number.isFinite(g.threshold_pct)?pct(g.threshold_pct)+'%':'n/d')+'.');
+ lines.push('Nuovi ingressi dei 7 modelli: '+(g.entries_allowed===true?'consentiti':g.entries_allowed===false?'bloccati':'n/d')+'. Regole congelate fino al '+labTime(d.test_until)+'.');
+ const k=s?.tiers?.kraken?.summary;
+ if(k)lines.push('Commissioni già pagate nei Segnali giornalieri: '+labMoney(k.fees_eur)+'. Con costi più bassi la differenza sarebbe '+labMoney(s.cost_effect_net_eur,true)+'.');
+ lines.push(d.paper_only===true&&d.ai_pipeline?.real_orders===false?'Ordini reali: nessuno. Tutto è simulato.':'Modalità ordini: n/d.');
+ const stale=(Date.now()-Date.parse(d.generated_at))/60000>Number(d.stale_after_minutes||75);
+ return{mood:stale?'stale':g.locked?'alert':'ok',chip:stale?'Dati vecchi':g.locked?'Freno scattato':'Di guardia',lines,at:d.generated_at};
+}
+function squadAccountant(d,s,p){
+ if(!d&&!s&&!p)return{mood:'missing',chip:'Senza dati',lines:['Nessun conto disponibile: valori n/d.'],at:null};
+ const lines=[];let total=0,positive=0,diff=0;
+ if(d){
+  const accounts=(d.strategies||[]).filter(x=>x.active!==false),cap=Number(d.account_capital),eq=accounts.reduce((sum,x)=>sum+Number(x.equity||0),0);
+  if(Number.isFinite(cap)){total+=accounts.length;positive+=accounts.filter(x=>Number(x.equity)>cap).length;diff+=eq-cap*accounts.length;
+   lines.push('I '+labCount(accounts.length)+' conti originali valgono '+euro(eq)+' su '+euro(cap*accounts.length)+' di partenza ('+labMoney(eq-cap*accounts.length,true)+').')}
+ }
+ if(s){
+  const k=s.tiers?.kraken?.summary,l=s.tiers?.low?.summary;
+  Object.values(s.tiers||{}).forEach(t=>Object.values(t.accounts||{}).forEach(a=>{const n=a?.metrics?.net_pnl_eur;if(Number.isFinite(n)){total++;if(n>0)positive++}}));
+  if(Number.isFinite(k?.net_pnl_eur))diff+=k.net_pnl_eur;
+  lines.push('Segnali giornalieri: '+labMoney(k?.net_pnl_eur,true)+' con costi Kraken, '+labMoney(l?.net_pnl_eur,true)+' con costi bassi ipotetici.');
+ }
+ if(p){
+  const c=p.accounts.control,f=p.accounts.filtered;
+  [c,f].forEach(a=>{if(Number.isFinite(a?.equity)){total++;if(a.equity>1000)positive++;diff+=a.equity-1000}});
+  lines.push('Test A/B: conto A '+labMoney(c?.equity)+', conto B '+labMoney(f?.equity)+'.');
+ }
+ lines.push(total?(positive?'Conti in guadagno: '+labCount(positive)+' su '+labCount(total)+'. Campione piccolo: non è una prova.':'Finora nessuno dei '+labCount(total)+' conti è in guadagno netto.'):'Conti n/d.');
+ const stale=[s,p].some(r=>r&&squadStale(r))||(d&&(Date.now()-Date.parse(d.generated_at))/60000>Number(d.stale_after_minutes||75));
+ const at=[d,s,p].filter(Boolean).map(r=>r.generated_at).sort()[0];
+ return{mood:stale?'stale':diff<0?'down':positive?'ok':'wait',chip:stale?'Dati vecchi':diff<0?'Conti in rosso':positive?'Conti aggiornati':'Conti in pari',lines,at};
+}
+function renderSquad(){
+ const grid=document.getElementById('squadGrid');if(!grid)return;
+ const o=squadData.observer,s=squadData.signal,p=squadData.paired,d=dashboardData;
+ const members=[['scout','Esploratore','Guarda i mercati e le notizie',squadScout(o)],['analyst','Analista','Cerca segnali di ingresso',squadAnalyst(o,s,p)],['guard','Guardiano','Controlla rischio e costi',squadGuard(d,s)],['accountant','Contabile','Tiene i conti virtuali',squadAccountant(d,s,p)]];
+ const failed=Object.values(squadFailed).some(Boolean);
+ const key=JSON.stringify(members.map(m=>m[3]))+failed;
+ if(key===squadKey)return;squadKey=key;
+ grid.innerHTML=members.map(([role,name,job,st])=>'<article class="squad-card" data-role="'+role+'" data-mood="'+st.mood+'"><div class="squad-top">'+squadPuppet(role).replace('class="p-mouth"','class="p-mouth" d="'+squadMouths[st.mood]+'"')+'<div class="squad-name"><b>'+name+'</b><span>'+job+'</span><span class="squad-chip">'+labEscape(st.chip)+'</span></div></div><div class="squad-bubble"><ul>'+st.lines.map(line=>'<li>'+labEscape(line)+'</li>').join('')+'</ul></div><span class="squad-time">'+(st.at?'Dati delle '+labTime(st.at):'Dati n/d')+'</span></article>').join('');
+ document.getElementById('squadStamp').textContent=failed?'Un rapporto non è stato aggiornato: mostro l’ultimo valido.':'';
+}
+// ---- Il Capo: turns the owner's words into report requests for the squad. It never sends orders to any engine.
+const bossNames={scout:'Esploratore',analyst:'Analista',guard:'Guardiano',accountant:'Contabile'};
+let bossCallTimer=null,bossReady=false;
+function bossReports(){
+ const o=squadData.observer,s=squadData.signal,p=squadData.paired,d=dashboardData;
+ return{scout:squadScout(o),analyst:squadAnalyst(o,s,p),guard:squadGuard(d,s),accountant:squadAccountant(d,s,p)};
+}
+function bossIntent(text){
+ const t=text.toLocaleLowerCase('it').normalize('NFD').replace(/[̀-ͯ]/g,'');
+ const has=words=>words.some(w=>t.includes(w));
+ if(has(['compra','vendi','acquista','apri posizione','chiudi posizione','ordine reale','investi','leva','short','soldi veri','metti soldi']))return'refuse';
+ if(has(['cambia','modifica','resetta','reset','azzera','cancella','spegni','ferma','stop']))return'locked';
+ for(const [role,word] of [['scout','esplorat'],['analyst','analist'],['guard','guardian'],['accountant','contabil']])if(t.includes(word))return role;
+ if(has(['esplorat','mercat','notizi','news','grafic','scanner','guarda']))return'scout';
+ if(has(['analist','segnal','ingress','entrar','setup','occasion','opportun']))return'analyst';
+ if(has(['guardian','rischi','sicur','cost','commission','freno','fee','perdere']))return'guard';
+ if(has(['contabil','conti','conto','guadagn','soldi','perdit','risultat','quanto','equity','bilancio']))return'accountant';
+ if(has(['strategi','formula','regola','regole']))return'strategy';
+ if(has(['riassunto','rapporto generale','tutti','squadra','come va','stato','situazione','novita']))return'all';
+ if(has(['ciao','salve','buongiorno','buonasera','hey']))return'hello';
+ return'help';
+}
+function bossSay(from,label,lines){
+ const log=document.getElementById('bossLog');if(!log)return;
+ const el=document.createElement('div');el.className='boss-msg';el.dataset.from=from;
+ el.innerHTML='<b>'+labEscape(label)+'</b>'+(lines.length>1?'<ul>'+lines.map(l=>'<li>'+labEscape(l)+'</li>').join('')+'</ul>':labEscape(lines[0]));
+ log.append(el);while(log.children.length>40)log.firstElementChild.remove();
+ log.scrollTop=log.scrollHeight;
+}
+function bossCall(roles){
+ clearTimeout(bossCallTimer);
+ document.querySelectorAll('.squad-card[data-called]').forEach(c=>c.removeAttribute('data-called'));
+ roles.forEach(r=>document.querySelector('.squad-card[data-role="'+r+'"]')?.setAttribute('data-called',''));
+ bossCallTimer=setTimeout(()=>document.querySelectorAll('.squad-card[data-called]').forEach(c=>c.removeAttribute('data-called')),4000);
+}
+function bossHandle(text){
+ const clean=String(text??'').trim().slice(0,200);if(!clean)return;
+ bossSay('user','Tu',[clean]);
+ const intent=bossIntent(clean),reports=bossReports();
+ if(intent==='refuse'){bossSay('boss','Capo',['Questo ordine non lo posso dare. ATLAS lavora solo con soldi virtuali: nessun acquisto o vendita reale, niente leva. Posso farti fare rapporto dalla squadra.']);return}
+ if(intent==='locked'){bossSay('boss','Capo',['Le regole dei test sono congelate: i 7 modelli fino al '+labTime(dashboardData?.test_until)+', A/B fino al '+labTime(squadData.paired?.study_end_at)+', Segnali giornalieri fino al '+labTime(squadData.signal?.study_end_at)+'. Non cambio, non azzero e non fermo niente da qui. Un’idea nuova si prova come test separato.']);return}
+ if(intent==='hello'){bossSay('boss','Capo',['Ciao! Sono il Capo della squadra. Chiedimi un rapporto generale, oppure chiedi a un aiutante: mercati, segnali, rischio o conti.']);return}
+ if(intent==='help'){bossSay('boss','Capo',['Non ho capito l’ordine. Puoi chiedermi: “rapporto generale”, “cosa vedi sui mercati”, “ci sono segnali”, “siamo al sicuro”, “come vanno i conti”.']);return}
+ if(intent==='strategy'){
+  const acc=reports.accountant;
+  bossSay('boss','Capo',['Le strategie in prova sono fisse fino alla fine dei test. Contabile, dimmi se qualcuna sta guadagnando.']);bossCall(['accountant']);
+  bossSay('agent','Contabile',[acc.lines[acc.lines.length-1]]);return;
+ }
+ const roles=intent==='all'?Object.keys(bossNames):[intent];
+ bossSay('boss','Capo',[intent==='all'?'Squadra, rapporto generale!':bossNames[intent]+', fai rapporto!']);
+ bossCall(roles);
+ roles.forEach(r=>{const rep=reports[r];bossSay('agent',bossNames[r]+' · '+rep.chip,intent==='all'?[rep.lines[0]]:rep.lines)});
+}
+function initBoss(){
+ if(bossReady)return;const form=document.getElementById('bossForm');if(!form)return;bossReady=true;
+ document.getElementById('bossPuppet').innerHTML=squadPuppet('boss').replace('class="p-mouth"','class="p-mouth" d="'+squadMouths.ok+'"');
+ document.querySelector('.boss').dataset.mood='ok';
+ bossSay('boss','Capo',['Ciao, sono il Capo. Dammi un ordine e lo passo alla squadra. Ricorda: qui tutto è simulato, nessun ordine reale.']);
+ form.addEventListener('submit',event=>{event.preventDefault();const input=document.getElementById('bossInput');bossHandle(input.value);input.value=''});
+ document.querySelector('.boss-quick').addEventListener('click',event=>{const b=event.target.closest('[data-boss]');if(b)bossHandle(b.textContent)});
 }
 function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
 function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
