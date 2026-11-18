@@ -203,6 +203,17 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 @media(max-width:1100px){.squad-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.squad-card[data-role=seeker]{grid-column:1/-1}}
 @media(max-width:760px){.squad-grid{grid-template-columns:1fr}.squad-head{flex-direction:column;align-items:flex-start}.squad-puppet{width:64px;height:64px}.boss{grid-template-columns:1fr}.boss-side{flex-direction:row;align-items:center}.boss-side .squad-puppet{width:64px;height:64px}.boss-log{height:260px}.boss-msg{max-width:100%}}
 @media(prefers-reduced-motion:reduce){.squad-puppet *{animation:none!important}}
+.office{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow-x:auto;overscroll-behavior-x:contain}
+.office svg{display:block;width:100%;min-width:640px;height:auto}
+.office .desk{cursor:pointer;outline:none}.office .desk:hover .desk-top,.office .desk:focus-visible .desk-top{fill:#3a4b5f}
+.office .desk:focus-visible .desk-plate{stroke:var(--blue);stroke-width:3}
+.office-puppet .p-eye{transform-box:fill-box;transform-origin:center;animation:squadBlink 5s infinite}
+.office .desk[data-mood=ok] .p-body{animation:squadBob 3.2s ease-in-out infinite}.office .desk[data-mood=ok] .p-light{animation:squadPulse 1.6s ease-in-out infinite}
+.office .desk[data-mood=stale] .p-skin,.office .desk[data-mood=missing] .p-skin{filter:saturate(.25)}
+.office .desk[data-called] .desk-plate{stroke:var(--red);stroke-width:3}
+.office-hint{font-size:11px;color:var(--muted);margin:-4px 0 12px}.office-swipe{display:none}@media(max-width:760px){.office-swipe{display:inline}}
+@media(prefers-reduced-motion:reduce){.office *{animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -289,6 +300,8 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  </section>
  <section id="squad" class="section squad" data-workspace-page="overview" aria-labelledby="squadTitle">
   <div class="squad-head"><div><h2 id="squadTitle">La squadra</h2><p>Cinque aiutanti raccontano cosa stanno facendo i calcoli, con i dati veri.</p></div><span id="squadStamp" class="squad-time"></span></div>
+  <div id="squadOffice" class="office" aria-label="L’ufficio della squadra"></div>
+  <p class="office-hint">Clicca su una scrivania: quell’aiutante fa rapporto al Capo qui sotto. Il colore del monitor mostra il suo stato.<span class="office-swipe"> Sul telefono scorri l’ufficio di lato.</span></p>
   <div class="boss" aria-labelledby="bossTitle">
    <div class="boss-side"><span id="bossPuppet"></span><div class="squad-name"><b id="bossTitle">Il Capo</b><span>Parla con te e dà gli ordini alla squadra</span></div></div>
    <div class="boss-main">
@@ -987,6 +1000,52 @@ function squadSeeker(r){
  const stale=squadStale(r);
  return{mood:stale?'stale':lead?'ok':'wait',chip:stale?'Dati vecchi':lead?'Pista da seguire':'Sperimenta',lines,at:r.checked_at};
 }
+
+// ---- L'ufficio: each puppet at its desk; the monitor colour shows its state.
+const officeScreens={ok:'var(--mint)',wait:'#5c6b7d',down:'var(--red)',alert:'var(--red)',stale:'var(--amber)',missing:'var(--amber)'};
+const officeAsk={scout:'Esploratore, cosa vedi?',analyst:'Analista, ci sono segnali?',guard:'Guardiano, siamo al sicuro?',accountant:'Contabile, come vanno i conti?',seeker:'Cercatore, che strategie provi?',boss:'Rapporto generale'};
+function officeDesk(role,name,st,cx,y,big){
+ const w=big?200:170,size=big?104:92,mood=st.mood,screen=officeScreens[mood]??'#5c6b7d';
+ const puppet=squadPuppet(role).replace('class="squad-puppet"','class="office-puppet" x="'+(cx-size/2+12)+'" y="'+(y-size+16)+'" width="'+size+'" height="'+size+'"').replace('class="p-mouth"','class="p-mouth" d="'+squadMouths[mood]+'"');
+ const mx=cx-w/2+10,my=y-46;
+ return '<g class="desk" data-role="'+role+'" data-mood="'+mood+'" tabindex="0" role="button" aria-label="'+labEscape(name+': '+st.chip+'. Chiedi un rapporto')+'">'+
+  '<ellipse cx="'+cx+'" cy="'+(y+70)+'" rx="'+(w/2+6)+'" ry="9" fill="#000" opacity=".25"/>'+
+  '<rect x="'+(cx+28)+'" y="'+(y-30)+'" width="34" height="40" rx="8" fill="#26313d"/>'+
+  puppet+
+  '<rect x="'+(mx+18)+'" y="'+(my+36)+'" width="8" height="12" fill="#2b3746"/>'+
+  '<rect x="'+mx+'" y="'+my+'" width="46" height="36" rx="4" fill="#1d2733"/>'+
+  '<rect x="'+(mx+4)+'" y="'+(my+4)+'" width="38" height="26" rx="2" fill="'+screen+'" opacity=".85"/>'+
+  '<path d="M'+(mx+8)+' '+(my+22)+'l7-6 6 4 8-9 7 5" fill="none" stroke="#0b1016" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>'+
+  '<rect class="desk-top" x="'+(cx-w/2)+'" y="'+y+'" width="'+w+'" height="12" rx="4" fill="#33424f"/>'+
+  '<rect x="'+(cx-w/2+8)+'" y="'+(y+12)+'" width="'+(w-16)+'" height="56" fill="#26313d"/>'+
+  '<rect x="'+(cx-w/2+8)+'" y="'+(y+12)+'" width="'+(w-16)+'" height="5" fill="#1d2733"/>'+
+  '<rect class="desk-plate" x="'+(cx-62)+'" y="'+(y+22)+'" width="124" height="38" rx="6" fill="#111922" stroke="#3a4b5f"/>'+
+  '<text x="'+cx+'" y="'+(y+39)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#edf3fa" font-family="system-ui,sans-serif">'+labEscape(name)+'</text>'+
+  '<text x="'+cx+'" y="'+(y+54)+'" text-anchor="middle" font-size="10" font-weight="700" letter-spacing=".08em" fill="'+screen+'" font-family="system-ui,sans-serif">'+labEscape(String(st.chip).toUpperCase())+'</text>'+
+  '</g>';
+}
+function renderOffice(members){
+ const box=document.getElementById('squadOffice');if(!box)return;
+ const xs=[110,305,500,695,890];
+ const capo={mood:'ok',chip:'Coordina'};
+ const deco='<rect width="1000" height="250" fill="#141d27"/><rect y="250" width="1000" height="230" fill="#0f161e"/>'+
+  '<path d="M0 250h1000" stroke="#ffffff10" stroke-width="2"/>'+
+  [0,1,2,3,4,5,6,7,8,9].map(i=>'<path d="M'+(i*110-40)+' 480L'+(i*110+60)+' 250" stroke="#ffffff06"/>').join('')+
+  '<rect x="50" y="34" width="190" height="130" rx="8" fill="#0b1016" stroke="#2b3746" stroke-width="6"/>'+
+  '<path d="M60 150V112h18V92h20v58h14V78h22v72h16V100h20v50h16V118h18v32h20" fill="#1d2733"/><circle cx="200" cy="66" r="12" fill="#e9bb74" opacity=".7"/>'+
+  '<path d="M145 34v130M50 99h190" stroke="#2b3746" stroke-width="4"/>'+
+  '<rect x="380" y="26" width="240" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="500" y="52" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".18em" fill="var(--mint)" font-family="system-ui,sans-serif">ATLAS · UFFICIO PAPER</text>'+
+  '<rect x="780" y="40" width="150" height="104" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="4"/><path d="M795 120l25-22 22 14 30-38 26 20 18-12" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="855" y="62" text-anchor="middle" font-size="10" fill="#94a3b5" font-family="system-ui,sans-serif">SOLO SOLDI FINTI</text>'+
+  '<rect x="955" y="200" width="30" height="50" rx="6" fill="#26313d"/><path d="M970 200c-20-30-6-55 0-62 6 7 20 32 0 62zM970 205c-26-14-30-36-28-44 9 2 28 20 28 44zM970 205c26-14 30-36 28-44-9 2-28 20-28 44z" fill="var(--mint)" opacity=".7"/>';
+ const capoDesk=officeDesk('boss','Capo',capo,500,232,true);
+ const desks=members.map(([role,name,,st],i)=>officeDesk(role,name,st,xs[i],392,false)).join('');
+ box.innerHTML='<svg viewBox="0 0 1000 480" role="group" aria-label="Ufficio: clicca una scrivania per chiedere un rapporto">'+deco+capoDesk+desks+'</svg>';
+}
+function officeActivate(desk){
+ const role=desk?.dataset.role;if(!role||!officeAsk[role])return;
+ bossHandle(officeAsk[role]);
+ document.querySelector('.boss')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
 function renderSquad(){
  const grid=document.getElementById('squadGrid');if(!grid)return;
  const o=squadData.observer,s=squadData.signal,p=squadData.paired,d=dashboardData;
@@ -994,6 +1053,7 @@ function renderSquad(){
  const failed=Object.values(squadFailed).some(Boolean);
  const key=JSON.stringify(members.map(m=>m[3]))+failed;
  if(key===squadKey)return;squadKey=key;
+ renderOffice(members);
  grid.innerHTML=members.map(([role,name,job,st])=>'<article class="squad-card" data-role="'+role+'" data-mood="'+st.mood+'"><div class="squad-top">'+squadPuppet(role).replace('class="p-mouth"','class="p-mouth" d="'+squadMouths[st.mood]+'"')+'<div class="squad-name"><b>'+name+'</b><span>'+job+'</span><span class="squad-chip">'+labEscape(st.chip)+'</span></div></div><div class="squad-bubble"><ul>'+st.lines.map(line=>'<li>'+labEscape(line)+'</li>').join('')+'</ul></div><span class="squad-time">'+(st.at?'Dati delle '+labTime(st.at):'Dati n/d')+'</span></article>').join('');
  document.getElementById('squadStamp').textContent=failed?'Un rapporto non è stato aggiornato: mostro l’ultimo valido.':'';
 }
@@ -1028,9 +1088,9 @@ function bossSay(from,label,lines){
 }
 function bossCall(roles){
  clearTimeout(bossCallTimer);
- document.querySelectorAll('.squad-card[data-called]').forEach(c=>c.removeAttribute('data-called'));
- roles.forEach(r=>document.querySelector('.squad-card[data-role="'+r+'"]')?.setAttribute('data-called',''));
- bossCallTimer=setTimeout(()=>document.querySelectorAll('.squad-card[data-called]').forEach(c=>c.removeAttribute('data-called')),4000);
+ document.querySelectorAll('[data-called]').forEach(c=>c.removeAttribute('data-called'));
+ roles.forEach(r=>document.querySelectorAll('[data-role="'+r+'"]').forEach(el=>el.setAttribute('data-called','')));
+ bossCallTimer=setTimeout(()=>document.querySelectorAll('[data-called]').forEach(c=>c.removeAttribute('data-called')),4000);
 }
 function bossHandle(text){
  const clean=String(text??'').trim().slice(0,200);if(!clean)return;
@@ -1051,6 +1111,9 @@ function initBoss(){
  document.querySelector('.boss').dataset.mood='ok';
  bossSay('boss','Capo',['Ciao, sono il Capo. Dammi un ordine e lo passo alla squadra. Ricorda: qui tutto è simulato, nessun ordine reale.']);
  form.addEventListener('submit',event=>{event.preventDefault();const input=document.getElementById('bossInput');bossHandle(input.value);input.value=''});
+ const office=document.getElementById('squadOffice');
+ office.addEventListener('click',event=>officeActivate(event.target.closest('.desk')));
+ office.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){const d=event.target.closest('.desk');if(d){event.preventDefault();officeActivate(d)}}});
  document.querySelector('.boss-quick').addEventListener('click',event=>{const b=event.target.closest('[data-boss]');if(b)bossHandle(b.textContent)});
 }
 function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
