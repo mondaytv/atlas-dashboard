@@ -1,0 +1,364 @@
+{
+  "check_interval_minutes": 5,
+  "cycles": 1,
+  "errors": {},
+  "generated_at": "2026-11-19T00:05:32+00:00",
+  "lane": "TREND_V3_PAPER",
+  "lessons": [
+    "Il 92% delle 185 operazioni chiuse prima di V3 era stato aperto con il mercato giornaliero in discesa o laterale.",
+    "Oltre il 90% di quelle operazioni e' finito allo stop: le perdite venivano soprattutto dalla direzione del mercato, non solo dalle commissioni.",
+    "Gli acquisti 'sul calo' (ritorno alla media) in un mercato che scende hanno perso quasi sempre.",
+    "Le poche operazioni aperte con il mercato in salita hanno perso anch'esse: il filtro riduce il danno, non garantisce guadagni."
+  ],
+  "limits": [
+    "PAPER only: no order is sent anywhere; results are simulated on observed public books.",
+    "The rules were designed after seeing earlier losses: only future data from the start date counts.",
+    "Daily rules trade rarely: few or zero trades in 90 days is a likely and valid outcome.",
+    "Checks are planned every five minutes; stops are sampled, gaps can exceed them.",
+    "The low-cost tier applies a hypothetical fee to Kraken books; another exchange is not measured.",
+    "Other Atlas accounts and their records are never read, reset or modified by this module."
+  ],
+  "market_started_at": "2026-11-19T00:05:32+00:00",
+  "paper_only": true,
+  "protocol": {
+    "algorithm_hash": "005550619a0dc92f5d3ae79447d21a04d1c5afebe7862b9bf04b727d862b97cf",
+    "benchmark": "Cash (0) and buy and hold of BTC and ETH from the same start, EUR100 each, same tier fee and book execution",
+    "book_latency_buffer": 0.0002,
+    "cost_tiers": {
+      "kraken": {
+        "fee_per_side": 0.008,
+        "label": "Costi Kraken attuali",
+        "observed_venue": true
+      },
+      "low": {
+        "fee_per_side": 0.0025,
+        "label": "Ipotesi costi bassi",
+        "observed_venue": false
+      }
+    },
+    "designed_after_seeing_losses": true,
+    "entry_limits": {
+      "max_impact_pct": 0.35,
+      "max_spread_pct": 0.25,
+      "min_depth_multiple": 20,
+      "min_volume_eur_24h": 500000
+    },
+    "feedback_to_other_models": false,
+    "fixed_target": false,
+    "frozen_atlas_fee_per_side": 0.008,
+    "initial_capital_per_account": 1000.0,
+    "interval_minutes": 1440,
+    "lane": "TREND_V3_PAPER",
+    "lessons": [
+      "Il 92% delle 185 operazioni chiuse prima di V3 era stato aperto con il mercato giornaliero in discesa o laterale.",
+      "Oltre il 90% di quelle operazioni e' finito allo stop: le perdite venivano soprattutto dalla direzione del mercato, non solo dalle commissioni.",
+      "Gli acquisti 'sul calo' (ritorno alla media) in un mercato che scende hanno perso quasi sempre.",
+      "Le poche operazioni aperte con il mercato in salita hanno perso anch'esse: il filtro riduce il danno, non garantisce guadagni."
+    ],
+    "leverage": false,
+    "long_only": true,
+    "low_cost_tier_limit": "Hypothetical fee applied to observed Kraken books; not a measurement of another exchange",
+    "minima_are_not_proof": true,
+    "minimum_closed_per_account": 10,
+    "one_position_per_account": true,
+    "paper_only": true,
+    "parameter_tuning_during_study": false,
+    "quote_currency": "EUR",
+    "real_orders_enabled": false,
+    "regime": "close > SMA50 and SMA50 > SMA50 five completed days earlier",
+    "rules": {
+      "breakout": {
+        "exit_mean": "sma20",
+        "label": "Rottura in tendenza",
+        "plain": "Compra se, con la media a 50 giorni in salita e il prezzo sopra, la chiusura giornaliera supera il massimo dei 20 giorni precedenti. Esce se una chiusura scende sotto la media a 20 giorni."
+      },
+      "pullback": {
+        "exit_mean": "sma50",
+        "label": "Rientro in tendenza",
+        "plain": "Compra se, con la media a 50 giorni in salita e il prezzo sopra, il prezzo torna sopra la media a 20 giorni dopo esserci sceso sotto. Esce se una chiusura scende sotto la media a 50 giorni."
+      },
+      "trend": {
+        "exit_mean": "sma50",
+        "label": "Tendenza giornaliera",
+        "plain": "Compra se il prezzo giornaliero e' sopra la media a 50 giorni in salita, sopra la media a 20 giorni e piu' alto di 20 giorni fa. Esce se una chiusura giornaliera scende sotto la media a 50 giorni."
+      }
+    },
+    "stop_atr": 3.0,
+    "study_days": 90,
+    "symbols": [
+      "BTC",
+      "ETH"
+    ],
+    "trade_eur": 100.0,
+    "version": "atlas-trend-v3"
+  },
+  "protocol_hash": "1c0e8b901c7699824c132b10ede967cf89dd4a70ffc3baf9a4888e351ce3dbbd",
+  "real_orders_enabled": false,
+  "regime": {
+    "BTC": {
+      "candle_t": 1794960000,
+      "close": 57422.5,
+      "sma50": 70306.664,
+      "trend_up": false
+    },
+    "ETH": {
+      "candle_t": 1794960000,
+      "close": 1618.38,
+      "sma50": 2080.0562,
+      "trend_up": false
+    }
+  },
+  "registered_at": "2026-11-19T00:05:31+00:00",
+  "schema": 1,
+  "signal_interval_minutes": 1440,
+  "stale_after_minutes": 12,
+  "status": "COLLECTING",
+  "study_end_at": "2027-02-17T00:05:32+00:00",
+  "tiers": {
+    "kraken": {
+      "accounts": {
+        "breakout": {
+          "cash": 1000.0,
+          "counters": {
+            "blocked_by_trend_filter": 2,
+            "candles_checked": 2,
+            "entered": 0,
+            "signals": 0,
+            "skipped_execution": 0
+          },
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Rottura in tendenza",
+          "last_action": "TREND_FILTER_KEEPS_CASH",
+          "metrics": {
+            "buy_hold_excess_eur": 1.6437406274256503,
+            "buy_hold_pnl_eur": -1.6437406274256503,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "rule": "Compra se, con la media a 50 giorni in salita e il prezzo sopra, la chiusura giornaliera supera il massimo dei 20 giorni precedenti. Esce se una chiusura scende sotto la media a 20 giorni.",
+          "trades": []
+        },
+        "pullback": {
+          "cash": 1000.0,
+          "counters": {
+            "blocked_by_trend_filter": 2,
+            "candles_checked": 2,
+            "entered": 0,
+            "signals": 0,
+            "skipped_execution": 0
+          },
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Rientro in tendenza",
+          "last_action": "TREND_FILTER_KEEPS_CASH",
+          "metrics": {
+            "buy_hold_excess_eur": 1.6437406274256503,
+            "buy_hold_pnl_eur": -1.6437406274256503,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "rule": "Compra se, con la media a 50 giorni in salita e il prezzo sopra, il prezzo torna sopra la media a 20 giorni dopo esserci sceso sotto. Esce se una chiusura scende sotto la media a 50 giorni.",
+          "trades": []
+        },
+        "trend": {
+          "cash": 1000.0,
+          "counters": {
+            "blocked_by_trend_filter": 2,
+            "candles_checked": 2,
+            "entered": 0,
+            "signals": 0,
+            "skipped_execution": 0
+          },
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Tendenza giornaliera",
+          "last_action": "TREND_FILTER_KEEPS_CASH",
+          "metrics": {
+            "buy_hold_excess_eur": 1.6437406274256503,
+            "buy_hold_pnl_eur": -1.6437406274256503,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "rule": "Compra se il prezzo giornaliero e' sopra la media a 50 giorni in salita, sopra la media a 20 giorni e piu' alto di 20 giorni fa. Esce se una chiusura giornaliera scende sotto la media a 50 giorni.",
+          "trades": []
+        }
+      },
+      "fee_per_side": 0.008,
+      "hypothetical_costs": false,
+      "label": "Costi Kraken attuali",
+      "observed_venue": true,
+      "summary": {
+        "accounts_positive_and_above_buy_hold": [],
+        "benchmark_stale": false,
+        "buy_hold_pnl_eur_per_100": -1.6437406274256503,
+        "cash_pnl_eur": 0.0,
+        "closed_trades": 0,
+        "fees_eur": 0,
+        "minimum_sample_met": false,
+        "net_pnl_eur_per_account": {
+          "breakout": 0.0,
+          "pullback": 0.0,
+          "trend": 0.0
+        },
+        "net_pnl_eur_sum_of_accounts": 0.0,
+        "realized_pnl_eur": 0,
+        "validated": false,
+        "verdict": "COLLECTING_NO_FINAL_CONCLUSION"
+      }
+    },
+    "low": {
+      "accounts": {
+        "breakout": {
+          "cash": 1000.0,
+          "counters": {
+            "blocked_by_trend_filter": 2,
+            "candles_checked": 2,
+            "entered": 0,
+            "signals": 0,
+            "skipped_execution": 0
+          },
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Rottura in tendenza",
+          "last_action": "TREND_FILTER_KEEPS_CASH",
+          "metrics": {
+            "buy_hold_excess_eur": 0.543983140984956,
+            "buy_hold_pnl_eur": -0.543983140984956,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "rule": "Compra se, con la media a 50 giorni in salita e il prezzo sopra, la chiusura giornaliera supera il massimo dei 20 giorni precedenti. Esce se una chiusura scende sotto la media a 20 giorni.",
+          "trades": []
+        },
+        "pullback": {
+          "cash": 1000.0,
+          "counters": {
+            "blocked_by_trend_filter": 2,
+            "candles_checked": 2,
+            "entered": 0,
+            "signals": 0,
+            "skipped_execution": 0
+          },
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Rientro in tendenza",
+          "last_action": "TREND_FILTER_KEEPS_CASH",
+          "metrics": {
+            "buy_hold_excess_eur": 0.543983140984956,
+            "buy_hold_pnl_eur": -0.543983140984956,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "rule": "Compra se, con la media a 50 giorni in salita e il prezzo sopra, il prezzo torna sopra la media a 20 giorni dopo esserci sceso sotto. Esce se una chiusura scende sotto la media a 50 giorni.",
+          "trades": []
+        },
+        "trend": {
+          "cash": 1000.0,
+          "counters": {
+            "blocked_by_trend_filter": 2,
+            "candles_checked": 2,
+            "entered": 0,
+            "signals": 0,
+            "skipped_execution": 0
+          },
+          "equity": 1000.0,
+          "equity_stale": false,
+          "label": "Tendenza giornaliera",
+          "last_action": "TREND_FILTER_KEEPS_CASH",
+          "metrics": {
+            "buy_hold_excess_eur": 0.543983140984956,
+            "buy_hold_pnl_eur": -0.543983140984956,
+            "closed_trades": 0,
+            "fees_eur": 0,
+            "max_drawdown_pct": 0.0,
+            "net_pnl_eur": 0.0,
+            "profit_factor": 0,
+            "profit_factor_no_losses": false,
+            "realized_pnl_eur": 0,
+            "single_asset_profit_share": null,
+            "single_trade_profit_share": null,
+            "trade_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "wins": 0
+          },
+          "position": null,
+          "rule": "Compra se il prezzo giornaliero e' sopra la media a 50 giorni in salita, sopra la media a 20 giorni e piu' alto di 20 giorni fa. Esce se una chiusura giornaliera scende sotto la media a 50 giorni.",
+          "trades": []
+        }
+      },
+      "fee_per_side": 0.0025,
+      "hypothetical_costs": true,
+      "label": "Ipotesi costi bassi",
+      "observed_venue": false,
+      "summary": {
+        "accounts_positive_and_above_buy_hold": [],
+        "benchmark_stale": false,
+        "buy_hold_pnl_eur_per_100": -0.543983140984956,
+        "cash_pnl_eur": 0.0,
+        "closed_trades": 0,
+        "fees_eur": 0,
+        "minimum_sample_met": false,
+        "net_pnl_eur_per_account": {
+          "breakout": 0.0,
+          "pullback": 0.0,
+          "trend": 0.0
+        },
+        "net_pnl_eur_sum_of_accounts": 0.0,
+        "realized_pnl_eur": 0,
+        "validated": false,
+        "verdict": "COLLECTING_NO_FINAL_CONCLUSION"
+      }
+    }
+  },
+  "version": "atlas-trend-v3"
+}
