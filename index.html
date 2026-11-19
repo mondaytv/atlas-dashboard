@@ -163,6 +163,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  .lab-surface{padding:15px}.lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lab-candidates{grid-template-columns:1fr}
 }
 @media(max-width:370px){.bottom-nav{padding-inline:3px}.bottom-nav a{padding-inline:0}.lab-metric dd{font-size:21px}}
+.v3-regime{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.v3-regime div{background:var(--surface2);border-radius:12px;padding:12px;font-size:12px}.v3-regime b{display:block;font-size:15px}.v3-regime .up{color:var(--mint)}.v3-regime .down{color:var(--red)}@media(max-width:760px){.v3-regime{grid-template-columns:1fr}}
 .signal-tier{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}.signal-tier>h3{font-size:15px;font-weight:650;margin:0}
 .paired-arms.signal-arms{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .signal-days{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;font-variant-numeric:tabular-nums}
@@ -315,6 +316,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  </section>
  <section id="segnali" class="section" data-workspace-page="segnali" aria-label="Segnali giornalieri" hidden>
   <div id="signalDay" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento segnali giornalieri…</p></div>
+  <div id="trendV3" class="lab-surface exploration-panel" style="margin-top:18px"><p class="lab-note" role="status">Caricamento test V3…</p></div>
  </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
@@ -501,7 +503,7 @@ function updateSyncCountdown(){
  const seconds=Math.max(0,Math.ceil((nextDataRefreshAt-Date.now())/1000));updated.textContent=`· dati ${shortDate(dashboardData.generated_at)} · sync ${seconds}s`;
 }
 async function refreshData(){
- if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();void refreshSignalDay();void refreshSquad();await load();
+ if(document.visibilityState!=='visible')return;nextDataRefreshAt=Date.now()+DATA_REFRESH_MS;updateSyncCountdown();void refreshLaboratory();void refreshSignalDay();void refreshTrendV3();void refreshSquad();await load();
 }
 function stopPolling(){clearTimeout(loadTimer);clearTimeout(chartTimer);clearInterval(syncTimer);clearTimeout(aiNarrationTimer);loadTimer=chartTimer=syncTimer=aiNarrationTimer=null;}
 function scheduleDataRefresh(){
@@ -542,7 +544,7 @@ function setWorkspacePage(page){
  document.querySelector('.workspace-chip').hidden=page==='laboratorio';
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
  if(page==='laboratorio'||page==='ai')void refreshLaboratory();
- if(page==='segnali')void refreshSignalDay();
+ if(page==='segnali'){void refreshSignalDay();void refreshTrendV3()}
  if(page==='overview')void refreshSquad();
 }
 function applyModelFilters(){
@@ -848,14 +850,15 @@ async function refreshSignalDay(){
 }
 
 // ---- La squadra: puppet agents that only narrate existing public reports (no decisions, no orders).
-const SQUAD_SOURCES={observer:OBSERVERS_URL,signal:SIGNAL_DAY_URL,paired:PAIRED_URL};
-const squadData={observer:null,signal:null,paired:null,screening:null},squadFailed={observer:false,signal:false,paired:false,screening:false};
+const SQUAD_SOURCES={observer:OBSERVERS_URL,signal:SIGNAL_DAY_URL,paired:PAIRED_URL,trend:'https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/trend-v3.json'};
+const squadData={observer:null,signal:null,paired:null,screening:null,trend:null},squadFailed={observer:false,signal:false,paired:false,screening:false,trend:false};
 const SQUAD_SCREENING_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/screening-5m.json';let squadScreeningSlot=-1;
 function squadStamp(r){return Date.parse(r?.generated_at??r?.checked_at)}
 let squadRequest=null,squadKey='';
 const squadValid={
  observer:r=>r?.version==='atlas-observers-v1'&&r.paper_only===true&&!!r.scanner,
  signal:r=>signalDayValid(r),
+ trend:r=>trendV3Valid(r),
  screening:r=>r?.mode!=null&&!!r?.exploration?.summary&&!!r?.last_success&&Number.isFinite(Date.parse(r?.checked_at)),
  paired:r=>r?.version==='atlas-paired-entry-v1'&&r.paper_only===true&&r.real_orders_enabled===false&&!!r.accounts?.control&&!!r.accounts?.filtered
 };
@@ -879,6 +882,7 @@ async function refreshSquad(){
    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
    try{
     const response=await fetch(url+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+    if(response.status===404&&key==='trend'){squadFailed[key]=false;return}
     if(!response.ok)throw new Error('unavailable');
     const report=await response.json();
     if(!squadValid[key](report))throw new Error('invalid');
@@ -996,6 +1000,10 @@ function squadSeeker(r){
   lines.push('Conti con operazioni chiuse in guadagno: '+labCount(winners)+' su '+labCount(accounts.length)+'. '+(up?'Il migliore':'Nessuno in guadagno; il meno peggio')+': '+squadMarketName(best.symbol)+' '+(labFamilies[best.recipe?.family]??'formula')+', '+labMoney(best.metrics.net_pnl_eur,true)+' con '+labCount(closed)+(closed===1?' chiusura':' chiusure')+(closed>=10?'.':': troppo poche per dire che funziona.'))}
  else lines.push('Nessun conto libero ha ancora chiuso operazioni.');
  lines.push('Laboratorio V2: '+labCount(s2.accounts)+' conti, '+labCount(s2.closed)+' chiusure, risultato '+labMoney(s2.net_pnl_eur,true)+'.');
+ const v3=squadData.trend;
+ if(v3){const accs=Object.values(v3.tiers?.kraken?.accounts||{}),open=accs.filter(a=>a?.position).length,blocked=accs.reduce((n,a)=>n+(Number(a?.counters?.blocked_by_trend_filter)||0),0),up=Object.entries(v3.regime||{}).filter(([,r])=>r.trend_up).map(([s])=>squadMarketName(s));
+  lines.push('Test V3 (regole migliorate dalle perdite): '+(up.length?'tendenza in salita su '+up.join(', '):'tendenza giornaliera in discesa, resto in contanti')+'; '+labCount(open)+' posizioni aperte, '+labCount(blocked)+' ingressi fermati dal filtro.')}
+ else lines.push('Test V3 (regole migliorate dalle perdite): in partenza, nessun dato ancora.');
  lines.push('Uso solo soldi virtuali e non tocco i test congelati.');
  const stale=squadStale(r);
  return{mood:stale?'stale':lead?'ok':'wait',chip:stale?'Dati vecchi':lead?'Pista da seguire':'Sperimenta',lines,at:r.checked_at};
@@ -1070,7 +1078,7 @@ function bossIntent(text){
  if(has(['compra','vendi','acquista','apri posizione','chiudi posizione','ordine reale','investi','leva','short','soldi veri','metti soldi']))return'refuse';
  if(has(['cambia','modifica','resetta','reset','azzera','cancella','spegni','ferma','stop']))return'locked';
  for(const [role,word] of [['seeker','cercator'],['scout','esplorat'],['analyst','analist'],['guard','guardian'],['accountant','contabil']])if(t.includes(word))return role;
- if(has(['strategi','formula','formule','regola nuova','scopri','esperiment','cerca']))return'seeker';
+ if(has(['strategi','formula','formule','regola nuova','scopri','esperiment','cerca','v3','miglior']))return'seeker';
  if(has(['esplorat','mercat','notizi','news','grafic','scanner','guarda']))return'scout';
  if(has(['analist','segnal','ingress','entrar','setup','occasion','opportun']))return'analyst';
  if(has(['guardian','rischi','sicur','cost','commission','freno','fee','perdere']))return'guard';
@@ -1115,6 +1123,61 @@ function initBoss(){
  office.addEventListener('click',event=>officeActivate(event.target.closest('.desk')));
  office.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){const d=event.target.closest('.desk');if(d){event.preventDefault();officeActivate(d)}}});
  document.querySelector('.boss-quick').addEventListener('click',event=>{const b=event.target.closest('[data-boss]');if(b)bossHandle(b.textContent)});
+}
+
+const TREND_V3_URL='https://raw.githubusercontent.com/mondaytv/atlas-dashboard/research-monitor/trend-v3.json';
+let trendV3Snapshot=null,trendV3Request=null;
+function trendV3Valid(r){return r?.version==='atlas-trend-v3'&&r.paper_only===true&&r.real_orders_enabled===false&&!!r.tiers?.kraken?.accounts&&!!r.tiers?.low?.accounts}
+function renderTrendV3(report,unreachable=false){
+ const root=document.getElementById('trendV3');if(!root)return;
+ if(!trendV3Valid(report)){root.innerHTML='<h2>Test V3 · tendenza giornaliera</h2><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo controllo.')+' Conti V3: n/d.</p>';delete root.dataset.snapshot;return}
+ const stale=squadStale(report),key=report.generated_at+' '+stale+' '+unreachable;
+ if(root.dataset.snapshot===key)return;
+ const open=new Set([...root.querySelectorAll('details[open]')].map(el=>el.dataset.v3Key)),rendered=!!root.dataset.snapshot;
+ const p=report.protocol||{};
+ const actions={WAIT_FOR_SIGNAL:'Mercato in salita, ma nessun segnale oggi.',TREND_FILTER_KEEPS_CASH:'Mercato in discesa: il filtro tiene i soldi in contanti.',MANAGING_OPEN_POSITION:'Posizione aperta: controllo stop e chiusura giornaliera.',EXIT_WAITING_FOR_FRESH_BID:'Uscita in attesa di un prezzo aggiornato.',SIGNAL_WAITING_FOR_EXECUTABLE_BOOK:'Segnale presente: in attesa di prezzi eseguibili.',SIGNAL_SKIPPED_EXECUTION_LIMITS:'Segnale scartato: condizioni di esecuzione non idonee.',CAPITAL_LIMIT_NO_RESET:'Capitale virtuale insufficiente: nessun reset.',WAIT_FOR_NEW_CANDLE:'In attesa della prima candela giornaliera.'};
+ const reasons={STOP:'stop',TREND_EXIT:'chiusura sotto la linea di tendenza',STUDY_END:'fine della prova'};
+ const action=v=>actions[v]??(String(v).startsWith('PAPER_BUY_')?'Acquisto virtuale eseguito.':String(v).startsWith('PAPER_SELL_')?'Posizione chiusa: '+(reasons[String(v).slice(11)]??'motivo n/d')+'.':'Stato in aggiornamento.');
+ const regime=Object.entries(report.regime||{}).map(([s,r])=>'<div><span class="lab-note">'+labEscape(squadMarketName(s))+'/EUR · candela giornaliera</span><b class="'+(r.trend_up?'up':'down')+'">'+(r.trend_up?'Tendenza in salita':'Tendenza in discesa o laterale')+'</b>Chiusura '+observerPrice(r.close)+' · media 50 giorni '+observerPrice(r.sma50)+'</div>').join('')||'<div>Tendenza n/d</div>';
+ const tiers=Object.entries(report.tiers).map(([tierKey,tier])=>{
+  const t=tier.summary||{};
+  const cards=Object.entries(tier.accounts||{}).map(([rule,row])=>{
+   const m=row.metrics||{},c=row.counters||{},pos=row.position;
+   return '<article class="paired-arm"><h3>'+labEscape(row.label)+'</h3><span class="lab-note">Valore del conto virtuale</span><strong>'+labMoney(row.equity)+'</strong><p class="lab-note">Risultato '+labMoney(m.net_pnl_eur,true)+(row.equity_stale?' · VALORE NON AGGIORNATO':'')+'</p><dl class="lab-metrics">'+[['Chiusure',labCount(m.closed_trades)],['Giorni controllati',labCount(c.candles_checked)],['Fermati dal filtro',labCount(c.blocked_by_trend_filter)],['Ingressi',labCount(c.entered)]].map(([a,b])=>labMetric(a,b)).join('')+'</dl><p class="lab-note">'+(pos?'Posizione aperta '+labEscape(squadMarketName(pos.symbol))+' · ingresso '+labTime(pos.entry_at)+' a '+observerPrice(pos.entry_price)+' · stop '+observerPrice(pos.stop)+' · nessun obiettivo fisso':'Nessuna posizione aperta.')+'</p><p class="lab-note">'+labEscape(action(row.last_action))+'</p></article>';
+  }).join('');
+  return '<section class="signal-tier"><h3>'+labEscape(tier.label)+' · commissione '+(Number.isFinite(tier.fee_per_side)?pct(tier.fee_per_side*100)+'%':'n/d')+' per lato</h3>'+
+   (tier.hypothetical_costs?'<p class="lab-note">IPOTESI: stessi segnali e stessi prezzi Kraken, con una commissione più bassa.</p>':'')+
+   '<p class="lab-note">Confronto per conto (ognuno rischia al massimo 100 €): tenere i contanti 0,00 € · comprare e tenere 100 € '+(t.benchmark_stale?'n/d':labMoney(t.buy_hold_pnl_eur_per_100,true))+' · chiusure totali '+labCount(t.closed_trades)+' · fee '+labMoney(t.fees_eur)+'. '+labEscape(({COLLECTING_NO_FINAL_CONCLUSION:'Raccolta in corso · nessuna conclusione',DATA_INCOMPLETE_NO_CONCLUSION:'Dati incompleti · nessuna conclusione',INSUFFICIENT_CLOSED_SAMPLE:'Chiusure insufficienti',OBSERVED_POSITIVE_IN_THIS_SAMPLE_NOT_VALIDATED:'Positivo in questo campione · non validato',NO_PROFIT_DEMONSTRATED:'Nessun guadagno dimostrato'})[t.verdict]??'Esito n/d')+'.</p>'+
+   '<div class="paired-arms signal-arms">'+cards+'</div></section>';
+ }).join('');
+ const rules=Object.values(p.rules||{}).map(r=>'<p class="lab-note"><b>'+labEscape(r.label)+'.</b> '+labEscape(r.plain)+'</p>').join('');
+ const lessons=(report.lessons||[]).map(l=>'<li>'+labEscape(l)+'</li>').join('');
+ root.innerHTML='<div class="lab-lead"><div><h2>Test V3 · tendenza giornaliera</h2><p>Regole nuove costruite sulle perdite dei test precedenti. Compra solo BTC o ETH e solo quando la tendenza giornaliera sale; altrimenti resta in contanti.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
+  '<div class="v3-regime">'+regime+'</div>'+
+  '<p class="lab-note">Inizio '+labTime(report.market_started_at)+' · fine prevista '+labTime(report.study_end_at)+' · controlli eseguiti '+labCount(report.cycles)+'. Soldi virtuali: nessun ordine reale. I test congelati non sono stati toccati.</p>'+
+  tiers+
+  '<details class="lab-detail" data-v3-key="lessons" open><summary>Cosa abbiamo imparato dalle perdite</summary><ul>'+lessons+'</ul></details>'+
+  '<details class="lab-detail" data-v3-key="rules"><summary>Regole fissate prima della prova</summary>'+(rules||'<p class="lab-note">Regole n/d.</p>')+'<p class="lab-note">Stop largo a '+labCount(p.stop_atr)+' ATR giornalieri · nessun obiettivo fisso · una posizione per conto · '+labMoney(p.trade_eur)+' per operazione · solo acquisti, senza leva · durata '+labCount(p.study_days)+' giorni · minimo tecnico '+labCount(p.minimum_closed_per_account)+' chiusure per conto. Protocollo '+labEscape(report.protocol_hash?.slice(0,16))+'.</p></details>'+
+  '<details class="lab-detail" data-v3-key="limits"><summary>Limiti da tenere presenti</summary><ul><li>Le regole sono state scritte dopo aver visto le perdite: conta solo quello che succede da adesso in poi.</li><li>Con regole giornaliere le operazioni sono rare: zero operazioni in 90 giorni è un risultato possibile e valido.</li><li>Sullo storico queste regole avrebbero perso meno di comprare e tenere, ma con pochissime operazioni: non è una prova.</li><li>Gli stop sono controllati ogni cinque minuti: un movimento brusco può superarli.</li></ul></details>';
+ root.dataset.snapshot=key;
+ if(rendered)root.querySelectorAll('details').forEach(el=>{el.open=open.has(el.dataset.v3Key)});
+}
+async function refreshTrendV3(){
+ if(workspacePage!=='segnali'||document.visibilityState!=='visible')return;
+ if(trendV3Request)return trendV3Request;
+ trendV3Request=(async()=>{
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const response=await fetch(TREND_V3_URL+'?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+   if(response.status===404&&!trendV3Snapshot){renderTrendV3(null,false);return}
+   if(!response.ok)throw new Error('V3 report unavailable');
+   const report=await response.json();
+   if(!trendV3Valid(report))throw new Error('Invalid V3 report');
+   if(!trendV3Snapshot||Date.parse(report.generated_at)>=Date.parse(trendV3Snapshot.generated_at))trendV3Snapshot=report;
+   renderTrendV3(trendV3Snapshot);
+  }catch{renderTrendV3(trendV3Snapshot,true)}finally{clearTimeout(timeout)}
+ })();
+ try{return await trendV3Request}finally{trendV3Request=null}
 }
 function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
 function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
