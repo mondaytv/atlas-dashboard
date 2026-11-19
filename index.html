@@ -158,11 +158,11 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 @media(max-width:760px){.lab-diary-log{height:350px;padding-inline:10px}.lab-diary-line{grid-template-columns:62px minmax(0,1fr);gap:3px 8px}.lab-diary-line p{grid-column:1/-1;margin:0}.lab-diary-line time{font-size:9px}.lab-diary-line b{font-size:10px}.lab-diary-role{padding:9px}.lab-diary-role b{font-size:11px}.lab-diary-role span{font-size:9px}}
 @media(max-width:1100px){.lab-candidates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
- .bottom-nav{grid-template-columns:repeat(7,minmax(0,1fr))}.bottom-nav a{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .bottom-nav{display:flex;gap:2px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}.bottom-nav::-webkit-scrollbar{display:none}.bottom-nav a{flex:0 0 auto;min-width:70px;font-size:10px;white-space:nowrap;display:flex;flex-direction:column;align-items:center}
  .bottom-nav a{min-height:44px;justify-content:center}
  .lab-surface{padding:15px}.lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lab-candidates{grid-template-columns:1fr}
 }
-@media(max-width:370px){.bottom-nav{padding-inline:3px}.bottom-nav a{padding-inline:0}.lab-metric dd{font-size:21px}}
+@media(max-width:370px){.bottom-nav{padding-inline:3px}.bottom-nav a{padding-inline:4px;min-width:64px}.lab-metric dd{font-size:21px}}
 .v3-regime{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.v3-regime div{background:var(--surface2);border-radius:12px;padding:12px;font-size:12px}.v3-regime b{display:block;font-size:15px}.v3-regime .up{color:var(--mint)}.v3-regime .down{color:var(--red)}@media(max-width:760px){.v3-regime{grid-template-columns:1fr}}
 .signal-tier{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}.signal-tier>h3{font-size:15px;font-weight:650;margin:0}
 .paired-arms.signal-arms{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
@@ -299,7 +299,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
   <div id="labCandidates"></div>
   <div class="lab-source"><span id="labTimestamp"></span><a class="lab-link" href="https://github.com/mondaytv/atlas-dashboard/blob/research/README.md">Apri il report sorgente</a></div>
  </section>
- <section id="squad" class="section squad" data-workspace-page="overview" aria-labelledby="squadTitle">
+ <section id="squad" class="section squad" data-workspace-page="ufficio" aria-labelledby="squadTitle">
   <div class="squad-head"><div><h2 id="squadTitle">La squadra</h2><p>Cinque aiutanti raccontano cosa stanno facendo i calcoli, con i dati veri.</p></div><span id="squadStamp" class="squad-time"></span></div>
   <div id="squadOffice" class="office" aria-label="L’ufficio della squadra"></div>
   <p class="office-hint">Clicca su una scrivania: quell’aiutante fa rapporto al Capo qui sotto. Il colore del monitor mostra il suo stato.<span class="office-swipe"> Sul telefono scorri l’ufficio di lato.</span></p>
@@ -316,7 +316,9 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  </section>
  <section id="segnali" class="section" data-workspace-page="segnali" aria-label="Segnali giornalieri" hidden>
   <div id="signalDay" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento segnali giornalieri…</p></div>
-  <div id="trendV3" class="lab-surface exploration-panel" style="margin-top:18px"><p class="lab-note" role="status">Caricamento test V3…</p></div>
+ </section>
+ <section id="v3" class="section" data-workspace-page="v3" aria-label="Test V3" hidden>
+  <div id="trendV3" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento test V3…</p></div>
  </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
@@ -528,8 +530,10 @@ window.addEventListener('online',()=>startPolling(true));
 document.addEventListener('pointerdown',ensureFresh,{passive:true});
 document.addEventListener('touchstart',ensureFresh,{passive:true});
 // Presentation state is independent of paper engine state.
-const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},laboratorio:{title:'Laboratorio.',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio'},segnali:{title:'Segnali giornalieri.',description:'Arriva il segnale, si apre e si chiude una posizione virtuale. Risultati giorno per giorno.',label:'Segnali'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
+const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},ufficio:{title:'L’ufficio.',description:'La squadra al lavoro: parla con il Capo e chiedi i rapporti.',label:'Ufficio'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},laboratorio:{title:'Laboratorio.',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio'},segnali:{title:'Segnali giornalieri.',description:'Arriva il segnale, si apre e si chiude una posizione virtuale. Risultati giorno per giorno.',label:'Segnali'},v3:{title:'Test V3.',description:'Regole nuove costruite sulle perdite: si compra solo con la tendenza giornaliera in salita.',label:'Test V3'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
 const workspaceIcons={overview:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',models:'<path d="M4 19V9m8 10V4m8 15v-7"/><path d="M2 21h20"/>',ai:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',activity:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',markets:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>'};
+workspaceIcons.ufficio='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M5 14v6M19 14v6"/><rect x="8" y="4" width="8" height="6" rx="1"/>';
+workspaceIcons.v3='<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>';
 workspaceIcons.segnali='<path d="M13 2 4 14h7l-1 8 9-12h-7Z"/>';
 workspaceIcons.laboratorio='<path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3M8 15h8"/>';
 let workspacePage='overview',workspaceFilter=(()=>{const value=readPreference('filter','all');return ['all','open','ai'].includes(value)?value:'all'})(),workspaceQuery='',narrationPaused=false;
@@ -540,12 +544,14 @@ function setWorkspacePage(page){
  workspacePage=page;const meta=workspacePages[page];
  document.querySelectorAll('[data-workspace-page]').forEach(el=>{el.hidden=el.dataset.workspacePage!==page});
  document.querySelectorAll('[data-workspace-nav]').forEach(a=>{if(a.dataset.workspaceNav===page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+ const bar=document.querySelector('.bottom-nav'),current=bar?.querySelector('[aria-current=page]');if(bar&&current&&bar.scrollWidth>bar.clientWidth)bar.scrollLeft=Math.max(0,current.offsetLeft-(bar.clientWidth-current.offsetWidth)/2);
  document.querySelector('#workspaceTitle').textContent=meta.title;document.querySelector('#workspaceDescription').textContent=meta.description;document.querySelector('#workspaceCrumb').textContent=meta.label;
  document.querySelector('.workspace-chip').hidden=page==='laboratorio';
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
  if(page==='laboratorio'||page==='ai')void refreshLaboratory();
- if(page==='segnali'){void refreshSignalDay();void refreshTrendV3()}
- if(page==='overview')void refreshSquad();
+ if(page==='segnali')void refreshSignalDay();
+ if(page==='v3')void refreshTrendV3();
+ if(page==='ufficio')void refreshSquad();
 }
 function applyModelFilters(){
  let visible=0;
@@ -873,7 +879,7 @@ function squadStale(report){
  return !Number.isFinite(stamp)||!Number.isFinite(limit)||Date.now()-stamp>limit*60000;
 }
 async function refreshSquad(){
- if(workspacePage!=='overview'||document.visibilityState!=='visible')return;
+ if(workspacePage!=='ufficio'||document.visibilityState!=='visible')return;
  if(squadRequest)return squadRequest;
  squadRequest=(async()=>{
   const sources=Object.entries(SQUAD_SOURCES),slot=Math.floor(Date.now()/300000);
@@ -1163,7 +1169,7 @@ function renderTrendV3(report,unreachable=false){
  if(rendered)root.querySelectorAll('details').forEach(el=>{el.open=open.has(el.dataset.v3Key)});
 }
 async function refreshTrendV3(){
- if(workspacePage!=='segnali'||document.visibilityState!=='visible')return;
+ if(workspacePage!=='v3'||document.visibilityState!=='visible')return;
  if(trendV3Request)return trendV3Request;
  trendV3Request=(async()=>{
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
