@@ -215,6 +215,25 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .office-hint{font-size:11px;color:var(--muted);margin:-4px 0 12px}.office-swipe{display:none}@media(max-width:760px){.office-swipe{display:inline}}
 @media(prefers-reduced-motion:reduce){.office *{animation:none!important}}
 
+
+@media(max-width:760px){
+ .workspace-chip{font-size:10px}
+ main details>summary{min-height:44px;box-sizing:border-box}
+ .lab-detail>summary{padding-block:12px}
+ .chart-tab,.segmented button,.models-filters button,.obs-export,.ai-chat-pause,.boss-quick button,.boss-form button,[data-narration-pause]{min-height:44px}
+ .chart-tab{min-width:44px}
+ .obs-range button,.lab-diary-control{min-height:44px;min-width:44px}
+ .section-link,.lab-link{display:inline-flex;align-items:center;min-height:44px}
+ main input,.models-search,.boss-form input{font-size:16px}
+ .boss-quick{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin-inline:-2px;padding-inline:2px}
+ .boss-quick::-webkit-scrollbar{display:none}
+ .boss-quick button{flex:0 0 auto;font-size:12px}
+ .boss-msg{font-size:13px}
+ .squad-bubble{font-size:13px}
+ .office svg{min-width:0}
+ .office-swipe{display:none!important}
+ .office-hint{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -302,7 +321,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  <section id="squad" class="section squad" data-workspace-page="ufficio" aria-labelledby="squadTitle">
   <div class="squad-head"><div><h2 id="squadTitle">La squadra</h2><p>Cinque aiutanti raccontano cosa stanno facendo i calcoli, con i dati veri.</p></div><span id="squadStamp" class="squad-time"></span></div>
   <div id="squadOffice" class="office" aria-label="L’ufficio della squadra"></div>
-  <p class="office-hint">Clicca su una scrivania: quell’aiutante fa rapporto al Capo qui sotto. Il colore del monitor mostra il suo stato.<span class="office-swipe"> Sul telefono scorri l’ufficio di lato.</span></p>
+  <p class="office-hint">Tocca o clicca una scrivania: quell’aiutante fa rapporto al Capo qui sotto. Il colore del monitor mostra il suo stato.<span class="office-swipe"> Sul telefono scorri l’ufficio di lato.</span></p>
   <div class="boss" aria-labelledby="bossTitle">
    <div class="boss-side"><span id="bossPuppet"></span><div class="squad-name"><b id="bossTitle">Il Capo</b><span>Parla con te e dà gli ordini alla squadra</span></div></div>
    <div class="boss-main">
@@ -579,7 +598,7 @@ function initWorkspace(){
  const market=document.querySelector('.market-panel').closest('section');market.id='marketWorkspace';market.dataset.workspacePage='markets';document.querySelector('.market-panel').open=true;
  document.querySelector('#sp500').dataset.workspacePage='overview';
  const portfolio=document.createElement('section');portfolio.className='section';portfolio.dataset.workspacePage='overview';portfolio.innerHTML='<div class="section-head"><div><h2>I modelli, a colpo d’occhio</h2><p>Risultati paper attuali. Replay storico separato.</p></div><button class="section-link" type="button" data-go-models>Esplora tutti →</button></div><div id="workspacePortfolio" class="portfolio-panel"></div><div id="workspaceExposure" class="portfolio-foot"></div>';
- spotlight.before(portfolio);layout.after(document.getElementById('squad'));initBoss();
+ spotlight.before(portfolio);layout.after(document.getElementById('squad'));initBoss();requestAnimationFrame(()=>bumpSmallText(document.querySelector('main.shell')));
  const toolbar=document.createElement('div');toolbar.className='models-toolbar';toolbar.dataset.workspacePage='models';toolbar.innerHTML='<div class="models-filters" aria-label="Filtra modelli"><button type="button" class="active" data-model-filter="all">Tutti</button><button type="button" data-model-filter="open">Con posizioni</button><button type="button" data-model-filter="ai">Agente IA</button></div><input id="modelSearch" class="models-search" type="search" placeholder="Cerca un modello…" aria-label="Cerca un modello">';
  document.querySelector('#strategies').before(toolbar);
  const filterEmpty=document.createElement('div');filterEmpty.className='empty-model-filter';filterEmpty.id='modelFilterEmpty';filterEmpty.hidden=true;filterEmpty.dataset.workspacePage='models';filterEmpty.textContent='Nessun modello corrisponde alla ricerca.';document.querySelector('#replayLab').after(filterEmpty);
@@ -1015,6 +1034,34 @@ function squadSeeker(r){
  return{mood:stale?'stale':lead?'ok':'wait',chip:stale?'Dati vecchi':lead?'Pista da seguire':'Sperimenta',lines,at:r.checked_at};
 }
 
+
+// ---- Phone: lift text smaller than 11 px to 11 px (only under 760 px; SVG drawings excluded).
+const MOBILE_MQ=matchMedia('(max-width:760px)');
+const textBumpPending=new Set();let textBumpQueued=false;
+function bumpOne(el){
+ if(!(el instanceof HTMLElement)||el.dataset.textBumped||el.closest('svg'))return;
+ let text=false;for(const n of el.childNodes)if(n.nodeType===3&&n.textContent.trim()){text=true;break}
+ if(text&&parseFloat(getComputedStyle(el).fontSize)<11){el.style.fontSize='11px';el.dataset.textBumped='1'}
+}
+function bumpSmallText(root){
+ if(!MOBILE_MQ.matches||!root)return;
+ bumpOne(root);
+ if(root.querySelectorAll)for(const el of root.querySelectorAll('*:not(svg):not(svg *)'))bumpOne(el);
+}
+function flushTextBump(){
+ textBumpQueued=false;const roots=[...textBumpPending];textBumpPending.clear();
+ roots.forEach(r=>{if(r.isConnected)bumpSmallText(r)});
+}
+new MutationObserver(list=>{
+ if(!MOBILE_MQ.matches)return;
+ for(const m of list)for(const n of m.addedNodes){if(n.nodeType===1)textBumpPending.add(n);else if(n.nodeType===3&&n.parentElement)textBumpPending.add(n.parentElement)}
+ if(textBumpPending.size&&!textBumpQueued){textBumpQueued=true;setTimeout(flushTextBump,150)}
+}).observe(document.body,{childList:true,subtree:true});
+MOBILE_MQ.addEventListener('change',event=>{
+ if(event.matches)bumpSmallText(document.body);
+ else document.querySelectorAll('[data-text-bumped]').forEach(el=>{el.style.fontSize='';delete el.dataset.textBumped});
+ squadKey='';renderSquad();
+});
 // ---- L'ufficio: each puppet at its desk; the monitor colour shows its state.
 const officeScreens={ok:'var(--mint)',wait:'#5c6b7d',down:'var(--red)',alert:'var(--red)',stale:'var(--amber)',missing:'var(--amber)'};
 const officeAsk={scout:'Esploratore, cosa vedi?',analyst:'Analista, ci sono segnali?',guard:'Guardiano, siamo al sicuro?',accountant:'Contabile, come vanno i conti?',seeker:'Cercatore, che strategie provi?',boss:'Rapporto generale'};
@@ -1040,6 +1087,7 @@ function officeDesk(role,name,st,cx,y,big){
 }
 function renderOffice(members){
  const box=document.getElementById('squadOffice');if(!box)return;
+ const phone=MOBILE_MQ.matches;
  const xs=[110,305,500,695,890];
  const capo={mood:'ok',chip:'Coordina'};
  const deco='<rect width="1000" height="250" fill="#141d27"/><rect y="250" width="1000" height="230" fill="#0f161e"/>'+
@@ -1051,6 +1099,16 @@ function renderOffice(members){
   '<rect x="380" y="26" width="240" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="500" y="52" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".18em" fill="var(--mint)" font-family="system-ui,sans-serif">ATLAS · UFFICIO PAPER</text>'+
   '<rect x="780" y="40" width="150" height="104" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="4"/><path d="M795 120l25-22 22 14 30-38 26 20 18-12" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="855" y="62" text-anchor="middle" font-size="10" fill="#94a3b5" font-family="system-ui,sans-serif">SOLO SOLDI FINTI</text>'+
   '<rect x="955" y="200" width="30" height="50" rx="6" fill="#26313d"/><path d="M970 200c-20-30-6-55 0-62 6 7 20 32 0 62zM970 205c-26-14-30-36-28-44 9 2 28 20 28 44zM970 205c26-14 30-36 28-44-9 2-28 20-28 44z" fill="var(--mint)" opacity=".7"/>';
+ if(phone){
+  const spots=[[100,500],[300,500],[100,650],[300,650],[200,800]];
+  const tall='<rect width="400" height="250" fill="#141d27"/><rect y="250" width="400" height="650" fill="#0f161e"/><path d="M0 250h400" stroke="#ffffff10" stroke-width="2"/>'+
+   [0,1,2,3,4].map(i=>'<path d="M'+(i*100-20)+' 900L'+(i*100+40)+' 250" stroke="#ffffff06"/>').join('')+
+   '<rect x="60" y="18" width="280" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="200" y="44" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".14em" fill="var(--mint)" font-family="system-ui,sans-serif">ATLAS · UFFICIO PAPER</text>'+
+   '<rect x="18" y="78" width="110" height="86" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="5"/><path d="M26 156v-26h12v-14h14v40h10v-50h14v50h12v-30h14v30" fill="#1d2733"/><circle cx="108" cy="98" r="8" fill="#e9bb74" opacity=".7"/>'+
+   '<rect x="272" y="78" width="110" height="86" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="4"/><path d="M284 146l18-16 16 10 22-28 18 14 12-8" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="327" y="98" text-anchor="middle" font-size="10" fill="#94a3b5" font-family="system-ui,sans-serif">SOLDI FINTI</text>';
+  box.innerHTML='<svg viewBox="0 0 400 890" role="group" aria-label="Ufficio: tocca una scrivania per chiedere un rapporto">'+tall+officeDesk('boss','Capo',capo,200,290,true)+members.map(([role,name,,st],i)=>officeDesk(role,name,st,spots[i][0],spots[i][1],false)).join('')+'</svg>';
+  return;
+ }
  const capoDesk=officeDesk('boss','Capo',capo,500,232,true);
  const desks=members.map(([role,name,,st],i)=>officeDesk(role,name,st,xs[i],392,false)).join('');
  box.innerHTML='<svg viewBox="0 0 1000 480" role="group" aria-label="Ufficio: clicca una scrivania per chiedere un rapporto">'+deco+capoDesk+desks+'</svg>';
