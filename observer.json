@@ -2,37 +2,40 @@
   "advisory_only": true,
   "auto_entry_enabled": false,
   "check_interval_minutes": 5,
-  "cycles": 851,
+  "cycles": 852,
   "entry_reviews": [
     {
       "candle_at": "2026-11-19T04:00:00+00:00",
-      "checked_at": "2026-11-19T10:35:26+00:00",
+      "checked_at": "2026-11-19T10:40:25+00:00",
       "entry_plan": {
-        "entry_price": 0.051830364,
-        "exit_ratio": 0.9986410355486863,
+        "entry_price": 0.010092018,
+        "exit_ratio": 0.9975194044584892,
         "horizon_bars": 24,
         "hypothesis_only": false,
         "interval_minutes": 240,
-        "mid": 0.05176,
-        "stop": 0.04847179257142857,
-        "symbol": "PYTH",
-        "target": 0.06022679257142856
+        "mid": 0.010075,
+        "stop": 0.008720589428571427,
+        "symbol": "RARE",
+        "target": 0.01352058942857143
       },
       "has_setup": true,
       "hypothesis_only": false,
       "interval_minutes": 240,
-      "market": "PYTH/EUR",
+      "market": "RARE/EUR",
       "observed_execution_filters": [
+        "SPREAD",
         "VOLUME"
       ],
       "order_authorized": false,
-      "pair": "PYTHEUR",
+      "pair": "RAREEUR",
       "perfect_timing_claim": false,
-      "quote_at": "2026-11-19T10:35:26+00:00",
+      "quote_at": "2026-11-19T10:40:26+00:00",
       "recipe": {
-        "family": "breakout",
-        "lookback": 20,
+        "family": "pullback",
+        "fast": 10,
         "max_hold_bars": 24,
+        "rsi": 40,
+        "slow": 50,
         "stop_atr": 2.0,
         "target_atr": 5.0,
         "trend_filter": false,
@@ -42,8 +45,8 @@
         "all_possible_outcomes": false,
         "block_bars": 6,
         "common_random_paths": true,
-        "estimated_loss_probability": 0.6669921875,
-        "expected_shortfall_05_eur": -8.161030634598307,
+        "estimated_loss_probability": 0.71923828125,
+        "expected_shortfall_05_eur": -15.341103749730413,
         "fee_per_side": 0.008,
         "historical_bars": 360,
         "history_from": "2026-09-20T08:00:00+00:00",
@@ -55,68 +58,68 @@
           "Stop before target if both touched in a sampled bar; stops may be exceeded by gaps.",
           "No setup or order is authorized by these statistics. No parameters are optimized to improve this output."
         ],
-        "mean_net_pnl_eur": -1.4462256003142402,
-        "median_net_pnl_eur": -8.154164521389248,
+        "mean_net_pnl_eur": -1.692952789479581,
+        "median_net_pnl_eur": -7.583955422574796,
         "method": "MOVING_BLOCK_BOOTSTRAP_OHLC_WITH_GAPS",
         "monte_carlo_sampling_interval_95": [
-          0.6462849625185766,
-          0.6870741267324673
+          0.6993796739060468,
+          0.7382759725083353
         ],
         "news_effects_modelled": false,
         "notional_eur": 100.0,
         "outcomes": {
           "STOP": {
-            "count": 1227,
-            "mean_net_pnl_eur": -8.161030634598307,
-            "probability": 0.59912109375
+            "count": 651,
+            "mean_net_pnl_eur": -15.341103749730413,
+            "probability": 0.31787109375
           },
           "TARGET": {
-            "count": 438,
-            "mean_net_pnl_eur": 14.313578845977027,
-            "probability": 0.2138671875
+            "count": 350,
+            "mean_net_pnl_eur": 31.77164139222293,
+            "probability": 0.1708984375
           },
           "TIME_LIMIT": {
-            "count": 383,
-            "mean_net_pnl_eur": 2.0427337458762866,
-            "probability": 0.18701171875
+            "count": 1047,
+            "mean_net_pnl_eur": -4.393680285632955,
+            "probability": 0.51123046875
           }
         },
-        "p05_net_pnl_eur": -8.154164521389248,
-        "p95_net_pnl_eur": 14.313578845977034,
+        "p05_net_pnl_eur": -15.2931616656942,
+        "p95_net_pnl_eur": 31.771641392222918,
         "paths": 2048,
         "plan": {
-          "entry_price": 0.051830364,
-          "exit_ratio": 0.9986410355486863,
+          "entry_price": 0.010092018,
+          "exit_ratio": 0.9975194044584892,
           "horizon_bars": 24,
           "hypothesis_only": false,
           "interval_minutes": 240,
-          "mid": 0.05176,
-          "stop": 0.04847179257142857,
-          "symbol": "PYTH",
-          "target": 0.06022679257142856
+          "mid": 0.010075,
+          "stop": 0.008720589428571427,
+          "symbol": "RARE",
+          "target": 0.01352058942857143
         },
         "predictive_guarantee": false,
-        "sample_max_net_pnl_eur": 14.313578845977034,
-        "sample_min_net_pnl_eur": -8.936812745305659,
-        "seed": 2377841587384528352,
+        "sample_max_net_pnl_eur": 31.771641392222918,
+        "sample_min_net_pnl_eur": -19.09997680211032,
+        "seed": 11569741173651482739,
         "status": "COMPLETE",
         "stress_tests": [
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.1,
-            "net_pnl_eur": -11.762368606942417,
+            "net_pnl_eur": -11.8916454734035,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.3,
-            "net_pnl_eur": -31.548508916510784,
+            "net_pnl_eur": -31.649057590424945,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": 0.2,
-            "net_pnl_eur": 14.313578845977034,
+            "net_pnl_eur": 17.744472702128633,
             "probability": null
           },
           {
@@ -129,11 +132,11 @@
         "version": "atlas-scenario-bootstrap-v1"
       },
       "status": "EXECUTION_FILTERS_FAILED",
-      "symbol": "PYTH"
+      "symbol": "RARE"
     },
     {
       "candle_at": "2026-11-19T04:00:00+00:00",
-      "checked_at": "2026-11-19T10:35:26+00:00",
+      "checked_at": "2026-11-19T10:40:25+00:00",
       "entry_plan": {
         "entry_price": 0.006157537477513492,
         "exit_ratio": 0.9945856602650831,
@@ -157,7 +160,7 @@
       "order_authorized": false,
       "pair": "QUAIEUR",
       "perfect_timing_claim": false,
-      "quote_at": "2026-11-19T10:35:26+00:00",
+      "quote_at": "2026-11-19T10:40:26+00:00",
       "recipe": {
         "family": "trend",
         "fast": 20,
@@ -264,17 +267,17 @@
     },
     {
       "candle_at": "2026-11-19T04:00:00+00:00",
-      "checked_at": "2026-11-19T10:35:26+00:00",
+      "checked_at": "2026-11-19T10:40:25+00:00",
       "entry_plan": {
-        "entry_price": 57977.79324,
-        "exit_ratio": 0.9997991376001341,
+        "entry_price": 57964.290539999995,
+        "exit_ratio": 0.999799137399239,
         "horizon_bars": 24,
         "hypothesis_only": true,
         "interval_minutes": 240,
-        "mid": 57966.149999999994,
-        "stop": 56012.993239999996,
+        "mid": 57952.649999999994,
+        "stop": 55999.49053999999,
         "symbol": "XBT",
-        "target": 62889.79324
+        "target": 62876.290539999995
       },
       "has_setup": false,
       "hypothesis_only": true,
@@ -284,7 +287,7 @@
       "order_authorized": false,
       "pair": "XBTEUR",
       "perfect_timing_claim": false,
-      "quote_at": "2026-11-19T10:35:27+00:00",
+      "quote_at": "2026-11-19T10:40:26+00:00",
       "recipe": {
         "family": "trend",
         "fast": 20,
@@ -301,7 +304,7 @@
         "block_bars": 6,
         "common_random_paths": true,
         "estimated_loss_probability": 0.80615234375,
-        "expected_shortfall_05_eur": -4.981022952869978,
+        "expected_shortfall_05_eur": -4.981805935038494,
         "fee_per_side": 0.008,
         "historical_bars": 360,
         "history_from": "2026-09-20T08:00:00+00:00",
@@ -313,8 +316,8 @@
           "Stop before target if both touched in a sampled bar; stops may be exceeded by gaps.",
           "No setup or order is authorized by these statistics. No parameters are optimized to improve this output."
         ],
-        "mean_net_pnl_eur": -2.567350482221359,
-        "median_net_pnl_eur": -4.190597548988258,
+        "mean_net_pnl_eur": -2.567673178009653,
+        "median_net_pnl_eur": -4.190597587812697,
         "method": "MOVING_BLOCK_BOOTSTRAP_OHLC_WITH_GAPS",
         "monte_carlo_sampling_interval_95": [
           0.7884648812816524,
@@ -325,56 +328,56 @@
         "outcomes": {
           "STOP": {
             "count": 999,
-            "mean_net_pnl_eur": -4.981022952869978,
+            "mean_net_pnl_eur": -4.981805935038494,
             "probability": 0.48779296875
           },
           "TARGET": {
             "count": 62,
-            "mean_net_pnl_eur": 6.7828179569414715,
+            "mean_net_pnl_eur": 6.784775342611965,
             "probability": 0.0302734375
           },
           "TIME_LIMIT": {
             "count": 987,
-            "mean_net_pnl_eur": -0.7116783900735631,
+            "mean_net_pnl_eur": -0.7116784302961044,
             "probability": 0.48193359375
           }
         },
-        "p05_net_pnl_eur": -4.981022952869978,
-        "p95_net_pnl_eur": 3.619658892383436,
+        "p05_net_pnl_eur": -4.981805935038494,
+        "p95_net_pnl_eur": 3.619658850420294,
         "paths": 2048,
         "plan": {
-          "entry_price": 57977.79324,
-          "exit_ratio": 0.9997991376001341,
+          "entry_price": 57964.290539999995,
+          "exit_ratio": 0.999799137399239,
           "horizon_bars": 24,
           "hypothesis_only": true,
           "interval_minutes": 240,
-          "mid": 57966.149999999994,
-          "stop": 56012.993239999996,
+          "mid": 57952.649999999994,
+          "stop": 55999.49053999999,
           "symbol": "XBT",
-          "target": 62889.79324
+          "target": 62876.290539999995
         },
         "predictive_guarantee": false,
-        "sample_max_net_pnl_eur": 6.7828179569414715,
-        "sample_min_net_pnl_eur": -4.981022952869978,
+        "sample_max_net_pnl_eur": 6.784775342611965,
+        "sample_min_net_pnl_eur": -4.981805935038494,
         "seed": 3771493881086660873,
         "status": "COMPLETE",
         "stress_tests": [
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.1,
-            "net_pnl_eur": -11.555858818223612,
+            "net_pnl_eur": -11.5558588540882,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": -0.3,
-            "net_pnl_eur": -31.387890191951698,
+            "net_pnl_eur": -31.387890219846383,
             "probability": null
           },
           {
             "execution_assumption": "CURRENT_FRICTION_NOT_STRESSED_BOOK",
             "gap_return": 0.2,
-            "net_pnl_eur": 6.7828179569414715,
+            "net_pnl_eur": 6.7847753426119795,
             "probability": null
           },
           {
@@ -393,41 +396,49 @@
   "events": [
     {
       "agent": "SCANNER",
-      "at": "2026-11-19T10:35:26+00:00",
+      "at": "2026-11-19T10:40:25+00:00",
       "count": 12
     },
     {
       "agent": "NEWS",
-      "at": "2026-11-19T10:35:26+00:00",
-      "count": 1
+      "at": "2026-11-19T10:40:25+00:00",
+      "count": 2
     },
     {
       "agent": "ENTRY",
-      "at": "2026-11-19T10:35:27+00:00",
+      "at": "2026-11-19T10:40:26+00:00",
       "count": 3
     },
     {
       "agent": "SCENARIOS",
-      "at": "2026-11-19T10:35:27+00:00",
+      "at": "2026-11-19T10:40:26+00:00",
       "count": 6144
     }
   ],
-  "generated_at": "2026-11-19T10:35:27+00:00",
+  "generated_at": "2026-11-19T10:40:26+00:00",
   "llm_enabled": false,
   "news": {
-    "checked_at": "2026-11-19T10:35:26+00:00",
+    "checked_at": "2026-11-19T10:40:25+00:00",
     "items": [
       {
-        "published_at": "2026-11-19T10:22:12+00:00",
-        "published_epoch": 1795083732.0,
+        "published_at": "2026-11-19T10:39:36+00:00",
+        "published_epoch": 1795084776.0,
         "source": "CoinDesk",
-        "title": "Roundhill scraps Solana and XRP income ETFs as rival funds indicate low demand",
+        "title": "Singapore settles $77.5 million tokenized bill sale in local CBDC",
         "untrusted_source_text": true,
-        "url": "https://www.coindesk.com/markets/2026/11/19/roundhill-scraps-solana-and-xrp-income-etfs-as-rival-funds-attract-just-usd12-million"
+        "url": "https://www.coindesk.com/business/2026/11/19/singapore-settles-usd77-5-million-tokenized-bill-sale-in-local-cbdc"
+      },
+      {
+        "published_at": "2026-11-19T10:32:05+00:00",
+        "published_epoch": 1795084325.0,
+        "source": "Cointelegraph",
+        "title": "IOSCO warns quantum upgrades could slow blockchains, leave security gaps",
+        "untrusted_source_text": true,
+        "url": "https://cointelegraph.com/news/iosco-quantum-blockchain-upgrades-security-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
       }
     ],
     "orders_affected": false,
-    "recent_items_shown": 1,
+    "recent_items_shown": 2,
     "scope": "Latest item per available feed within the last hour, not all world news.",
     "sentiment_model": "NONE",
     "sources": [
@@ -481,59 +492,59 @@
     "chart_budget_per_check": 12,
     "chart_universe": 1968,
     "charts_this_check": 12,
-    "checked_at": "2026-11-19T10:35:26+00:00",
+    "checked_at": "2026-11-19T10:40:25+00:00",
     "count_note": "Chart = actual asset/timeframe series inspected; universe size is not processed count.",
     "errors": {},
-    "fresh_charts": 508,
-    "fresh_setup_charts": 65,
+    "fresh_charts": 520,
+    "fresh_setup_charts": 66,
     "markets_in_universe": 492,
     "recent_charts": [
       {
-        "candle_t": 1795078800,
-        "checked_at": 1795084526,
-        "history_bars": 701,
-        "interval_minutes": 60,
-        "market": "RAD/EUR",
-        "pair": "RADEUR",
+        "candle_t": 1795083300,
+        "checked_at": 1795084825,
+        "history_bars": 588,
+        "interval_minutes": 15,
+        "market": "RARI/EUR",
+        "pair": "RARIEUR",
         "setups": [],
-        "symbol": "RAD",
-        "ticker_key": "RADEUR"
+        "symbol": "RARI",
+        "ticker_key": "RARIEUR"
+      },
+      {
+        "candle_t": 1795078800,
+        "checked_at": 1795084825,
+        "history_bars": 692,
+        "interval_minutes": 60,
+        "market": "RARI/EUR",
+        "pair": "RARIEUR",
+        "setups": [],
+        "symbol": "RARI",
+        "ticker_key": "RARIEUR"
       },
       {
         "candle_t": 1794960000,
-        "checked_at": 1795084525,
-        "history_bars": 224,
+        "checked_at": 1795084824,
+        "history_bars": 720,
         "interval_minutes": 1440,
-        "market": "QUAI/EUR",
-        "pair": "QUAIEUR",
+        "market": "RARE/EUR",
+        "pair": "RAREEUR",
         "setups": [],
-        "symbol": "QUAI",
-        "ticker_key": "QUAIEUR"
-      },
-      {
-        "candle_t": 1795083300,
-        "checked_at": 1795084525,
-        "history_bars": 613,
-        "interval_minutes": 15,
-        "market": "RAD/EUR",
-        "pair": "RADEUR",
-        "setups": [],
-        "symbol": "RAD",
-        "ticker_key": "RADEUR"
+        "symbol": "RARE",
+        "ticker_key": "RAREEUR"
       },
       {
         "candle_t": 1795060800,
-        "checked_at": 1795084524,
-        "history_bars": 719,
+        "checked_at": 1795084824,
+        "history_bars": 720,
         "interval_minutes": 240,
-        "market": "QUAI/EUR",
-        "pair": "QUAIEUR",
+        "market": "RARE/EUR",
+        "pair": "RAREEUR",
         "setups": [
           {
-            "family": "trend",
-            "fast": 20,
+            "family": "pullback",
+            "fast": 10,
             "max_hold_bars": 24,
-            "momentum": 3,
+            "rsi": 40,
             "slow": 50,
             "stop_atr": 2.0,
             "target_atr": 5.0,
@@ -541,96 +552,96 @@
             "volume_filter": false
           }
         ],
-        "symbol": "QUAI",
-        "ticker_key": "QUAIEUR"
-      },
-      {
-        "candle_t": 1795078800,
-        "checked_at": 1795084524,
-        "history_bars": 720,
-        "interval_minutes": 60,
-        "market": "QUAI/EUR",
-        "pair": "QUAIEUR",
-        "setups": [],
-        "symbol": "QUAI",
-        "ticker_key": "QUAIEUR"
-      },
-      {
-        "candle_t": 1794960000,
-        "checked_at": 1795084523,
-        "history_bars": 720,
-        "interval_minutes": 1440,
-        "market": "QTUM/EUR",
-        "pair": "QTUMEUR",
-        "setups": [],
-        "symbol": "QTUM",
-        "ticker_key": "QTUMEUR"
+        "symbol": "RARE",
+        "ticker_key": "RAREEUR"
       },
       {
         "candle_t": 1795083300,
-        "checked_at": 1795084523,
-        "history_bars": 720,
+        "checked_at": 1795084823,
+        "history_bars": 718,
         "interval_minutes": 15,
-        "market": "QUAI/EUR",
-        "pair": "QUAIEUR",
+        "market": "RARE/EUR",
+        "pair": "RAREEUR",
         "setups": [],
-        "symbol": "QUAI",
-        "ticker_key": "QUAIEUR"
+        "symbol": "RARE",
+        "ticker_key": "RAREEUR"
+      },
+      {
+        "candle_t": 1795078800,
+        "checked_at": 1795084823,
+        "history_bars": 714,
+        "interval_minutes": 60,
+        "market": "RARE/EUR",
+        "pair": "RAREEUR",
+        "setups": [],
+        "symbol": "RARE",
+        "ticker_key": "RAREEUR"
+      },
+      {
+        "candle_t": 1794960000,
+        "checked_at": 1795084822,
+        "history_bars": 288,
+        "interval_minutes": 1440,
+        "market": "RAILS/EUR",
+        "pair": "RAILSEUR",
+        "setups": [],
+        "symbol": "RAILS",
+        "ticker_key": "RAILSEUR"
       },
       {
         "candle_t": 1795060800,
-        "checked_at": 1795084522,
-        "history_bars": 720,
-        "interval_minutes": 240,
-        "market": "QTUM/EUR",
-        "pair": "QTUMEUR",
-        "setups": [],
-        "symbol": "QTUM",
-        "ticker_key": "QTUMEUR"
-      },
-      {
-        "candle_t": 1795078800,
-        "checked_at": 1795084522,
-        "history_bars": 720,
-        "interval_minutes": 60,
-        "market": "QTUM/EUR",
-        "pair": "QTUMEUR",
-        "setups": [],
-        "symbol": "QTUM",
-        "ticker_key": "QTUMEUR"
-      },
-      {
-        "candle_t": 1794960000,
-        "checked_at": 1795084521,
-        "history_bars": 720,
-        "interval_minutes": 1440,
-        "market": "QNT/EUR",
-        "pair": "QNTEUR",
-        "setups": [],
-        "symbol": "QNT",
-        "ticker_key": "QNTEUR"
-      },
-      {
-        "candle_t": 1795083300,
-        "checked_at": 1795084521,
+        "checked_at": 1795084822,
         "history_bars": 719,
-        "interval_minutes": 15,
-        "market": "QTUM/EUR",
-        "pair": "QTUMEUR",
+        "interval_minutes": 240,
+        "market": "RAILS/EUR",
+        "pair": "RAILSEUR",
         "setups": [],
-        "symbol": "QTUM",
-        "ticker_key": "QTUMEUR"
+        "symbol": "RAILS",
+        "ticker_key": "RAILSEUR"
+      },
+      {
+        "candle_t": 1795078800,
+        "checked_at": 1795084822,
+        "history_bars": 697,
+        "interval_minutes": 60,
+        "market": "RAILS/EUR",
+        "pair": "RAILSEUR",
+        "setups": [],
+        "symbol": "RAILS",
+        "ticker_key": "RAILSEUR"
+      },
+      {
+        "candle_t": 1794960000,
+        "checked_at": 1795084821,
+        "history_bars": 720,
+        "interval_minutes": 1440,
+        "market": "RAD/EUR",
+        "pair": "RADEUR",
+        "setups": [],
+        "symbol": "RAD",
+        "ticker_key": "RADEUR"
+      },
+      {
+        "candle_t": 1795083300,
+        "checked_at": 1795084821,
+        "history_bars": 453,
+        "interval_minutes": 15,
+        "market": "RAILS/EUR",
+        "pair": "RAILSEUR",
+        "setups": [],
+        "symbol": "RAILS",
+        "ticker_key": "RAILSEUR"
       },
       {
         "candle_t": 1795060800,
-        "checked_at": 1795084520,
-        "history_bars": 720,
+        "checked_at": 1795084820,
+        "history_bars": 705,
         "interval_minutes": 240,
-        "market": "QNT/EUR",
-        "pair": "QNTEUR",
+        "market": "RAD/EUR",
+        "pair": "RADEUR",
         "setups": [],
-        "symbol": "QNT",
-        "ticker_key": "QNTEUR"
+        "symbol": "RAD",
+        "ticker_key": "RADEUR"
       }
     ],
     "status": "COMPLETE",
