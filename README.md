@@ -2,7 +2,7 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-20T16:00:52+00:00 · codice: `ead752090148460303d5749f8f075353a5373661`
+Snapshot: 2026-11-20T20:00:59+00:00 · codice: `602a81f03862f8203f293ac7e7dd10cead532954`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
@@ -10,13 +10,13 @@ Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel labor
 |---|---|---|---:|---:|---|
 | `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 0 / €+0.00 | `WAIT` |
 | `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €+0.00 | `WAIT` |
-| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 1 / €-10.73 | `PAPER_SELL_STOP` |
+| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 1 / €-10.73 | `WAIT` |
 
 ## Conto PAPER dello screening massivo
 
 Stato: `ACTIVE` · slot dedicati: 1
 - `screen:0232d3e79342bbb3b313` · Fermata · 5 chiusure PAPER · ultima attività `PAPER_SELL_STOP`
-- `screen:4a316b82953516df67c8` · Osservazione · 0 chiusure PAPER · ultima attività `PAPER_BUY_BTC`
+- `screen:4a316b82953516df67c8` · Osservazione · 0 chiusure PAPER · ultima attività `WAIT`
 
 Il ciclo è previsto ogni quattro ore. Se lo snapshot ha più di otto ore, consideralo non aggiornato.
 
