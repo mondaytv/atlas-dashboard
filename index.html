@@ -237,6 +237,143 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
 .bc-overview{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:17px 20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);text-decoration:none}.bc-overview:hover{border-color:color-mix(in srgb,var(--mint) 35%,var(--line))}.bc-overview:focus-visible{outline:2px solid var(--mint);outline-offset:3px}.bc-ov-copy{min-width:0}.bc-ov-copy b{display:block;font-size:13px;font-weight:550}.bc-ov-copy span{display:block;margin-top:3px;color:var(--muted);font-size:11px;overflow-wrap:anywhere}.bc-overview strong{font-size:18px;font-variant-numeric:tabular-nums;text-align:right}.bc-overview strong small{display:block;font-size:11px;font-weight:500}.bc-ov-go{color:var(--muted);font-size:20px}
 .bc-list{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.bc-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);font-size:12px}.bc-row:first-child{border-top:0}.bc-rank{color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}.bc-name{min-width:0}.bc-name b{display:block;font-weight:600}.bc-name small{display:block;color:var(--muted);font-size:10px;margin-top:2px;overflow-wrap:anywhere}.bc-mom{font-variant-numeric:tabular-nums;font-weight:600}.bc-mom.pos,.lab-note.pos,.pos{color:var(--mint)}.bc-mom.neg,.lab-note.neg,.neg{color:var(--red)}.bc-tag{font-size:9px;letter-spacing:.05em;padding:4px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}.bc-tag.ok{color:var(--blue)}.bc-tag.held{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 35%,var(--line))}.bc-chart{margin:12px 0 4px}.bc-chart svg{width:100%;height:120px;display:block}.bc-base{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1;opacity:.5;vector-effect:non-scaling-stroke}.bc-line{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}.bc-line.up{stroke:var(--mint)}.bc-line.down{stroke:var(--red)}#bluechipDemo .lab-metrics{margin-top:4px}#bluechipDemo .paired-arm h3 .lab-note{font-weight:400;font-size:11px;margin-left:4px}
 @media(max-width:760px){.bc-row{grid-template-columns:22px minmax(0,1fr) auto;gap:8px;padding:10px}.bc-row .bc-tag{grid-column:2/-1;justify-self:start}#bluechipDemo .lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#bluechipDemo .lab-metric dd{font-size:19px}}
+/* ===== ATLAS design system · Apple-style layer (overrides everything above) ===== */
+:root{
+ --bg:#000;--surface:#1c1c1e;--surface2:#2c2c2e;--surface3:#3a3a3c;
+ --line:rgba(84,84,88,.55);--fill:rgba(118,118,128,.24);--fill2:rgba(118,118,128,.16);
+ --text:#fff;--muted:rgba(235,235,245,.6);--muted2:rgba(235,235,245,.3);
+ --mint:#30d158;--red:#ff453a;--blue:#0a84ff;--amber:#ff9f0a;--purple:#bf5af2;--teal:#64d2ff;--indigo:#5e5ce6;--pink:#ff375f;--gray:#8e8e93;
+ --radius:12px;--shadow:none;
+ --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,sans-serif;
+}
+html{background:#000;-webkit-text-size-adjust:100%}
+body{background:#000!important;color:var(--text);font-family:var(--font)!important;font-size:15px;line-height:1.4;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+::selection{background:rgba(10,132,255,.45)}
+a{color:var(--blue)}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--blue)!important;outline-offset:2px}
+.pos,.bc-mom.pos,.lab-note.pos{color:var(--mint)!important}.neg,.bc-mom.neg,.lab-note.neg{color:var(--red)!important}
+
+/* --- Navigation bar --- */
+.topbar{background:rgba(0,0,0,.72)!important;backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line)!important;height:52px!important;box-shadow:none}
+.workspace-breadcrumb{font-size:13px;color:var(--muted)}.workspace-breadcrumb b{color:var(--text);font-weight:600}
+.live{font-size:12px;color:var(--muted);gap:6px}.dot{width:7px;height:7px;background:var(--mint);box-shadow:none!important}.dot.stale{background:var(--amber)}
+.workspace-heading{align-items:flex-end!important;margin:6px 0 22px!important;gap:16px}
+.workspace-heading h1{font-size:34px!important;line-height:41px!important;font-weight:700!important;letter-spacing:.012em!important;margin:0!important}
+.workspace-heading p{font-size:15px!important;line-height:20px!important;color:var(--muted)!important;margin:4px 0 0!important;max-width:620px!important}
+.workspace-chip{background:var(--fill)!important;border:0!important;color:var(--muted)!important;font-size:12px!important;font-weight:600!important;letter-spacing:0!important;padding:5px 10px!important;border-radius:999px!important;text-transform:none!important;margin:0 0 6px!important}
+.ios-back{display:none;align-items:center;gap:2px;color:var(--blue);font-size:17px;text-decoration:none;margin:0 0 6px -4px}
+.ios-back span{font-size:26px;line-height:1;margin-top:-3px}
+
+/* --- Sidebar (macOS source list) --- */
+.workspace-sidebar{background:rgba(28,28,30,.92)!important;border-right:.5px solid var(--line)!important;padding:22px 12px 18px!important;backdrop-filter:blur(30px)}
+.workspace-logo{font-size:17px!important;font-weight:700!important;letter-spacing:.14em!important;padding:0 10px 22px!important;gap:9px!important}
+.workspace-logo .mark{font-size:22px!important;width:auto!important;height:auto!important;color:var(--text)!important}
+.workspace-label{display:none}
+.workspace-group{font-size:11px;font-weight:600;color:var(--muted2);padding:16px 10px 5px;letter-spacing:.02em}
+.workspace-nav{display:block!important}
+.workspace-nav a{display:flex!important;align-items:center;gap:9px;padding:6px 10px!important;margin:1px 0;border-radius:7px!important;font-size:13px!important;font-weight:500!important;color:var(--text)!important;background:none!important;border:0!important;min-height:0!important;text-decoration:none}
+.workspace-nav a .nav-icon{color:var(--blue);display:grid}.workspace-nav a .nav-icon svg{width:17px!important;height:17px!important;stroke-width:1.8}
+.workspace-nav a:hover{background:rgba(255,255,255,.06)!important}
+.workspace-nav a[aria-current=page]{background:var(--blue)!important;color:#fff!important}.workspace-nav a[aria-current=page] .nav-icon{color:#fff}
+.workspace-footer{font-size:11px!important;color:var(--muted2)!important;border:0!important;padding:10px!important;line-height:1.5}.workspace-footer b{color:var(--muted)!important;font-weight:600}
+
+/* --- Surfaces: one material, no gradients, no glow --- */
+.hero,.stats,.feature,.activity-card,.strategy-card,.market-panel,.sp500-card,.sp500-disclosure,.lab-surface,.obs-panel,.portfolio-panel,.pipeline-card,.replay-card,.risk-banner,.ai-live,.squad-card,.boss,.agent-node,.learning-panel,.bc-list,.ios-list,.evidence-compact,.models-toolbar .models-search{
+ background:var(--surface)!important;background-image:none!important;border:0!important;box-shadow:none!important;border-radius:var(--radius)!important}
+.hero:after,.feature:after,.sp500-card:after{display:none!important}
+.lab-metric,.lab-lane,.paired-arm,.observer-card,.detail,.evidence-item,.exploration-account,.lab-diary-role,.lab-diary-log,.sp500-metric,.v3-regime div,.ai-market-chip,.scout-stats>*,.ai-decision,.squad-chip,.lab-status{
+ background:var(--surface2)!important;border:0!important;box-shadow:none!important;border-radius:10px!important}
+.lab-status{font-size:12px!important;padding:6px 10px!important}
+.sp500-disclosure .sp500-card{background:transparent!important;border-top:.5px solid var(--line)!important;border-radius:0!important}
+
+/* --- Type scale --- */
+.section{margin-top:30px!important}
+.section-head{margin:0 0 10px!important;align-items:flex-end!important}
+.section-head h2,.lab-lead h2,.lab-heading h2,.squad-head h2,.obs-head h2,.lab-diary-head h2,#trendV3>h2,#signalDay>h2{font-size:22px!important;line-height:28px!important;font-weight:700!important;letter-spacing:.01em!important}
+.lab-lead h2{font-size:20px!important}
+.section-head p,.lab-lead p,.squad-head p{font-size:13px!important;color:var(--muted)!important;line-height:18px!important}
+.lab-note,.obs-note,.squad-note,.office-hint,.portfolio-foot,.stats-note,.app-footnote{color:var(--muted)!important;font-size:13px!important;line-height:18px!important}
+.lab-metric dt,.sp500-metric span,.detail span,.stat span{font-size:12px!important;color:var(--muted)!important;text-transform:none!important;letter-spacing:0!important;font-weight:500!important}
+.lab-metric dd,.sp500-metric b,.detail b{font-weight:600!important;letter-spacing:-.01em!important}
+.section-count{background:var(--fill)!important;border:0!important;color:var(--muted)!important;border-radius:999px!important;font-size:12px!important;font-weight:600!important}
+.section-link,.lab-link,.model-expand{color:var(--blue)!important;background:none!important;border:0!important;font-weight:500!important}
+
+/* --- Hero: the number is the interface --- */
+.overview-layout{gap:12px!important;margin-bottom:0!important}
+.hero{padding:22px 22px 20px!important}
+.eyebrow{font-size:13px!important;letter-spacing:0!important;text-transform:none!important;color:var(--muted)!important;font-weight:500!important}
+.hero-value{font-size:44px!important;line-height:1.05!important;font-weight:700!important;letter-spacing:-.02em!important;margin:8px 0 8px!important;color:var(--text)!important}
+.hero-change b{font-size:17px!important;font-weight:600!important}.hero-change span{font-size:13px!important;color:var(--muted)!important}
+.pill{background:var(--fill)!important;border:0!important;border-radius:999px!important;font-weight:600!important}
+.pill.pos{background:rgba(48,209,88,.16)!important}.pill.neg{background:rgba(255,69,58,.16)!important}
+.stats{padding:6px!important}.stat strong{font-weight:700!important;letter-spacing:-.02em!important}
+.risk-banner{padding:12px 16px!important;margin:12px 0 0!important}.risk-icon{background:rgba(48,209,88,.18)!important;color:var(--mint)!important;border:0!important;border-radius:8px!important}
+.risk-copy b{font-size:15px!important;letter-spacing:0!important;text-transform:none!important;font-weight:600!important}.risk-copy span{font-size:13px!important;color:var(--muted)!important}
+
+/* --- Grouped lists (Settings / Stocks style) --- */
+.ios-list{overflow:hidden;padding:0!important;margin:0}
+.ios-list-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin:0 0 7px 16px;font-weight:500}
+.ios-list+.ios-list-title{margin-top:28px}
+.ios-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto 12px;align-items:center;gap:13px;padding:11px 16px;min-height:44px;color:var(--text);text-decoration:none;position:relative;box-sizing:border-box}
+.ios-row+.ios-row:before{content:"";position:absolute;top:0;left:59px;right:0;height:.5px;background:var(--line)}
+.ios-row:active{background:var(--surface3)}@media(hover:hover){.ios-row:hover{background:rgba(255,255,255,.04)}}
+.ios-icon{width:30px;height:30px;border-radius:7px;background:var(--c,var(--blue));display:grid;place-items:center;color:#fff}
+.ios-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ios-row-text{min-width:0}.ios-row-text b{display:block;font-size:17px;font-weight:400;line-height:22px}
+.ios-row-text small{display:block;font-size:13px;color:var(--muted);line-height:18px;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-row-value{text-align:right;font-variant-numeric:tabular-nums}.ios-row-value b{display:block;font-size:17px;font-weight:600;line-height:22px}.ios-row-value small{display:block;font-size:13px;font-weight:500;line-height:18px}
+.ios-chev{color:var(--muted2);font-size:22px;line-height:1;font-weight:300}
+.ios-list-note{font-size:13px;color:var(--muted);margin:7px 16px 0;line-height:18px}
+
+/* --- Controls --- */
+.segmented,.models-filters,.obs-range{background:var(--fill)!important;border:0!important;border-radius:9px!important;padding:2px!important;gap:0!important}
+.segmented button,.models-filters button,.obs-range button{background:none!important;border:0!important;border-radius:7px!important;color:var(--text)!important;font-size:13px!important;font-weight:500!important;min-height:30px!important;box-shadow:none!important}
+.segmented button.active,.models-filters button.active,.obs-range button[aria-pressed=true],.obs-range button.active{background:#636366!important;font-weight:600!important;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)!important}
+.models-search,.boss-form input{background:var(--fill)!important;border:0!important;border-radius:10px!important;color:var(--text)!important;font-size:17px!important;min-height:36px!important;padding:7px 12px!important}
+.models-search::placeholder,.boss-form input::placeholder{color:var(--muted)}
+.boss-form button,.boss-quick button,.lab-diary-control,.ai-chat-pause{background:var(--fill)!important;border:0!important;border-radius:999px!important;color:var(--blue)!important;font-weight:600!important;font-size:13px!important}
+.boss-form button{background:var(--blue)!important;color:#fff!important}
+details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}
+.lab-detail{border-top:.5px solid var(--line)!important}.lab-detail summary{color:var(--blue)!important;font-size:15px!important}
+
+/* --- Rows inside lists --- */
+.activity-list{display:block!important;background:var(--surface);border-radius:var(--radius);overflow:hidden}
+.trade-row{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;position:relative;margin:0!important}
+.trade-row+.trade-row:before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--line)}
+.market-row{border-color:var(--line)!important}.market-row+.market-row{border-top:.5px solid var(--line)!important}
+.portfolio-head{background:none!important;color:var(--muted)!important;font-size:12px!important;text-transform:none!important;letter-spacing:0!important;border-bottom:.5px solid var(--line)!important}
+.portfolio-row{border-top:0!important;border-bottom:.5px solid var(--line)!important;background:none!important}.portfolio-row:last-child{border-bottom:0!important}
+.model-monogram,.asset{background:var(--surface2)!important;border:0!important;color:var(--text)!important;border-radius:8px!important}
+.gate,.bc-tag,.demo-badge,.sp500-summary-state,.forward-badge,.experimental-badge,.evidence-badge,.ai-badge,.portfolio-tag,.lab-tag{border:0!important;border-radius:6px!important;background:var(--fill)!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important}
+.bc-tag.held{background:rgba(48,209,88,.16)!important;color:var(--mint)!important}.bc-tag.ok{background:rgba(10,132,255,.16)!important;color:var(--blue)!important}
+.bc-list{border:0!important}.bc-row{border-color:var(--line)!important;border-top-width:.5px!important}
+.bc-line.up{stroke:var(--mint)}.bc-line.down{stroke:var(--red)}
+.app-footnote{border-top:.5px solid var(--line)!important}
+
+#bluechipDemo>.lab-lead h2,#sp500Demo .sp500-kicker{display:none!important}
+#accountsOverview{margin:0 0 22px!important}
+.ios-row-value small.muted{color:var(--muted)}
+#sp500 .sp500-disclosure>summary,#activityWorkspace .section-head h2,#aiWorkspace>.section-head h2{display:none!important}
+#sp500 .sp500-disclosure .sp500-card{border-top:0!important}
+/* --- Phone: iOS tab bar, large titles, inset content --- */
+@media(max-width:760px){
+ body{font-size:15px}
+ .topbar{height:48px!important;padding:0 16px!important}
+ .shell{padding:14px 16px calc(96px + env(safe-area-inset-bottom))!important}
+ .workspace-heading{display:block!important;margin:2px 0 18px!important}
+ .workspace-heading .workspace-chip{display:none!important}
+ .workspace-heading p{font-size:15px!important;max-width:none!important}
+ .ios-back:not([hidden]){display:inline-flex}
+ .hero{padding:18px!important}.hero-value{font-size:40px!important}
+ .section{margin-top:26px!important}
+ .bottom-nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;margin:0!important;padding:6px 2px calc(2px + env(safe-area-inset-bottom))!important;border:0!important;border-top:.5px solid var(--line)!important;border-radius:0!important;background:rgba(18,18,20,.78)!important;backdrop-filter:saturate(180%) blur(20px)!important;-webkit-backdrop-filter:saturate(180%) blur(20px)!important;box-shadow:none!important;overflow:visible!important;z-index:60}
+ .bottom-nav a{min-width:0!important;flex:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:2px!important;padding:2px 0 4px!important;min-height:46px!important;color:#8e8e93!important;font-size:10px!important;font-weight:500!important;letter-spacing:.01em!important;background:none!important;border-radius:0!important;white-space:nowrap}
+ .bottom-nav a .nav-icon{height:28px!important;display:grid!important;place-items:center;color:inherit!important;font-size:inherit!important}
+ .bottom-nav a .nav-icon svg{width:24px!important;height:24px!important;stroke-width:1.9}
+ .bottom-nav a[aria-current=page]{color:var(--blue)!important;background:none!important}
+ .ios-row-text b,.ios-row-value b{font-size:17px}
+}
+@media(min-width:761px){.bottom-nav{display:none!important}.ios-back{display:none!important}}
 </style>
 </head>
 <body>
@@ -345,9 +482,6 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  <section id="azioni" class="section" data-workspace-page="azioni" aria-label="Azioni blue chip" hidden>
   <div id="bluechipDemo" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento modulo azioni…</p></div>
  </section>
- <section id="bluechipOverview" class="section" data-workspace-page="overview" aria-label="Azioni blue chip in breve">
-  <a class="bc-overview" href="#azioni"><div class="bc-ov-copy"><b>Azioni blue chip · Demo 200 €</b><span id="bcOvLine">NVIDIA, Apple, Microsoft e altre grandi aziende in utile · in attesa del primo ciclo</span></div><strong id="bcOvValue">—</strong><span class="bc-ov-go" aria-hidden="true">›</span></a>
- </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
    <summary><div class="sp500-summary-copy"><b>S&amp;P 500 · Demo €200</b><span>Modulo secondario, nascosto finché non serve.</span></div><span class="sp500-summary-state">DEMO</span><span class="sp500-chevron" aria-hidden="true">⌄</span></summary>
@@ -364,7 +498,7 @@ const num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:1}).format(Num
 const pct=n=>new Intl.NumberFormat('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0);
 const shortDate=value=>new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value));
 const DATA_REFRESH_MS=30000,CHART_REFRESH_MS=30000;
-let dashboardData=null,sp500Loaded=false,activityView='open',loadPromise=null,chartRefreshActive=false,loadTimer=null,chartTimer=null,syncTimer=null,aiNarrationTimer=null,nextDataRefreshAt=0,lastSuccessfulDataAt=0;
+let sp500Last=null,dashboardData=null,sp500Loaded=false,activityView='open',loadPromise=null,chartRefreshActive=false,loadTimer=null,chartTimer=null,syncTimer=null,aiNarrationTimer=null,nextDataRefreshAt=0,lastSuccessfulDataAt=0;
 async function fetchState(name){
  const raw=`https://raw.githubusercontent.com/mondaytv/atlas-dashboard/data/${name}?t=${Date.now()}`;
  try{const r=await fetch(raw,{cache:'no-store'});if(!r.ok)throw new Error('raw state');return r.json();}
@@ -372,12 +506,13 @@ async function fetchState(name){
 }
 function pnlClass(value){return Number(value)>=0?'pos':'neg'}
 function renderSp500(data){
+ if(data){sp500Last=data;renderAccounts()}
  const root=document.getElementById('sp500Demo');
  if(!data){root.innerHTML='<div class="sp500-top"><div><div class="sp500-kicker">MODULO AGGIUNTIVO · PAPER</div><div class="sp500-name">In attesa del primo ciclo demo</div><div class="sp500-id">Il modello crypto continua normalmente.</div></div><span class="demo-badge">DEMO ONLY</span></div><p class="sp500-note">Nessuna operazione reale e nessun segnale forzato.</p>';return;}
  const i=data.instrument||{},r=data.risk_policy||{},signal=data.signal||{},position=data.position,replay=data.historical_replay||{},viability=r.cost_viability||{},benchmark=replay.buy_hold_benchmark||{};
  const replayPnl=Number(replay.realized_pnl)||0;
  const eventRows=(replay.events||[]).slice(0,6).map(e=>`<div class="sp500-event"><strong class="sp500-side ${e.side==='SELL'?'sell':''}">${e.side}</strong><span>${shortDate(e.ts)} · ${e.qty} quote a ${euro(e.price)}</span><b class="${e.side==='SELL'?pnlClass(e.pnl):''}">${e.side==='SELL'?(Number(e.pnl)>=0?'+':'')+euro(e.pnl):'ENTRY'}</b></div>`).join('');
- root.innerHTML=`<div class="sp500-top"><div><div class="sp500-kicker">MODULO AGGIUNTIVO · PAPER</div><div class="sp500-name">${i.name||'S&P 500 UCITS ETF'}</div><div class="sp500-id">${i.ticker||'—'} · ISIN ${i.isin||'—'} · ${i.venue||'—'}</div></div><span class="demo-badge">DEMO ONLY</span></div><div class="sp500-main"><div class="sp500-metric primary"><span>Equity forward</span><b>${euro(data.equity_liquidation)}</b></div><div class="sp500-metric"><span>Decisione ora</span><b>${data.decision||'WAIT'}</b></div><div class="sp500-metric"><span>Replay chiuse</span><b>${replay.closed_trades??'—'}</b></div><div class="sp500-metric"><span>P&amp;L replay</span><b class="${pnlClass(replayPnl)}">${replayPnl>=0?'+':''}${euro(replayPnl)}</b></div><div class="sp500-metric"><span>Buy &amp; hold</span><b class="${pnlClass(benchmark.pnl)}">${benchmark.pnl==null?'—':euro(benchmark.pnl)}</b></div><div class="sp500-metric"><span>Commissioni / rischio</span><b>${viability.commission_to_risk_ratio==null?'—':num(viability.commission_to_risk_ratio*100)+'%'}</b></div><div class="sp500-metric"><span>Max DD replay</span><b>${replay.max_drawdown_pct==null?'—':num(replay.max_drawdown_pct)+'%'}</b></div><div class="sp500-metric"><span>Rischio massimo</span><b>${euro(r.risk_per_trade_eur)}</b></div></div><p class="sp500-note"><strong>${viability.structurally_unfavorable?'Forward bloccato: commissioni strutturalmente sfavorevoli':position?position.qty+' quote demo aperte':'Nessuna posizione forward aperta'}.</strong> Regime ${signal.regime||'—'}. Il replay di ricerca e il benchmark buy&amp;hold restano attivi. Trading reale disabilitato; niente leva, futures, CFD o opzioni.</p>${eventRows?`<div class="sp500-events"><div class="sp500-events-title">Ultimi ingressi e uscite simulati</div>${eventRows}</div>`:''}`;
+ root.innerHTML=`<div class="sp500-top"><div><div class="sp500-kicker">MODULO AGGIUNTIVO · PAPER</div><div class="sp500-name">${i.name||'S&P 500 UCITS ETF'}</div><div class="sp500-id">${i.ticker||'—'} · ISIN ${i.isin||'—'} · ${i.venue||'—'}</div></div><span class="demo-badge">DEMO ONLY</span></div><div class="sp500-main"><div class="sp500-metric primary"><span>Equity forward</span><b>${euro(data.equity_liquidation)}</b></div><div class="sp500-metric"><span>Decisione ora</span><b>${({WAIT_NO_NEW_CANDLE:'In attesa',WAIT:'In attesa',BUY:'Acquisto',SELL:'Vendita',HOLD:'Mantiene'})[data.decision]||'In attesa'}</b></div><div class="sp500-metric"><span>Replay chiuse</span><b>${replay.closed_trades??'—'}</b></div><div class="sp500-metric"><span>P&amp;L replay</span><b class="${pnlClass(replayPnl)}">${replayPnl>=0?'+':''}${euro(replayPnl)}</b></div><div class="sp500-metric"><span>Buy &amp; hold</span><b class="${pnlClass(benchmark.pnl)}">${benchmark.pnl==null?'—':euro(benchmark.pnl)}</b></div><div class="sp500-metric"><span>Commissioni / rischio</span><b>${viability.commission_to_risk_ratio==null?'—':num(viability.commission_to_risk_ratio*100)+'%'}</b></div><div class="sp500-metric"><span>Max DD replay</span><b>${replay.max_drawdown_pct==null?'—':num(replay.max_drawdown_pct)+'%'}</b></div><div class="sp500-metric"><span>Rischio massimo</span><b>${euro(r.risk_per_trade_eur)}</b></div></div><p class="sp500-note"><strong>${viability.structurally_unfavorable?'Forward bloccato: commissioni strutturalmente sfavorevoli':position?position.qty+' quote demo aperte':'Nessuna posizione forward aperta'}.</strong> Regime ${signal.regime||'—'}. Il replay di ricerca e il benchmark buy&amp;hold restano attivi. Trading reale disabilitato; niente leva, futures, CFD o opzioni.</p>${eventRows?`<div class="sp500-events"><div class="sp500-events-title">Ultimi ingressi e uscite simulati</div>${eventRows}</div>`:''}`;
 }
 function renderActivity(strategies){
  const root=document.getElementById('activityList');
@@ -558,9 +693,25 @@ window.addEventListener('online',()=>startPolling(true));
 document.addEventListener('pointerdown',ensureFresh,{passive:true});
 document.addEventListener('touchstart',ensureFresh,{passive:true});
 // Presentation state is independent of paper engine state.
-const workspacePages={overview:{title:'Il tuo osservatorio.',description:'Il punto sui test, con i numeri che contano.',label:'Panoramica'},ufficio:{title:'L’ufficio.',description:'La squadra al lavoro: parla con il Capo e chiedi i rapporti.',label:'Ufficio'},models:{title:'Ogni modello, sotto controllo.',description:'Confronta i risultati. Apri un modello per esplorarlo.',label:'Modelli'},azioni:{title:'Azioni blue chip.',description:'NVIDIA, Apple, Microsoft e altre grandi aziende in utile. Demo da 200 €, nessun ordine reale.',label:'Azioni'},ai:{title:'Dentro le decisioni.',description:'Mercati, valutazioni e memoria dell’agente IA.',label:'Agente IA'},laboratorio:{title:'Laboratorio.',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio'},segnali:{title:'Segnali giornalieri.',description:'Arriva il segnale, si apre e si chiude una posizione virtuale. Risultati giorno per giorno.',label:'Segnali'},v3:{title:'Test V3.',description:'Regole nuove costruite sulle perdite: si compra solo con la tendenza giornaliera in salita.',label:'Test V3'},activity:{title:'La traccia di ogni operazione.',description:'Ingressi e uscite del test paper.',label:'Attività'},markets:{title:'L’universo di mercato.',description:'Liquidità e condizioni di esecuzione su Kraken/EUR.',label:'Mercati'}};
+const workspacePages={
+ overview:{title:'Riepilogo',description:'Tutti i tuoi conti virtuali, in un colpo d’occhio.',label:'Riepilogo',group:'Conti',tab:true,color:'var(--blue)'},
+ models:{title:'Crypto',description:'Sette modelli su Kraken, ciascuno con 1.000 € virtuali.',label:'Crypto',group:'Conti',tab:true,color:'var(--amber)'},
+ azioni:{title:'Azioni',description:'NVIDIA, Apple, Microsoft e altre grandi aziende in utile. 200 € virtuali.',label:'Azioni',group:'Conti',tab:true,color:'var(--mint)'},
+ sp500:{title:'ETF S&P 500',description:'Modulo demo da 200 €: entra solo quando i costi lo rendono sensato.',label:'S&P 500',group:'Conti',color:'var(--pink)'},
+ activity:{title:'Attività',description:'Ogni acquisto e vendita dei modelli crypto.',label:'Attività',group:'Conti',tab:true,color:'var(--gray)'},
+ ai:{title:'Agente IA',description:'Mercati, valutazioni e memoria dell’agente.',label:'Agente IA',group:'Ricerca',color:'var(--purple)'},
+ laboratorio:{title:'Laboratorio',description:'Dalle ricette generate alla prova su nuovi dati.',label:'Laboratorio',group:'Ricerca',color:'var(--teal)'},
+ segnali:{title:'Segnali',description:'Arriva il segnale, si apre e si chiude una posizione virtuale. Risultati giorno per giorno.',label:'Segnali',group:'Ricerca',color:'var(--amber)'},
+ v3:{title:'Test V3',description:'Regole nuove costruite sulle perdite: si compra solo con la tendenza giornaliera in salita.',label:'Test V3',group:'Ricerca',color:'var(--mint)'},
+ ufficio:{title:'Ufficio',description:'La squadra al lavoro: parla con il Capo e chiedi i rapporti.',label:'Ufficio',group:'Ricerca',color:'var(--indigo)'},
+ markets:{title:'Mercati',description:'Liquidità e condizioni di esecuzione su Kraken in euro.',label:'Mercati',group:'Mercato',color:'var(--blue)'},
+ altro:{title:'Altro',description:'Ricerca, squadra e mercati.',label:'Altro',tab:true,color:'var(--gray)'}
+};
+const WORKSPACE_GROUPS=['Conti','Ricerca','Mercato'],WORKSPACE_TABS=['overview','models','azioni','activity','altro'];
 const workspaceIcons={overview:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',models:'<path d="M4 19V9m8 10V4m8 15v-7"/><path d="M2 21h20"/>',ai:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',activity:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',markets:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>'};
 workspaceIcons.ufficio='<rect x="3" y="10" width="18" height="4" rx="1"/><path d="M5 14v6M19 14v6"/><rect x="8" y="4" width="8" height="6" rx="1"/>';
+workspaceIcons.altro='<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>';
+workspaceIcons.sp500='<path d="M4 4v16h16"/><path d="m7 15 4-4 3 3 5-6"/>';
 workspaceIcons.azioni='<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/><path d="M2 20h20"/>';
 workspaceIcons.v3='<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>';
 workspaceIcons.segnali='<path d="M13 2 4 14h7l-1 8 9-12h-7Z"/>';
@@ -568,11 +719,14 @@ workspaceIcons.laboratorio='<path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 2 3h10a2 2 0 0
 let workspacePage='overview',workspaceFilter=(()=>{const value=readPreference('filter','all');return ['all','open','ai'].includes(value)?value:'all'})(),workspaceQuery='',narrationPaused=false;
 const expandedModels=new Set((()=>{const value=readPreference('expanded',[]);return Array.isArray(value)?value.filter(id=>typeof id==='string'):[]})());
 function workspaceIcon(key){return `<span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${workspaceIcons[key]}</svg></span>`}
-function workspaceRoute(){const h=location.hash.slice(1);return ['strategies','experimental','replayLab'].includes(h)?'models':h==='sp500'?'overview':workspacePages[h]?h:'overview'}
+function workspaceRoute(){const h=location.hash.slice(1);return ['strategies','experimental','replayLab'].includes(h)?'models':workspacePages[h]?h:'overview'}
 function setWorkspacePage(page){
  workspacePage=page;const meta=workspacePages[page];
  document.querySelectorAll('[data-workspace-page]').forEach(el=>{el.hidden=el.dataset.workspacePage!==page});
- document.querySelectorAll('[data-workspace-nav]').forEach(a=>{if(a.dataset.workspaceNav===page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+ const tab=meta.tab?page:'altro';
+ document.querySelectorAll('.workspace-nav [data-workspace-nav]').forEach(a=>{if(a.dataset.workspaceNav===page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+ document.querySelectorAll('.bottom-nav [data-workspace-nav]').forEach(a=>{if(a.dataset.workspaceNav===tab)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+ const back=document.querySelector('.ios-back');if(back)back.hidden=!!meta.tab;
  const bar=document.querySelector('.bottom-nav'),current=bar?.querySelector('[aria-current=page]');if(bar&&current&&bar.scrollWidth>bar.clientWidth)bar.scrollLeft=Math.max(0,current.offsetLeft-(bar.clientWidth-current.offsetWidth)/2);
  document.querySelector('#workspaceTitle').textContent=meta.title;document.querySelector('#workspaceDescription').textContent=meta.description;document.querySelector('#workspaceCrumb').textContent=meta.label;
  document.querySelector('.workspace-chip').hidden=page==='laboratorio';
@@ -591,25 +745,28 @@ function applyModelFilters(){
  document.querySelectorAll('[data-model-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.modelFilter===workspaceFilter);b.setAttribute('aria-pressed',String(b.dataset.modelFilter===workspaceFilter))});
 }
 function initWorkspace(){
- const nav=Object.entries(workspacePages).map(([id,p])=>`<a href="#${id}" data-workspace-nav="${id}">${workspaceIcon(id)}${p.label}</a>`).join('');
+ const navLink=id=>`<a href="#${id}" data-workspace-nav="${id}">${workspaceIcon(id)}${workspacePages[id].label}</a>`;
+ const nav=WORKSPACE_GROUPS.map(g=>`<div class="workspace-group">${g}</div>`+Object.keys(workspacePages).filter(id=>workspacePages[id].group===g).map(navLink).join('')).join('');
  document.body.insertAdjacentHTML('afterbegin',`<aside class="workspace-sidebar"><div class="workspace-logo"><span class="mark">△</span>ATLAS</div><div class="workspace-label">Workspace</div><nav class="workspace-nav" aria-label="Navigazione workspace">${nav}</nav><div class="workspace-footer"><b>Ambiente paper</b>Ricerca e simulazione<br>Nessun ordine reale</div></aside>`);
- document.querySelector('.bottom-nav').innerHTML=nav;
+ document.querySelector('.bottom-nav').innerHTML=WORKSPACE_TABS.map(navLink).join('');
  document.querySelector('.topbar').insertAdjacentHTML('beforeend','<div class="workspace-breadcrumb">Workspace <b id="workspaceCrumb">Panoramica</b></div>');
  const live=document.querySelector('.topbar .live');live.before(document.querySelector('.workspace-breadcrumb'));
- const main=document.querySelector('main.shell');main.insertAdjacentHTML('afterbegin','<div class="workspace-heading"><div><h1 id="workspaceTitle"></h1><p id="workspaceDescription"></p></div><span class="workspace-chip">PAPER LAB</span></div>');
+ const main=document.querySelector('main.shell');main.insertAdjacentHTML('afterbegin','<div class="workspace-heading"><div><a class="ios-back" href="#altro" data-workspace-nav="altro" hidden><span aria-hidden="true">‹</span>Altro</a><h1 id="workspaceTitle"></h1><p id="workspaceDescription"></p></div><span class="workspace-chip">PAPER LAB</span></div>');
  const hero=document.querySelector('.hero'),stats=document.querySelector('.stats'),layout=document.createElement('div');layout.className='overview-layout';layout.dataset.workspacePage='overview';hero.before(layout);layout.append(hero,stats);hero.removeAttribute('id');
  stats.insertAdjacentHTML('beforeend','<div class="stats-note">Sette conti virtuali indipendenti</div>');
  document.querySelector('.hero-value').insertAdjacentHTML('afterend','<div id="workspaceNetChange" class="hero-change"></div>');
- document.querySelector('.eyebrow').textContent='Capitale virtuale complessivo';
+ document.querySelector('.eyebrow').textContent='Crypto · capitale virtuale dei 7 modelli';
  const ai=document.querySelector('#aiPipeline').closest('section');ai.id='aiWorkspace';ai.dataset.workspacePage='ai';
  const spotlight=document.querySelector('#bestStrategy').closest('section');spotlight.dataset.workspacePage='overview';
  document.querySelector('#globalRiskBanner').dataset.workspacePage='overview';
  ['strategies','experimental','replayLab'].forEach(id=>document.getElementById(id).dataset.workspacePage='models');
  document.querySelector('#activity').dataset.workspacePage='activity';document.querySelector('#activity').id='activityWorkspace';
  const market=document.querySelector('.market-panel').closest('section');market.id='marketWorkspace';market.dataset.workspacePage='markets';document.querySelector('.market-panel').open=true;
- document.querySelector('#sp500').dataset.workspacePage='overview';
+ document.querySelector('#sp500').dataset.workspacePage='sp500';document.querySelector('.sp500-disclosure').open=true;
  const portfolio=document.createElement('section');portfolio.className='section';portfolio.dataset.workspacePage='overview';portfolio.innerHTML='<div class="section-head"><div><h2>I modelli, a colpo d’occhio</h2><p>Risultati paper attuali. Replay storico separato.</p></div><button class="section-link" type="button" data-go-models>Esplora tutti →</button></div><div id="workspacePortfolio" class="portfolio-panel"></div><div id="workspaceExposure" class="portfolio-foot"></div>';
- spotlight.before(portfolio);layout.after(document.getElementById('squad'));initBoss();requestAnimationFrame(()=>bumpSmallText(document.querySelector('main.shell')));
+ spotlight.before(portfolio);layout.after(document.getElementById('squad'));
+ const accountsSection=document.createElement('section');accountsSection.className='section';accountsSection.id='accountsOverview';accountsSection.dataset.workspacePage='overview';accountsSection.innerHTML='<h2 class="ios-list-title">I tuoi conti</h2><div id="accountsList" class="ios-list"></div><p class="ios-list-note">Soldi virtuali: nessun ordine reale.</p>';layout.before(accountsSection);renderAccounts();
+ const hub=document.createElement('section');hub.className='section';hub.id='altroHub';hub.dataset.workspacePage='altro';hub.innerHTML=WORKSPACE_GROUPS.map(g=>{const ids=Object.keys(workspacePages).filter(id=>workspacePages[id].group===g&&!workspacePages[id].tab);return ids.length?'<h2 class="ios-list-title">'+g+'</h2><div class="ios-list">'+ids.map(id=>iosRow(id,workspacePages[id].label,workspacePages[id].description)).join('')+'</div>':''}).join('');main.append(hub);initBoss();requestAnimationFrame(()=>bumpSmallText(document.querySelector('main.shell')));
  const toolbar=document.createElement('div');toolbar.className='models-toolbar';toolbar.dataset.workspacePage='models';toolbar.innerHTML='<div class="models-filters" aria-label="Filtra modelli"><button type="button" class="active" data-model-filter="all">Tutti</button><button type="button" data-model-filter="open">Con posizioni</button><button type="button" data-model-filter="ai">Agente IA</button></div><input id="modelSearch" class="models-search" type="search" placeholder="Cerca un modello…" aria-label="Cerca un modello">';
  document.querySelector('#strategies').before(toolbar);
  const filterEmpty=document.createElement('div');filterEmpty.className='empty-model-filter';filterEmpty.id='modelFilterEmpty';filterEmpty.hidden=true;filterEmpty.dataset.workspacePage='models';filterEmpty.textContent='Nessun modello corrisponde alla ricerca.';document.querySelector('#replayLab').after(filterEmpty);
@@ -633,7 +790,7 @@ function renderWorkspace(data,strategies){
  document.querySelector('#workspacePortfolio').innerHTML='<div class="portfolio-head"><span>Modello</span><span class="portfolio-equity">Equity paper</span><span>P&L paper</span><span class="portfolio-status">Posizioni</span><span class="portfolio-replay">P&L replay</span><span></span></div>'+rows.map(s=>{const pnl=Number(s.equity)-Number(s.initial_capital),positions=s.positions||[],code=s.agent?'AI':s.name.split(' ').map(w=>w[0]).slice(0,2).join('');return `<button type="button" class="portfolio-row" data-open-model="${safeHtml(s.id)}" aria-label="Apri dettagli ${safeHtml(s.name)}"><span class="portfolio-model"><span class="model-monogram">${safeHtml(code)}</span><span><b>${safeHtml(s.name.replace('ATLAS Regime Portfolio AI','Regime Portfolio AI'))}</b><small>${s.forward_enabled?'Validato':'Sperimentale'} · ${s.interval_minutes===1440?'1 giorno':'4 ore'}</small></span></span><span class="portfolio-cell portfolio-equity">${euro(s.equity)}</span><span class="portfolio-cell ${pnlClass(pnl)}">${pnl>=0?'+':''}${euro(pnl)}<small>su ${euro(s.initial_capital)}</small></span><span class="portfolio-cell portfolio-status"><span class="portfolio-tag ${positions.length?'open':''}">${positions.length?safeHtml(positions.map(p=>p.symbol).join(', ')):'In attesa'}</span></span><span class="portfolio-cell portfolio-replay ${pnlClass(s.walk_forward?.net_pnl)}">${s.walk_forward?.net_pnl==null?'—':euro(s.walk_forward.net_pnl)}</span><span class="chev" aria-hidden="true">›</span></button>`}).join('');
  const symbols={};accounts.forEach(s=>(s.positions||[]).forEach(p=>symbols[p.symbol]=(symbols[p.symbol]||0)+1));const concentration=Object.entries(symbols).sort((a,b)=>b[1]-a[1])[0];
  document.querySelector('#workspaceExposure').innerHTML=`<strong>${accounts.reduce((a,s)=>a+(s.open_positions||0),0)} posizioni aperte</strong> su ${Object.keys(symbols).length} asset.${concentration&&concentration[1]>1?' '+safeHtml(concentration[0])+' è presente in '+concentration[1]+' modelli: esposizioni correlate.':''} Conti indipendenti da ${euro(accounts[0]?.initial_capital)}.`;
- document.querySelectorAll('.strategy-card[data-model-id]').forEach(card=>{card.open=expandedModels.has(card.dataset.modelId)});
+ document.querySelectorAll('.strategy-card[data-model-id]').forEach(card=>{card.open=expandedModels.has(card.dataset.modelId)});renderAccounts();
  document.querySelector('#strategies').hidden=workspacePage!=='models'||!accounts.some(s=>s.forward_enabled);
  document.querySelector('#replayLab').hidden=workspacePage!=='models'||!strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);
  const chatHead=document.querySelector('.ai-chat-head');if(chatHead&&!chatHead.querySelector('[data-narration-pause]'))chatHead.insertAdjacentHTML('beforeend',`<button type="button" class="ai-chat-pause" data-narration-pause aria-pressed="${narrationPaused}">${narrationPaused?'Riprendi':'Pausa'}</button>`);
@@ -1266,11 +1423,23 @@ function bluechipCurve(points){
  const last=vals[vals.length-1];
  return '<figure class="bc-chart"><svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" role="img" aria-label="Valore del replay storico da '+labEscape(pts[0].date)+' a '+labEscape(pts[pts.length-1].date)+': da 200 € a '+labEscape(euro(last))+'"><line x1="0" x2="'+w+'" y1="'+y(200).toFixed(1)+'" y2="'+y(200).toFixed(1)+'" class="bc-base"/><path d="'+line+'" class="bc-line '+(last>=200?'up':'down')+'"/></svg><figcaption class="lab-note">Replay storico · linea tratteggiata = 200 € di partenza</figcaption></figure>';
 }
-function renderBluechipOverview(r){
- const value=document.getElementById('bcOvValue'),line=document.getElementById('bcOvLine');if(!value||!bluechipValid(r))return;
- value.innerHTML=labEscape(labMoney(r.equity_liquidation))+'<small class="'+pnlClass(r.pnl)+'">'+labEscape(labMoney(r.pnl,true))+'</small>';
- const names=r.holdings.map(h=>h.name).join(', ');
- line.textContent=(names?'In portafoglio: '+names:'Nessuna posizione aperta')+' · prossima revisione '+(r.next_rebalance_month||'n/d');
+function renderBluechipOverview(){renderAccounts()}
+function iosRow(id,title,sub,value='',pnl=null){
+ const color=workspacePages[id]?.color||'var(--blue)';
+ const right=value?'<span class="ios-row-value"><b>'+labEscape(value)+'</b>'+(pnl==null?'':'<small class="'+(Math.abs(pnl)<0.005?'muted':pnlClass(pnl))+'">'+labEscape(labMoney(pnl,true))+'</small>')+'</span>':'<span></span>';
+ return '<a class="ios-row" href="#'+id+'" data-workspace-nav="'+id+'"><span class="ios-icon" style="--c:'+color+'" aria-hidden="true"><svg viewBox="0 0 24 24">'+(workspaceIcons[id]||'')+'</svg></span><span class="ios-row-text"><b>'+labEscape(title)+'</b><small>'+labEscape(sub)+'</small></span>'+right+'<span class="ios-chev" aria-hidden="true">›</span></a>';
+}
+function renderAccounts(){
+ const root=document.getElementById('accountsList');if(!root)return;
+ const rows=[],crypto=(dashboardData?.strategies||[]).filter(s=>s.active!==false);
+ if(crypto.length){const eq=crypto.reduce((a,s)=>a+(Number(s.equity)||0),0),init=crypto.reduce((a,s)=>a+(Number(s.initial_capital)||0),0),open=crypto.reduce((a,s)=>a+(s.open_positions||0),0);rows.push(iosRow('models','Crypto',crypto.length+' modelli · '+(open?open+' posizioni aperte':'nessuna posizione aperta'),euro(eq),eq-init))}
+ else rows.push(iosRow('models','Crypto','Caricamento…'));
+ const bc=typeof bluechipSnapshot!=='undefined'?bluechipSnapshot:null;
+ if(bc)rows.push(iosRow('azioni','Azioni',(bc.holdings||[]).map(h=>h.name).join(', ')||'Nessuna posizione aperta',euro(bc.equity_liquidation),bc.pnl));
+ else rows.push(iosRow('azioni','Azioni','Grandi aziende in utile'));
+ if(sp500Last){const eq=Number(sp500Last.equity_liquidation),blocked=sp500Last.risk_policy?.cost_viability?.structurally_unfavorable;rows.push(iosRow('sp500','ETF S&P 500',sp500Last.position?'Posizione aperta':blocked?'Fermo: costi troppo alti per 200 €':'Nessuna posizione aperta',euro(eq),eq-Number(sp500Last.capital||200)))}
+ else rows.push(iosRow('sp500','ETF S&P 500','Modulo demo'));
+ root.innerHTML=rows.join('');
 }
 function renderBluechip(r,unreachable=false){
  renderBluechipOverview(r);
