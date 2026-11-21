@@ -234,6 +234,7 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  .office-swipe{display:none!important}
  .office-hint{font-size:12px}
 }
+.bc-overview{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:17px 20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);text-decoration:none}.bc-overview:hover{border-color:color-mix(in srgb,var(--mint) 35%,var(--line))}.bc-overview:focus-visible{outline:2px solid var(--mint);outline-offset:3px}.bc-ov-copy{min-width:0}.bc-ov-copy b{display:block;font-size:13px;font-weight:550}.bc-ov-copy span{display:block;margin-top:3px;color:var(--muted);font-size:11px;overflow-wrap:anywhere}.bc-overview strong{font-size:18px;font-variant-numeric:tabular-nums;text-align:right}.bc-overview strong small{display:block;font-size:11px;font-weight:500}.bc-ov-go{color:var(--muted);font-size:20px}
 .bc-list{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.bc-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);font-size:12px}.bc-row:first-child{border-top:0}.bc-rank{color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}.bc-name{min-width:0}.bc-name b{display:block;font-weight:600}.bc-name small{display:block;color:var(--muted);font-size:10px;margin-top:2px;overflow-wrap:anywhere}.bc-mom{font-variant-numeric:tabular-nums;font-weight:600}.bc-mom.pos,.lab-note.pos,.pos{color:var(--mint)}.bc-mom.neg,.lab-note.neg,.neg{color:var(--red)}.bc-tag{font-size:9px;letter-spacing:.05em;padding:4px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}.bc-tag.ok{color:var(--blue)}.bc-tag.held{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 35%,var(--line))}.bc-chart{margin:12px 0 4px}.bc-chart svg{width:100%;height:120px;display:block}.bc-base{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1;opacity:.5;vector-effect:non-scaling-stroke}.bc-line{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}.bc-line.up{stroke:var(--mint)}.bc-line.down{stroke:var(--red)}#bluechipDemo .lab-metrics{margin-top:4px}#bluechipDemo .paired-arm h3 .lab-note{font-weight:400;font-size:11px;margin-left:4px}
 @media(max-width:760px){.bc-row{grid-template-columns:22px minmax(0,1fr) auto;gap:8px;padding:10px}.bc-row .bc-tag{grid-column:2/-1;justify-self:start}#bluechipDemo .lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#bluechipDemo .lab-metric dd{font-size:19px}}
 </style>
@@ -343,6 +344,9 @@ html{scroll-padding-top:95px}body{background:var(--bg);font-size:14px;line-heigh
  </section>
  <section id="azioni" class="section" data-workspace-page="azioni" aria-label="Azioni blue chip" hidden>
   <div id="bluechipDemo" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento modulo azioni…</p></div>
+ </section>
+ <section id="bluechipOverview" class="section" data-workspace-page="overview" aria-label="Azioni blue chip in breve">
+  <a class="bc-overview" href="#azioni"><div class="bc-ov-copy"><b>Azioni blue chip · Demo 200 €</b><span id="bcOvLine">NVIDIA, Apple, Microsoft e altre grandi aziende in utile · in attesa del primo ciclo</span></div><strong id="bcOvValue">—</strong><span class="bc-ov-go" aria-hidden="true">›</span></a>
  </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
@@ -576,7 +580,7 @@ function setWorkspacePage(page){
  if(page==='laboratorio'||page==='ai')void refreshLaboratory();
  if(page==='segnali')void refreshSignalDay();
  if(page==='v3')void refreshTrendV3();
- if(page==='azioni')void refreshBluechip();
+ if(page==='azioni'||page==='overview')void refreshBluechip();
  if(page==='ufficio')void refreshSquad();
 }
 function applyModelFilters(){
@@ -1262,7 +1266,14 @@ function bluechipCurve(points){
  const last=vals[vals.length-1];
  return '<figure class="bc-chart"><svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" role="img" aria-label="Valore del replay storico da '+labEscape(pts[0].date)+' a '+labEscape(pts[pts.length-1].date)+': da 200 € a '+labEscape(euro(last))+'"><line x1="0" x2="'+w+'" y1="'+y(200).toFixed(1)+'" y2="'+y(200).toFixed(1)+'" class="bc-base"/><path d="'+line+'" class="bc-line '+(last>=200?'up':'down')+'"/></svg><figcaption class="lab-note">Replay storico · linea tratteggiata = 200 € di partenza</figcaption></figure>';
 }
+function renderBluechipOverview(r){
+ const value=document.getElementById('bcOvValue'),line=document.getElementById('bcOvLine');if(!value||!bluechipValid(r))return;
+ value.innerHTML=labEscape(labMoney(r.equity_liquidation))+'<small class="'+pnlClass(r.pnl)+'">'+labEscape(labMoney(r.pnl,true))+'</small>';
+ const names=r.holdings.map(h=>h.name).join(', ');
+ line.textContent=(names?'In portafoglio: '+names:'Nessuna posizione aperta')+' · prossima revisione '+(r.next_rebalance_month||'n/d');
+}
 function renderBluechip(r,unreachable=false){
+ renderBluechipOverview(r);
  const root=document.getElementById('bluechipDemo');if(!root)return;
  if(!bluechipValid(r)){root.innerHTML='<div class="lab-lead"><div><h2>Azioni blue chip · Demo 200 €</h2><p>NVIDIA, Apple, Microsoft e altre grandi aziende in utile.</p></div></div><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo ciclo: il modulo parte alla prossima chiusura giornaliera di Wall Street.')+'</p>';delete root.dataset.snapshot;return}
  const key=r.generated_at+' '+unreachable;if(root.dataset.snapshot===key)return;
@@ -1292,7 +1303,7 @@ function renderBluechip(r,unreachable=false){
  if(rendered)root.querySelectorAll('details').forEach(el=>{el.open=open.has(el.dataset.bcKey)});
 }
 async function refreshBluechip(){
- if(workspacePage!=='azioni'||document.visibilityState!=='visible')return;
+ if(!['azioni','overview'].includes(workspacePage)||document.visibilityState!=='visible')return;
  if(bluechipRequest)return bluechipRequest;
  bluechipRequest=(async()=>{
   try{
