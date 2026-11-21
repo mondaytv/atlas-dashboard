@@ -2,7 +2,7 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-21T04:00:58+00:00 · codice: `ec0fe912fc7619de87ea59497da8dc55d14c03de`
+Snapshot: 2026-11-21T08:00:48+00:00 · codice: `96b5d05cb482cde4352b1412f935f546424d0947`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
@@ -16,7 +16,7 @@ Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel labor
 
 Stato: `ACTIVE` · slot dedicati: 1
 - `screen:0232d3e79342bbb3b313` · Fermata · 5 chiusure PAPER · ultima attività `PAPER_SELL_STOP`
-- `screen:4a316b82953516df67c8` · Osservazione · 1 chiusure PAPER · ultima attività `PAPER_SELL_STOP`
+- `screen:4a316b82953516df67c8` · Osservazione · 1 chiusure PAPER · ultima attività `PAPER_BUY_BTC`
 
 Il ciclo è previsto ogni quattro ore. Se lo snapshot ha più di otto ore, consideralo non aggiornato.
 
