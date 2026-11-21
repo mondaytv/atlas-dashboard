@@ -2,7 +2,7 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-20T20:00:59+00:00 · codice: `602a81f03862f8203f293ac7e7dd10cead532954`
+Snapshot: 2026-11-21T00:01:05+00:00 · codice: `4ee8f6d8645d06f35d61339e6d75378b6e5e5586`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
