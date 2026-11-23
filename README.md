@@ -2,15 +2,15 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-23T16:00:58+00:00 · codice: `693393e2832cf9691a1fafebe08dc02889852693`
+Snapshot: 2026-11-23T20:01:01+00:00 · codice: `04098af92fc772596ac83584c6948c4c3220e70d`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
 | Candidata | Famiglia | Stato | Chiusure / PnL holdout | Chiusure / PnL PAPER | Ultima attività |
 |---|---|---|---:|---:|---|
-| `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 0 / €-1.65 | `PAPER_BUY_SOL` |
-| `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €-1.64 | `PAPER_BUY_BTC` |
-| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 1 / €-12.37 | `PAPER_BUY_BTC` |
+| `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 1 / €-5.09 | `PAPER_SELL_STOP` |
+| `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €-4.18 | `WAIT` |
+| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 1 / €-14.91 | `WAIT` |
 
 ## Conto PAPER dello screening massivo
 
