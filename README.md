@@ -2,15 +2,15 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-24T08:00:49+00:00 · codice: `b815da877d2d206bb2f37fde244e09cf8a19b3aa`
+Snapshot: 2026-11-24T12:00:46+00:00 · codice: `a38c12390ee88b7c00f52715ac178e8e9ac1f07b`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
 | Candidata | Famiglia | Stato | Chiusure / PnL holdout | Chiusure / PnL PAPER | Ultima attività |
 |---|---|---|---:|---:|---|
 | `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 1 / €-5.09 | `WAIT` |
-| `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 0 / €-5.71 | `WAIT` |
-| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 1 / €-16.44 | `WAIT` |
+| `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 1 / €-6.10 | `PAPER_SELL_STOP` |
+| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 1 / €-16.83 | `WAIT` |
 
 ## Conto PAPER dello screening massivo
 
