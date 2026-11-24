@@ -352,6 +352,7 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 
 #bluechipDemo>.lab-lead h2,#sp500Demo .sp500-kicker{display:none!important}
 #accountsOverview{margin:0 0 22px!important}
+.v3-gap{display:block;margin-top:8px;color:var(--muted);font-size:13px;line-height:18px}.v3-gap strong{color:var(--text)}.v3-gap.up{color:var(--mint)}.v3-bar{display:block;height:6px;border-radius:3px;background:var(--fill);margin-top:8px;overflow:hidden}.v3-bar i{display:block;height:100%;background:var(--amber);border-radius:inherit}.v3-saved{margin:12px 0 0;font-size:15px;line-height:20px;color:var(--text)}.v3-saved.pos b{color:var(--mint)}.v3-saved.neg b{color:var(--red)}.v3-why{margin:12px 0 0!important}
 .bc-switch{display:inline-flex;margin:0 0 14px}.bc-switch button{padding:6px 18px}
 #stockOffice .boss-quick button[data-ask]{color:var(--mint)!important}
 .ios-row-value small.muted{color:var(--muted)}
@@ -1389,7 +1390,14 @@ function renderTrendV3(report,unreachable=false){
  const actions={WAIT_FOR_SIGNAL:'Mercato in salita, ma nessun segnale oggi.',TREND_FILTER_KEEPS_CASH:'Mercato in discesa: il filtro tiene i soldi in contanti.',MANAGING_OPEN_POSITION:'Posizione aperta: controllo stop e chiusura giornaliera.',EXIT_WAITING_FOR_FRESH_BID:'Uscita in attesa di un prezzo aggiornato.',SIGNAL_WAITING_FOR_EXECUTABLE_BOOK:'Segnale presente: in attesa di prezzi eseguibili.',SIGNAL_SKIPPED_EXECUTION_LIMITS:'Segnale scartato: condizioni di esecuzione non idonee.',CAPITAL_LIMIT_NO_RESET:'Capitale virtuale insufficiente: nessun reset.',WAIT_FOR_NEW_CANDLE:'In attesa della prima candela giornaliera.'};
  const reasons={STOP:'stop',TREND_EXIT:'chiusura sotto la linea di tendenza',STUDY_END:'fine della prova'};
  const action=v=>actions[v]??(String(v).startsWith('PAPER_BUY_')?'Acquisto virtuale eseguito.':String(v).startsWith('PAPER_SELL_')?'Posizione chiusa: '+(reasons[String(v).slice(11)]??'motivo n/d')+'.':'Stato in aggiornamento.');
- const regime=Object.entries(report.regime||{}).map(([s,r])=>'<div><span class="lab-note">'+labEscape(squadMarketName(s))+'/EUR · candela giornaliera</span><b class="'+(r.trend_up?'up':'down')+'">'+(r.trend_up?'Tendenza in salita':'Tendenza in discesa o laterale')+'</b>Chiusura '+observerPrice(r.close)+' · media 50 giorni '+observerPrice(r.sma50)+'</div>').join('')||'<div>Tendenza n/d</div>';
+ const regime=Object.entries(report.regime||{}).map(([s,r])=>{
+  const ok=Number.isFinite(r.close)&&Number.isFinite(r.sma50)&&r.close>0&&r.sma50>0,ratio=ok?Math.min(1,r.close/r.sma50):0,need=ok?(r.sma50/r.close-1)*100:null;
+  const gap=!ok?'':r.trend_up?'<span class="v3-gap up">Sopra la media del '+pct((r.close/r.sma50-1)*100)+'%: gli ingressi sono permessi.</span>':'<span class="v3-gap">Per tornare sopra la media deve salire del <strong>'+pct(need)+'%</strong>. Se il prezzo resta basso la media scende, quindi la distanza si può accorciare anche senza un grande rialzo.</span><span class="v3-bar" role="img" aria-label="Prezzo al '+Math.round(ratio*100)+'% della media a 50 giorni"><i style="width:'+(ratio*100).toFixed(1)+'%"></i></span>';
+  return '<div><span class="lab-note">'+labEscape(squadMarketName(s))+'/EUR · candela giornaliera</span><b class="'+(r.trend_up?'up':'down')+'">'+(r.trend_up?'Tendenza in salita':'Tendenza in discesa o laterale')+'</b>Chiusura '+observerPrice(r.close)+' · media 50 giorni '+observerPrice(r.sma50)+gap+'</div>'}).join('')||'<div>Tendenza n/d</div>';
+ const kSum=report.tiers?.kraken?.summary||{},v3Pnl=Object.values(kSum.net_pnl_eur_per_account||{}).filter(Number.isFinite),v3Avg=v3Pnl.length?v3Pnl.reduce((a,b)=>a+b,0)/v3Pnl.length:null,bh=kSum.buy_hold_pnl_eur_per_100;
+ const allDown=Object.values(report.regime||{}).length&&Object.values(report.regime||{}).every(r=>!r.trend_up);
+ const saved=Number.isFinite(v3Avg)&&Number.isFinite(bh)&&!kSum.benchmark_stale?'<p class="v3-saved '+(v3Avg>=bh?'pos':'neg')+'">'+(v3Avg>=bh?'Restare fermo finora ha evitato <b>'+labEscape(euro(v3Avg-bh))+'</b> di perdita ogni 100 € rispetto a comprare e tenere BTC ed ETH (costi Kraken).':'Rispetto a comprare e tenere BTC ed ETH, V3 è indietro di <b>'+labEscape(euro(bh-v3Avg))+'</b> ogni 100 € (costi Kraken).')+'</p>':'';
+ const why=allDown?'<p class="lab-note v3-why"><b>Perché è fermo:</b> BTC ed ETH sono sotto la loro media a 50 giorni, cioè il mercato scende. La regola principale di V3 è non comprare in discesa: è voluto, non è un guasto.</p>':'';
  const tiers=Object.entries(report.tiers).map(([tierKey,tier])=>{
   const t=tier.summary||{};
   const cards=Object.entries(tier.accounts||{}).map(([rule,row])=>{
@@ -1404,7 +1412,7 @@ function renderTrendV3(report,unreachable=false){
  const rules=Object.values(p.rules||{}).map(r=>'<p class="lab-note"><b>'+labEscape(r.label)+'.</b> '+labEscape(r.plain)+'</p>').join('');
  const lessons=(report.lessons||[]).map(l=>'<li>'+labEscape(l)+'</li>').join('');
  root.innerHTML='<div class="lab-lead"><div><h2>Test V3 · tendenza giornaliera</h2><p>Regole nuove costruite sulle perdite dei test precedenti. Compra solo BTC o ETH e solo quando la tendenza giornaliera sale; altrimenti resta in contanti.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
-  '<div class="v3-regime">'+regime+'</div>'+
+  why+'<div class="v3-regime">'+regime+'</div>'+saved+
   '<p class="lab-note">Inizio '+labTime(report.market_started_at)+' · fine prevista '+labTime(report.study_end_at)+' · controlli eseguiti '+labCount(report.cycles)+'. Soldi virtuali: nessun ordine reale. I test congelati non sono stati toccati.</p>'+
   tiers+
   '<details class="lab-detail" data-v3-key="lessons" open><summary>Cosa abbiamo imparato dalle perdite</summary><ul>'+lessons+'</ul></details>'+
