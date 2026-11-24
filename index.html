@@ -352,6 +352,8 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 
 #bluechipDemo>.lab-lead h2,#sp500Demo .sp500-kicker{display:none!important}
 #accountsOverview{margin:0 0 22px!important}
+.bc-switch{display:inline-flex;margin:0 0 14px}.bc-switch button{padding:6px 18px}
+#stockOffice .boss-quick button[data-ask]{color:var(--mint)!important}
 .ios-row-value small.muted{color:var(--muted)}
 #sp500 .sp500-disclosure>summary,#activityWorkspace .section-head h2,#aiWorkspace>.section-head h2{display:none!important}
 #sp500 .sp500-disclosure .sp500-card{border-top:0!important}
@@ -480,7 +482,22 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
   <div id="trendV3" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento test V3…</p></div>
  </section>
  <section id="azioni" class="section" data-workspace-page="azioni" aria-label="Azioni blue chip" hidden>
+  <div class="segmented bc-switch" aria-label="Vista azioni"><button type="button" class="active" data-bc-view="conto" aria-pressed="true">Portafoglio</button><button type="button" data-bc-view="ufficio" aria-pressed="false">Ufficio</button></div>
   <div id="bluechipDemo" class="lab-surface exploration-panel"><p class="lab-note" role="status">Caricamento modulo azioni…</p></div>
+  <div id="stockOffice" hidden>
+   <div id="stockScene" class="office" aria-label="Ufficio Azioni"></div>
+   <p class="office-hint">Tocca una scrivania: quel lavoratore fa rapporto al Capo Azioni qui sotto. Il colore del monitor mostra il suo stato.</p>
+   <div class="boss" aria-labelledby="stockBossTitle">
+    <div class="boss-side"><span id="stockBossPuppet"></span><div class="squad-name"><b id="stockBossTitle">Capo Azioni</b><span>Fa rispondere la squadra con i numeri veri del conto</span></div></div>
+    <div class="boss-main">
+     <div id="stockLog" class="boss-log" role="log" aria-live="polite"></div>
+     <div id="stockQuick" class="boss-quick" aria-label="Domande rapide"><button type="button">Rapporto generale</button><button type="button">Quanto manca al pareggio?</button><button type="button">Cosa farebbe la revisione oggi?</button><button type="button">Chi rischia di uscire?</button><button type="button">Battiamo il compra e tieni?</button><button type="button">Le aziende sono in utile?</button><button type="button" data-ask="E NVIDIA?">E NVIDIA?</button></div>
+     <form id="stockForm" class="boss-form"><input id="stockInput" type="text" maxlength="200" autocomplete="off" placeholder="Chiedi alla squadra, anche di un’azienda…" aria-label="Chiedi alla squadra Azioni"><button type="submit">Invia</button></form>
+    </div>
+   </div>
+   <div id="stockGrid" class="squad-grid"></div>
+   <p class="squad-note">I lavoratori leggono i numeri del conto Azioni e fanno i conti al posto tuo. Non comprano, non vendono e non cambiano le regole. Soldi virtuali, nessun ordine reale.</p>
+  </div>
  </section>
  <section id="sp500" class="section">
   <details class="sp500-disclosure">
@@ -1091,13 +1108,15 @@ async function refreshSquad(){
  try{return await squadRequest}finally{squadRequest=null}
 }
 function squadPuppet(role){
- const colors={scout:'var(--blue)',analyst:'var(--mint)',guard:'var(--amber)',accountant:'#c9a7ff',boss:'var(--red)',seeker:'#f6a06b'};
+ const colors={scout:'var(--blue)',analyst:'var(--mint)',guard:'var(--amber)',accountant:'#c9a7ff',boss:'var(--red)',seeker:'#f6a06b',auditor:'#64d2ff',judge:'#8e8cf8'};
  const props={
   seeker:'<g><path d="M30 24h22l-4 6H34z" fill="#1d2733"/><path d="M80 72h10v8l9 16a4 4 0 0 1-3.5 6h-21a4 4 0 0 1-3.5-6l9-16z" fill="#1d2733"/><path d="M76 94h18" stroke="#f6a06b" stroke-width="3" stroke-linecap="round"/><circle cx="40" cy="84" r="9" fill="none" stroke="#1d2733" stroke-width="4"/><path d="M33 91l-7 7" stroke="#1d2733" stroke-width="5" stroke-linecap="round"/></g>',
   boss:'<g><path d="M36 26l8-14 8 9 8-12 8 12 8-9 8 14z" fill="#e9bb74" stroke="#1d2733" stroke-width="2" stroke-linejoin="round"/><path d="M52 82h16l-3 4 3 14-8 5-8-5 3-14z" fill="#1d2733"/></g>',
   scout:'<g><rect x="38" y="70" width="18" height="14" rx="5" fill="#1d2733"/><rect x="64" y="70" width="18" height="14" rx="5" fill="#1d2733"/><rect x="54" y="74" width="12" height="6" fill="#1d2733"/><circle cx="47" cy="77" r="4" fill="var(--blue)" opacity=".6"/><circle cx="73" cy="77" r="4" fill="var(--blue)" opacity=".6"/></g>',
   analyst:'<g fill="none" stroke="#1d2733" stroke-width="3"><rect x="37" y="45" width="19" height="14" rx="5"/><rect x="64" y="45" width="19" height="14" rx="5"/><path d="M56 51h8"/></g><g><rect x="78" y="74" width="30" height="22" rx="4" fill="#1d2733"/><path d="M82 91l7-7 5 4 9-10" fill="none" stroke="var(--mint)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>',
   guard:'<g><path d="M86 70l16 5v10c0 10-7 16-16 19-9-3-16-9-16-19V75z" fill="#1d2733"/><path d="M79 86l5 5 9-10" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>',
+  auditor:'<g><rect x="76" y="68" width="24" height="30" rx="3" fill="#1d2733"/><rect x="82" y="64" width="12" height="7" rx="2" fill="#5c6b7d"/><path d="M81 83l4 4 9-9" fill="none" stroke="#64d2ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>',
+  judge:'<g stroke="#1d2733" stroke-width="3" stroke-linecap="round" fill="none"><path d="M88 66v30M75 72h26M80 98h16"/></g><path d="M75 72l-6 12h12zM101 72l-6 12h12z" fill="#1d2733"/>',
   accountant:'<g><circle cx="90" cy="86" r="13" fill="#1d2733"/><text x="90" y="91.5" text-anchor="middle" font-size="15" font-weight="700" fill="#c9a7ff" font-family="system-ui,sans-serif">€</text></g>'
  };
  return '<svg class="squad-puppet" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g class="p-body">'+
@@ -1253,8 +1272,8 @@ function officeDesk(role,name,st,cx,y,big){
   '<text x="'+cx+'" y="'+(y+54)+'" text-anchor="middle" font-size="10" font-weight="700" letter-spacing=".08em" fill="'+screen+'" font-family="system-ui,sans-serif">'+labEscape(String(st.chip).toUpperCase())+'</text>'+
   '</g>';
 }
-function renderOffice(members){
- const box=document.getElementById('squadOffice');if(!box)return;
+function renderOffice(members,boxId='squadOffice',title='ATLAS · UFFICIO PAPER',capoName='Capo'){
+ const box=document.getElementById(boxId);if(!box)return;
  const phone=MOBILE_MQ.matches;
  const xs=[110,305,500,695,890];
  const capo={mood:'ok',chip:'Coordina'};
@@ -1264,20 +1283,20 @@ function renderOffice(members){
   '<rect x="50" y="34" width="190" height="130" rx="8" fill="#0b1016" stroke="#2b3746" stroke-width="6"/>'+
   '<path d="M60 150V112h18V92h20v58h14V78h22v72h16V100h20v50h16V118h18v32h20" fill="#1d2733"/><circle cx="200" cy="66" r="12" fill="#e9bb74" opacity=".7"/>'+
   '<path d="M145 34v130M50 99h190" stroke="#2b3746" stroke-width="4"/>'+
-  '<rect x="380" y="26" width="240" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="500" y="52" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".18em" fill="var(--mint)" font-family="system-ui,sans-serif">ATLAS · UFFICIO PAPER</text>'+
+  '<rect x="380" y="26" width="240" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="500" y="52" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".18em" fill="var(--mint)" font-family="system-ui,sans-serif">'+labEscape(title)+'</text>'+
   '<rect x="780" y="40" width="150" height="104" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="4"/><path d="M795 120l25-22 22 14 30-38 26 20 18-12" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="855" y="62" text-anchor="middle" font-size="10" fill="#94a3b5" font-family="system-ui,sans-serif">SOLO SOLDI FINTI</text>'+
   '<rect x="955" y="200" width="30" height="50" rx="6" fill="#26313d"/><path d="M970 200c-20-30-6-55 0-62 6 7 20 32 0 62zM970 205c-26-14-30-36-28-44 9 2 28 20 28 44zM970 205c26-14 30-36 28-44-9 2-28 20-28 44z" fill="var(--mint)" opacity=".7"/>';
  if(phone){
   const spots=[[100,500],[300,500],[100,650],[300,650],[200,800]];
   const tall='<rect width="400" height="250" fill="#141d27"/><rect y="250" width="400" height="650" fill="#0f161e"/><path d="M0 250h400" stroke="#ffffff10" stroke-width="2"/>'+
    [0,1,2,3,4].map(i=>'<path d="M'+(i*100-20)+' 900L'+(i*100+40)+' 250" stroke="#ffffff06"/>').join('')+
-   '<rect x="60" y="18" width="280" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="200" y="44" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".14em" fill="var(--mint)" font-family="system-ui,sans-serif">ATLAS · UFFICIO PAPER</text>'+
+   '<rect x="60" y="18" width="280" height="40" rx="8" fill="#0b1016" stroke="#2b3746"/><text x="200" y="44" text-anchor="middle" font-size="15" font-weight="750" letter-spacing=".14em" fill="var(--mint)" font-family="system-ui,sans-serif">'+labEscape(title)+'</text>'+
    '<rect x="18" y="78" width="110" height="86" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="5"/><path d="M26 156v-26h12v-14h14v40h10v-50h14v50h12v-30h14v30" fill="#1d2733"/><circle cx="108" cy="98" r="8" fill="#e9bb74" opacity=".7"/>'+
    '<rect x="272" y="78" width="110" height="86" rx="6" fill="#0b1016" stroke="#2b3746" stroke-width="4"/><path d="M284 146l18-16 16 10 22-28 18 14 12-8" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="327" y="98" text-anchor="middle" font-size="10" fill="#94a3b5" font-family="system-ui,sans-serif">SOLDI FINTI</text>';
-  box.innerHTML='<svg viewBox="0 0 400 890" role="group" aria-label="Ufficio: tocca una scrivania per chiedere un rapporto">'+tall+officeDesk('boss','Capo',capo,200,290,true)+members.map(([role,name,,st],i)=>officeDesk(role,name,st,spots[i][0],spots[i][1],false)).join('')+'</svg>';
+  box.innerHTML='<svg viewBox="0 0 400 890" role="group" aria-label="Ufficio: tocca una scrivania per chiedere un rapporto">'+tall+officeDesk('boss',capoName,capo,200,290,true)+members.map(([role,name,,st],i)=>officeDesk(role,name,st,spots[i][0],spots[i][1],false)).join('')+'</svg>';
   return;
  }
- const capoDesk=officeDesk('boss','Capo',capo,500,232,true);
+ const capoDesk=officeDesk('boss',capoName,capo,500,232,true);
  const desks=members.map(([role,name,,st],i)=>officeDesk(role,name,st,xs[i],392,false)).join('');
  box.innerHTML='<svg viewBox="0 0 1000 480" role="group" aria-label="Ufficio: clicca una scrivania per chiedere un rapporto">'+deco+capoDesk+desks+'</svg>';
 }
@@ -1442,7 +1461,7 @@ function renderAccounts(){
  root.innerHTML=rows.join('');
 }
 function renderBluechip(r,unreachable=false){
- renderBluechipOverview(r);
+ renderBluechipOverview(r);renderStockOffice(r,unreachable);
  const root=document.getElementById('bluechipDemo');if(!root)return;
  if(!bluechipValid(r)){root.innerHTML='<div class="lab-lead"><div><h2>Azioni blue chip · Demo 200 €</h2><p>NVIDIA, Apple, Microsoft e altre grandi aziende in utile.</p></div></div><p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'In attesa del primo ciclo: il modulo parte alla prossima chiusura giornaliera di Wall Street.')+'</p>';delete root.dataset.snapshot;return}
  const key=r.generated_at+' '+unreachable;if(root.dataset.snapshot===key)return;
@@ -1484,6 +1503,171 @@ async function refreshBluechip(){
  })();
  try{return await bluechipRequest}finally{bluechipRequest=null}
 }
+// ---- Ufficio Azioni: five workers read bluechip.json and answer only with its numbers. They never trade.
+const STOCK_ROLES=[['accountant','Contabile','Conti e pareggio'],['guard','Sentinella','Chi rischia di uscire'],['analyst','Analista','Prova della revisione'],['auditor','Revisore','Utili delle aziende'],['judge','Giudice','ATLAS contro il compra e tieni']];
+const STOCK_NAMES=Object.fromEntries(STOCK_ROLES.map(([role,name])=>[role,name]));
+const stockAsk={accountant:'Contabile, quanto manca al pareggio?',guard:'Sentinella, chi rischia di uscire?',analyst:'Analista, cosa farebbe la revisione oggi?',auditor:'Revisore, le aziende sono in utile?',judge:'Giudice, battiamo il compra e tieni?'};
+let stockKey='',stockReady=false,stockLast=null,stockCallTimer=null;
+function stockPctTxt(v){return Number.isFinite(v)?(v>0?'+':'')+pct(v)+'%':'n/d'}
+function stockReviewDate(r){const m=/^(\d{4})-(\d{2})$/.exec(r?.next_rebalance_month||'');if(!m)return null;const d=new Date(Date.UTC(+m[1],+m[2]-1,1));while([0,6].includes(d.getUTCDay()))d.setUTCDate(d.getUTCDate()+1);return d}
+function stockDaysTo(d){return d?Math.max(0,Math.ceil((d-Date.now())/86400000)):null}
+function stockTrendGap(u){return Number.isFinite(u?.close_usd)&&Number.isFinite(u?.sma200)&&u.sma200?(u.close_usd/u.sma200-1)*100:null}
+// Mirrors the engine's monthly review: sell what lost eligibility or fell past keep_rank, fill free slots by rank with the sector cap.
+function stockDryRun(r){
+ const p=r.policy||{},max=p.max_positions||3,keep=p.keep_rank||6,cap=p.max_per_sector||2,by=Object.fromEntries(r.universe.map(u=>[u.symbol,u]));
+ const held=r.holdings.map(h=>h.symbol),sells=[],stay=[];
+ held.forEach(s=>{const u=by[s];if(!u||!Number.isFinite(u.close_usd)){stay.push(s);return}
+  const why=!u.profitable?'non più in utile':!u.eligible?(u.sma200!=null&&!u.above_trend?'sotto la media 200 giorni':'crescita a 6 mesi negativa'):u.rank>keep?'scesa al '+u.rank+'° posto':null;
+  if(why)sells.push({s,why});else stay.push(s)});
+ const buys=[];
+ r.universe.filter(u=>u.rank&&!held.includes(u.symbol)).sort((a,b)=>a.rank-b.rank).forEach(u=>{
+  if(stay.length+buys.length>=max)return;
+  if([...stay,...buys].filter(s=>by[s]?.sector===u.sector).length>=cap)return;
+  buys.push(u.symbol)});
+ return{sells,buys,by};
+}
+function stockAccountant(r){
+ const cap=Number(r.capital)||200,eq=r.equity_liquidation,hold=r.holdings.reduce((a,h)=>a+(Number(h.value_eur)||0),0),lines=[];
+ lines.push('Se vendessi tutto adesso incasseresti '+euro(eq)+': '+labMoney(eq-cap,true)+' rispetto ai '+euro(cap)+' di partenza, costi di vendita compresi.');
+ const paid=Object.values(r.positions||{}).reduce((a,p)=>a+(Number(p.cost_eur)-Number(p.qty)*Number(p.entry_price_usd)/(Number(p.entry_fx)||1)),0);
+ if(r.holdings.length)lines.push('Costi già pagati per entrare: circa '+euro(paid)+' (commissioni e cambio euro/dollaro). Per uscire servirebbero altri '+euro(r.holdings.length*(r.policy?.commission_per_order_eur??1))+' di commissioni più il cambio.');
+ if(eq<cap&&hold>0)lines.push('Per tornare in pari i titoli devono salire in media del '+pct((cap-eq)/hold*100)+'%.');
+ else if(eq>=cap)lines.push('Sei sopra la partenza: anche vendendo tutto ora, costi compresi, chiuderesti in guadagno.');
+ const sorted=[...r.holdings].sort((a,b)=>b.pnl_pct-a.pnl_pct);
+ if(sorted.length>1)lines.push('Dal giorno dell’acquisto il migliore è '+sorted[0].name+' ('+stockPctTxt(sorted[0].pnl_pct)+'), il peggiore '+sorted.at(-1).name+' ('+stockPctTxt(sorted.at(-1).pnl_pct)+').');
+ return{mood:eq>=cap?'ok':'down',chip:eq>=cap?'In guadagno':'Sotto la partenza',lines,at:r.generated_at};
+}
+function stockGuard(r){
+ const {sells,by}=stockDryRun(r),keep=r.policy?.keep_rank||6,days=stockDaysTo(stockReviewDate(r)),lines=[];let watch=0;
+ r.holdings.forEach(h=>{const u=by[h.symbol],gap=stockTrendGap(u),out=sells.find(x=>x.s===h.symbol);
+  if(out){lines.push(h.name+': oggi verrebbe venduta ('+out.why+').');return}
+  const near=(Number.isFinite(gap)&&gap<5)||(Number(u?.rank)>=keep-1);if(near)watch++;
+  lines.push(h.name+': '+(u?.rank?u.rank+'° in classifica (si resta fino al '+keep+'°)':'fuori classifica')+', '+(Number.isFinite(gap)?pct(Math.abs(gap))+'% '+(gap>=0?'sopra':'sotto')+' la media 200 giorni':'media n/d')+(near?'. Da tenere d’occhio.':'. Al sicuro.'))});
+ const when=days==null?'alla prossima revisione':days===0?'alla revisione di oggi':'alla revisione tra '+days+(days===1?' giorno':' giorni');
+ lines.unshift(!r.holdings.length?'Nessun titolo in portafoglio da sorvegliare.':sells.length?sells.length+(sells.length===1?' titolo verrebbe venduto ':' titoli verrebbero venduti ')+when+', se i prezzi restano questi.':watch?'Nessun titolo da vendere '+when+', ma '+watch+' da tenere d’occhio.':'Nessun titolo a rischio '+when+'.');
+ lines.push('Prossima revisione '+(days==null?'n/d':days===0?'oggi':'tra '+days+(days===1?' giorno':' giorni'))+'. Si vende solo allora: non c’è uno stop automatico.');
+ return{mood:sells.length?'alert':watch?'wait':'ok',chip:sells.length?sells.length+' a rischio':watch?'Da sorvegliare':'Tutto tranquillo',lines,at:r.generated_at};
+}
+function stockAnalyst(r){
+ const {sells,buys,by}=stockDryRun(r),lines=[];
+ if(!sells.length&&!buys.length)lines.push('Se la revisione fosse oggi: nessun cambio, le '+r.holdings.length+' aziende in portafoglio restano.');
+ if(sells.length)lines.push('Se la revisione fosse oggi venderebbe: '+sells.map(x=>by[x.s]?.name+' ('+x.why+')').join(', ')+'.');
+ if(buys.length)lines.push((sells.length?'E comprerebbe: ':'Se la revisione fosse oggi comprerebbe: ')+buys.map(s=>by[s].name+' ('+by[s].rank+'°)').join(', ')+'.');
+ const bench=r.universe.filter(u=>u.rank&&!u.held&&!buys.includes(u.symbol)).sort((a,b)=>a.rank-b.rank)[0];
+ const weakest=r.universe.filter(u=>u.held&&u.rank).sort((a,b)=>b.rank-a.rank)[0];
+ if(bench)lines.push('Prima in panchina: '+bench.name+' ('+bench.rank+'°, '+stockPctTxt(bench.momentum_pct)+' in 6 mesi)'+(weakest?'. La più debole in portafoglio è '+weakest.name+' ('+weakest.rank+'°, '+stockPctTxt(weakest.momentum_pct)+')':'')+'.');
+ lines.push('Idonee oggi: '+r.universe.filter(u=>u.eligible).length+' aziende su '+r.universe.length+' (in utile, sopra la media 200 giorni, in crescita a 6 mesi).');
+ const changes=sells.length+buys.length;
+ return{mood:changes?'wait':'ok',chip:changes?'Cambi in vista':'Nessun cambio',lines,at:r.generated_at};
+}
+function stockAuditor(r){
+ const u=r.universe,loss=u.filter(x=>x.profit_status==='LOSS'),unk=u.filter(x=>x.profit_status!=='PROFIT'&&x.profit_status!=='LOSS'),lines=[];
+ lines.push(loss.length?'In perdita negli ultimi 12 mesi: '+loss.map(x=>x.name).join(', ')+'. Sono escluse dalla classifica.':'Tutte le '+(u.length-unk.length)+' aziende controllate hanno chiuso gli ultimi 12 mesi in utile.');
+ if(unk.length)lines.push('Bilancio non disponibile per: '+unk.map(x=>x.name).join(', ')+'. Restano ammesse finché non risultano in perdita.');
+ const held=u.filter(x=>x.held);
+ if(held.length)lines.push('In portafoglio: '+held.map(x=>x.name+' '+(x.profit_status==='PROFIT'?'in utile':x.profit_status==='LOSS'?'IN PERDITA':'non verificata')).join(', ')+'.');
+ lines.push('Ricontrollo i bilanci pubblicati ogni 7 giorni. Un’azienda che va in perdita viene venduta alla revisione.');
+ return{mood:loss.some(x=>x.held)?'alert':unk.length?'wait':'ok',chip:loss.length?loss.length+' in perdita':unk.length?'Dati parziali':'Tutte in utile',lines,at:r.generated_at};
+}
+function stockJudge(r){
+ const b=r.forward_benchmarks,lines=[];
+ if(!b?.atlas)return{mood:'missing',chip:'In attesa',lines:['Il confronto dal primo giorno arriva con il prossimo ciclo del motore.'],at:r.generated_at};
+ const a=b.atlas.pnl,e=b.equal_weight_18?.pnl,f=b.sp500_fund?.pnl,rivals=[e,f].filter(Number.isFinite),ahead=rivals.filter(x=>a>x).length;
+ lines.push('Dal '+b.since+' ('+b.trading_days+' sedute): ATLAS '+labMoney(a,true)+', compra e tieni le 18 aziende '+labMoney(e,true)+', fondo S&P 500 '+labMoney(f,true)+'.');
+ lines.push(!rivals.length?'Confronto n/d.':ahead===rivals.length?'Per ora ATLAS è davanti a tutti e due.':ahead?'Per ora ATLAS batte uno dei due confronti.':'Per ora ATLAS è dietro a tutti e due: non fare niente avrebbe reso di più.');
+ lines.push(b.trading_days<120?'Solo '+b.trading_days+' sedute: è presto per giudicare, contano 6-12 mesi.':'Campione di '+b.trading_days+' sedute.');
+ const rp=r.historical_replay;if(rp?.available&&Number.isFinite(rp.pnl)&&Number.isFinite(rp.benchmark?.pnl))lines.push('Nel replay '+rp.from+' → '+rp.to+': ATLAS '+labMoney(rp.pnl,true)+', compra e tieni '+labMoney(rp.benchmark.pnl,true)+'.');
+ return{mood:!rivals.length?'wait':ahead===rivals.length?'ok':ahead?'wait':'down',chip:!rivals.length?'In attesa':ahead===rivals.length?'ATLAS davanti':ahead?'Testa a testa':'ATLAS dietro',lines,at:r.generated_at};
+}
+function stockReports(r){return{accountant:stockAccountant(r),guard:stockGuard(r),analyst:stockAnalyst(r),auditor:stockAuditor(r),judge:stockJudge(r)}}
+function stockNorm(text){return String(text??'').toLocaleLowerCase('it').normalize('NFD').replace(/[̀-ͯ]/g,'')}
+function stockFind(r,text){
+ const words=stockNorm(text).split(/[^a-z0-9&-]+/).filter(Boolean);
+ return r.universe.find(u=>{
+  const sym=u.symbol.toLowerCase(),names=stockNorm(u.name).split(/[^a-z0-9]+/).filter(w=>w.length>=4&&!['platforms','chase','hathaway'].includes(w));
+  return words.some(w=>(sym.length>=3&&(w===sym||w===sym.replace('-','')))||names.some(n=>n===w||(w.length>=4&&n.startsWith(w))));
+ });
+}
+function stockAbout(r,u){
+ const h=r.holdings.find(x=>x.symbol===u.symbol),gap=stockTrendGap(u),{sells,buys}=stockDryRun(r),lines=[];
+ lines.push(u.name+' ('+u.symbol+', '+u.sector+'): ultima chiusura '+(Number.isFinite(u.close_usd)?usd(u.close_usd):'n/d')+'.');
+ lines.push('Classifica '+(u.rank?u.rank+'°':'fuori')+' · crescita 6 mesi '+stockPctTxt(u.momentum_pct)+' · '+(Number.isFinite(gap)?pct(Math.abs(gap))+'% '+(gap>=0?'sopra':'sotto')+' la media 200 giorni':'media n/d')+' · utili '+(u.profit_status==='PROFIT'?'sì':u.profit_status==='LOSS'?'NO':'non verificati')+'.');
+ if(h)lines.push('In portafoglio dal '+h.entry_date+': '+new Intl.NumberFormat('it-IT',{maximumFractionDigits:4}).format(h.qty)+' azioni, valgono '+euro(h.value_eur)+' ('+labMoney(h.pnl_eur,true)+', '+stockPctTxt(h.pnl_pct)+').');
+ const out=sells.find(x=>x.s===u.symbol);
+ lines.push(out?'Se la revisione fosse oggi verrebbe venduta: '+out.why+'.':h?'Se la revisione fosse oggi resterebbe in portafoglio.':buys.includes(u.symbol)?'Se la revisione fosse oggi verrebbe comprata.':u.eligible?'È idonea ma non tra le prime: oggi resterebbe fuori.':'Oggi non è idonea: '+(!u.profitable?'non è in utile':u.sma200==null?'storico insufficiente':!u.above_trend?'è sotto la media 200 giorni':'la crescita a 6 mesi è negativa')+'.');
+ return lines;
+}
+function stockIntent(r,text){
+ const t=stockNorm(text),has=w=>w.some(x=>t.includes(x));
+ if(/^(compra|vendi|acquista|investi)\b/.test(t)||has(['soldi veri','ordine reale','metti soldi','leva']))return{type:'refuse'};
+ if(has(['cambia regol','modifica','resetta','azzera','ferma','spegni']))return{type:'locked'};
+ for(const [role,word] of [['accountant','contabil'],['guard','sentinell'],['analyst','analist'],['auditor','revisor'],['judge','giudic']])if(t.includes(word))return{type:'role',roles:[role]};
+ const company=stockFind(r,text);if(company)return{type:'company',company};
+ if(has(['batt','confront','compra e tieni','fondo','s&p','sp500','conviene','vale la pena','meglio di']))return{type:'role',roles:['judge']};
+ if(has(['revision','cambi','compreresti','classific','panchina','prossim','entrer']))return{type:'role',roles:['analyst']};
+ if(has(['rischi','uscir','esce','vendut','sicur','pericol']))return{type:'role',roles:['guard']};
+ if(has(['utile','utili','bilanc','profitt'])||(has(['aziend'])&&has(['perdit'])))return{type:'role',roles:['auditor']};
+ if(has(['pareggio','pari','guadagn','perdit','perd','conto','soldi','costi','commission','quanto','incass','valore']))return{type:'role',roles:['accountant']};
+ if(has(['rapporto','tutti','riassunto','come va','situazione','novita','squadra']))return{type:'role',roles:STOCK_ROLES.map(x=>x[0]),all:true};
+ if(has(['ciao','salve','buongiorno','buonasera','hey']))return{type:'hello'};
+ return{type:'help'};
+}
+function stockSay(from,label,lines){
+ const log=document.getElementById('stockLog');if(!log)return;
+ const el=document.createElement('div');el.className='boss-msg';el.dataset.from=from;
+ el.innerHTML='<b>'+labEscape(label)+'</b>'+(lines.length>1?'<ul>'+lines.map(l=>'<li>'+labEscape(l)+'</li>').join('')+'</ul>':labEscape(lines[0]));
+ log.append(el);while(log.children.length>40)log.firstElementChild.remove();log.scrollTop=log.scrollHeight;
+}
+function stockCall(roles){
+ clearTimeout(stockCallTimer);const scope=document.getElementById('stockOffice');if(!scope)return;
+ scope.querySelectorAll('[data-called]').forEach(c=>c.removeAttribute('data-called'));
+ roles.forEach(r=>scope.querySelectorAll('[data-role="'+r+'"]').forEach(el=>el.setAttribute('data-called','')));
+ stockCallTimer=setTimeout(()=>scope.querySelectorAll('[data-called]').forEach(c=>c.removeAttribute('data-called')),4000);
+}
+function stockHandle(text){
+ const clean=String(text??'').trim().slice(0,200);if(!clean)return;
+ stockSay('user','Tu',[clean]);
+ const r=stockLast;if(!r){stockSay('boss','Capo Azioni',['I dati del conto Azioni non sono ancora arrivati. Riprova tra poco.']);return}
+ const intent=stockIntent(r,clean),reps=stockReports(r);
+ if(intent.type==='refuse'){stockSay('boss','Capo Azioni',['Non posso comprare o vendere: il conto Azioni è simulato e segue le sue regole da solo, una volta al mese. Posso dirti cosa farebbe alla prossima revisione.']);return}
+ if(intent.type==='locked'){stockSay('boss','Capo Azioni',['Da qui non cambio le regole. Si cambiano solo dopo un test sui dati, come abbiamo fatto con lo stop.']);return}
+ if(intent.type==='hello'){stockSay('boss','Capo Azioni',['Ciao! Chiedimi un rapporto, oppure di un’azienda per nome: “e Apple?”, “NVIDIA?”.']);return}
+ if(intent.type==='help'){stockSay('boss','Capo Azioni',['Non ho capito. Prova: “quanto manca al pareggio?”, “cosa farebbe la revisione oggi?”, “chi rischia di uscire?”, “battiamo il compra e tieni?”, oppure il nome di un’azienda.']);return}
+ if(intent.type==='company'){const u=intent.company;stockSay('boss','Capo Azioni',['Analista, rapporto su '+u.name+'!']);stockCall(['analyst']);stockSay('agent','Analista · '+u.name,stockAbout(r,u));return}
+ stockSay('boss','Capo Azioni',[intent.all?'Squadra, rapporto generale!':STOCK_NAMES[intent.roles[0]]+', fai rapporto!']);
+ stockCall(intent.roles);
+ intent.roles.forEach(role=>{const rep=reps[role];stockSay('agent',STOCK_NAMES[role]+' · '+rep.chip,intent.all?[rep.lines[0]]:rep.lines)});
+}
+function initStockOffice(){
+ if(stockReady)return;const form=document.getElementById('stockForm');if(!form)return;stockReady=true;
+ document.getElementById('stockBossPuppet').innerHTML=squadPuppet('boss').replace('class="p-mouth"','class="p-mouth" d="'+squadMouths.ok+'"');
+ stockSay('boss','Capo Azioni',['Ciao, sono il Capo Azioni. La squadra legge i numeri veri del conto e risponde. Nessuno qui compra o vende: tutto è simulato.']);
+ form.addEventListener('submit',event=>{event.preventDefault();const input=document.getElementById('stockInput');stockHandle(input.value);input.value=''});
+ const scene=document.getElementById('stockScene');
+ const ask=desk=>{const role=desk?.dataset.role;if(role==='boss')stockHandle('Rapporto generale');else if(stockAsk[role])stockHandle(stockAsk[role]);document.getElementById('stockLog')?.closest('.boss')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})};
+ scene.addEventListener('click',event=>ask(event.target.closest('.desk')));
+ scene.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){const d=event.target.closest('.desk');if(d){event.preventDefault();ask(d)}}});
+ document.getElementById('stockQuick').addEventListener('click',event=>{const b=event.target.closest('button');if(b)stockHandle(b.dataset.ask||b.textContent)});
+}
+function renderStockOffice(r,unreachable=false){
+ const grid=document.getElementById('stockGrid');if(!grid)return;
+ initStockOffice();
+ if(!bluechipValid(r)){grid.innerHTML='<p class="lab-note" role="status">'+(unreachable?'Aggiornamento non riuscito.':'La squadra aspetta il primo ciclo del conto Azioni.')+'</p>';return}
+ stockLast=r;
+ const reps=stockReports(r),members=STOCK_ROLES.map(([role,name,job])=>[role,name,job,reps[role]]);
+ const key=JSON.stringify(members.map(m=>m[3]))+unreachable;if(key===stockKey)return;stockKey=key;
+ renderOffice(members,'stockScene','ATLAS · UFFICIO AZIONI','Capo Azioni');
+ grid.innerHTML=members.map(([role,name,job,st])=>'<article class="squad-card" data-role="'+role+'" data-mood="'+st.mood+'"><div class="squad-top">'+squadPuppet(role).replace('class="p-mouth"','class="p-mouth" d="'+squadMouths[st.mood]+'"')+'<div class="squad-name"><b>'+name+'</b><span>'+job+'</span><span class="squad-chip">'+labEscape(st.chip)+'</span></div></div><div class="squad-bubble"><ul>'+st.lines.map(line=>'<li>'+labEscape(line)+'</li>').join('')+'</ul></div><span class="squad-time">'+(st.at?'Dati delle '+labTime(st.at):'Dati n/d')+'</span></article>').join('');
+}
+function setStockView(view){
+ const office=view==='ufficio';
+ document.getElementById('bluechipDemo').hidden=office;document.getElementById('stockOffice').hidden=!office;
+ document.querySelectorAll('[data-bc-view]').forEach(b=>{const on=b.dataset.bcView===view;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
+ writePreference('bcview',view);
+ if(office&&bluechipSnapshot){stockKey='';renderStockOffice(bluechipSnapshot)}
+}
+document.addEventListener('click',event=>{const b=event.target.closest('[data-bc-view]');if(b)setStockView(b.dataset.bcView)});
+setStockView(readPreference('bcview','conto')==='ufficio'?'ufficio':'conto');
 function observerPct(value){return !Number.isFinite(value)?'n/d':value>0&&value<.01?'<1%':value<1&&value>.99?'>99%':Math.round(value*100)+'%'}
 function observerPrice(value){return Number.isFinite(value)?(value>0&&value<.01?new Intl.NumberFormat('it-IT',{maximumSignificantDigits:6}).format(value)+' €':euro(value)):'n/d'}
 function renderObservers(report,unreachable=false){
