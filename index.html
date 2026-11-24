@@ -352,6 +352,9 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 
 #bluechipDemo>.lab-lead h2,#sp500Demo .sp500-kicker{display:none!important}
 #accountsOverview{margin:0 0 22px!important}
+#overviewTotal{margin:0 0 22px!important}#overviewTotal .hero-value{font-size:48px!important}#overviewTotal .lab-note{margin:10px 0 0}#overviewToday{margin:0 0 22px!important}[data-go-models]{display:none!important}
+#overviewToday .ios-row{grid-template-columns:30px minmax(0,1fr) 0 12px}#overviewToday .ios-row-text small{white-space:normal}
+.v3-gap{display:block;margin-top:8px;color:var(--muted);font-size:13px;line-height:18px}.v3-gap strong{color:var(--text)}.v3-gap.up{color:var(--mint)}.v3-bar{display:block;height:6px;border-radius:3px;background:var(--fill);margin-top:8px;overflow:hidden}.v3-bar i{display:block;height:100%;background:var(--amber);border-radius:inherit}.v3-saved{margin:12px 0 0;font-size:15px;line-height:20px;color:var(--text)}.v3-saved.pos b{color:var(--mint)}.v3-saved.neg b{color:var(--red)}.v3-why{margin:12px 0 0!important}
 .bc-switch{display:inline-flex;margin:0 0 14px}.bc-switch button{padding:6px 18px}
 #stockOffice .boss-quick button[data-ask]{color:var(--mint)!important}
 .ios-row-value small.muted{color:var(--muted)}
@@ -750,7 +753,7 @@ function setWorkspacePage(page){
  if(dashboardData){document.querySelector('#strategies').hidden=page!=='models'||!dashboardData.strategies.some(s=>s.forward_enabled);document.querySelector('#replayLab').hidden=page!=='models'||!dashboardData.strategies.some(s=>!s.forward_enabled&&!s.experimental_enabled);applyModelFilters();}
  if(page==='laboratorio'||page==='ai')void refreshLaboratory();
  if(page==='segnali')void refreshSignalDay();
- if(page==='v3')void refreshTrendV3();
+ if(page==='v3'||page==='overview')void refreshTrendV3();
  if(page==='azioni'||page==='overview')void refreshBluechip();
  if(page==='ufficio')void refreshSquad();
 }
@@ -1389,7 +1392,14 @@ function renderTrendV3(report,unreachable=false){
  const actions={WAIT_FOR_SIGNAL:'Mercato in salita, ma nessun segnale oggi.',TREND_FILTER_KEEPS_CASH:'Mercato in discesa: il filtro tiene i soldi in contanti.',MANAGING_OPEN_POSITION:'Posizione aperta: controllo stop e chiusura giornaliera.',EXIT_WAITING_FOR_FRESH_BID:'Uscita in attesa di un prezzo aggiornato.',SIGNAL_WAITING_FOR_EXECUTABLE_BOOK:'Segnale presente: in attesa di prezzi eseguibili.',SIGNAL_SKIPPED_EXECUTION_LIMITS:'Segnale scartato: condizioni di esecuzione non idonee.',CAPITAL_LIMIT_NO_RESET:'Capitale virtuale insufficiente: nessun reset.',WAIT_FOR_NEW_CANDLE:'In attesa della prima candela giornaliera.'};
  const reasons={STOP:'stop',TREND_EXIT:'chiusura sotto la linea di tendenza',STUDY_END:'fine della prova'};
  const action=v=>actions[v]??(String(v).startsWith('PAPER_BUY_')?'Acquisto virtuale eseguito.':String(v).startsWith('PAPER_SELL_')?'Posizione chiusa: '+(reasons[String(v).slice(11)]??'motivo n/d')+'.':'Stato in aggiornamento.');
- const regime=Object.entries(report.regime||{}).map(([s,r])=>'<div><span class="lab-note">'+labEscape(squadMarketName(s))+'/EUR · candela giornaliera</span><b class="'+(r.trend_up?'up':'down')+'">'+(r.trend_up?'Tendenza in salita':'Tendenza in discesa o laterale')+'</b>Chiusura '+observerPrice(r.close)+' · media 50 giorni '+observerPrice(r.sma50)+'</div>').join('')||'<div>Tendenza n/d</div>';
+ const regime=Object.entries(report.regime||{}).map(([s,r])=>{
+  const ok=Number.isFinite(r.close)&&Number.isFinite(r.sma50)&&r.close>0&&r.sma50>0,ratio=ok?Math.min(1,r.close/r.sma50):0,need=ok?(r.sma50/r.close-1)*100:null;
+  const gap=!ok?'':r.trend_up?'<span class="v3-gap up">Sopra la media del '+pct((r.close/r.sma50-1)*100)+'%: gli ingressi sono permessi.</span>':'<span class="v3-gap">Per tornare sopra la media deve salire del <strong>'+pct(need)+'%</strong>. Se il prezzo resta basso la media scende, quindi la distanza si può accorciare anche senza un grande rialzo.</span><span class="v3-bar" role="img" aria-label="Prezzo al '+Math.round(ratio*100)+'% della media a 50 giorni"><i style="width:'+(ratio*100).toFixed(1)+'%"></i></span>';
+  return '<div><span class="lab-note">'+labEscape(squadMarketName(s))+'/EUR · candela giornaliera</span><b class="'+(r.trend_up?'up':'down')+'">'+(r.trend_up?'Tendenza in salita':'Tendenza in discesa o laterale')+'</b>Chiusura '+observerPrice(r.close)+' · media 50 giorni '+observerPrice(r.sma50)+gap+'</div>'}).join('')||'<div>Tendenza n/d</div>';
+ const kSum=report.tiers?.kraken?.summary||{},v3Pnl=Object.values(kSum.net_pnl_eur_per_account||{}).filter(Number.isFinite),v3Avg=v3Pnl.length?v3Pnl.reduce((a,b)=>a+b,0)/v3Pnl.length:null,bh=kSum.buy_hold_pnl_eur_per_100;
+ const allDown=Object.values(report.regime||{}).length&&Object.values(report.regime||{}).every(r=>!r.trend_up);
+ const saved=Number.isFinite(v3Avg)&&Number.isFinite(bh)&&!kSum.benchmark_stale?'<p class="v3-saved '+(v3Avg>=bh?'pos':'neg')+'">'+(v3Avg>=bh?'Restare fermo finora ha evitato <b>'+labEscape(euro(v3Avg-bh))+'</b> di perdita ogni 100 € rispetto a comprare e tenere BTC ed ETH (costi Kraken).':'Rispetto a comprare e tenere BTC ed ETH, V3 è indietro di <b>'+labEscape(euro(bh-v3Avg))+'</b> ogni 100 € (costi Kraken).')+'</p>':'';
+ const why=allDown?'<p class="lab-note v3-why"><b>Perché è fermo:</b> BTC ed ETH sono sotto la loro media a 50 giorni, cioè il mercato scende. La regola principale di V3 è non comprare in discesa: è voluto, non è un guasto.</p>':'';
  const tiers=Object.entries(report.tiers).map(([tierKey,tier])=>{
   const t=tier.summary||{};
   const cards=Object.entries(tier.accounts||{}).map(([rule,row])=>{
@@ -1404,7 +1414,7 @@ function renderTrendV3(report,unreachable=false){
  const rules=Object.values(p.rules||{}).map(r=>'<p class="lab-note"><b>'+labEscape(r.label)+'.</b> '+labEscape(r.plain)+'</p>').join('');
  const lessons=(report.lessons||[]).map(l=>'<li>'+labEscape(l)+'</li>').join('');
  root.innerHTML='<div class="lab-lead"><div><h2>Test V3 · tendenza giornaliera</h2><p>Regole nuove costruite sulle perdite dei test precedenti. Compra solo BTC o ETH e solo quando la tendenza giornaliera sale; altrimenti resta in contanti.</p></div><p class="lab-status" role="status" data-state="'+(stale?'stale':unreachable?'error':'ok')+'">'+(stale?'DATI NON AGGIORNATI · ':unreachable?'Ultimo report conservato · ':'Controllo · ')+labTime(report.generated_at)+'</p></div>'+
-  '<div class="v3-regime">'+regime+'</div>'+
+  why+'<div class="v3-regime">'+regime+'</div>'+saved+
   '<p class="lab-note">Inizio '+labTime(report.market_started_at)+' · fine prevista '+labTime(report.study_end_at)+' · controlli eseguiti '+labCount(report.cycles)+'. Soldi virtuali: nessun ordine reale. I test congelati non sono stati toccati.</p>'+
   tiers+
   '<details class="lab-detail" data-v3-key="lessons" open><summary>Cosa abbiamo imparato dalle perdite</summary><ul>'+lessons+'</ul></details>'+
@@ -1414,7 +1424,7 @@ function renderTrendV3(report,unreachable=false){
  if(rendered)root.querySelectorAll('details').forEach(el=>{el.open=open.has(el.dataset.v3Key)});
 }
 async function refreshTrendV3(){
- if(workspacePage!=='v3'||document.visibilityState!=='visible')return;
+ if(!['v3','overview'].includes(workspacePage)||document.visibilityState!=='visible')return;
  if(trendV3Request)return trendV3Request;
  trendV3Request=(async()=>{
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
@@ -1425,8 +1435,8 @@ async function refreshTrendV3(){
    const report=await response.json();
    if(!trendV3Valid(report))throw new Error('Invalid V3 report');
    if(!trendV3Snapshot||Date.parse(report.generated_at)>=Date.parse(trendV3Snapshot.generated_at))trendV3Snapshot=report;
-   renderTrendV3(trendV3Snapshot);
-  }catch{renderTrendV3(trendV3Snapshot,true)}finally{clearTimeout(timeout)}
+   renderTrendV3(trendV3Snapshot);renderAccounts();
+  }catch{renderTrendV3(trendV3Snapshot,true);renderAccounts()}finally{clearTimeout(timeout)}
  })();
  try{return await trendV3Request}finally{trendV3Request=null}
 }
@@ -1459,6 +1469,46 @@ function renderAccounts(){
  if(sp500Last){const eq=Number(sp500Last.equity_liquidation),blocked=sp500Last.risk_policy?.cost_viability?.structurally_unfavorable;rows.push(iosRow('sp500','ETF S&P 500',sp500Last.position?'Posizione aperta':blocked?'Fermo: costi troppo alti per 200 €':'Nessuna posizione aperta',euro(eq),eq-Number(sp500Last.capital||200)))}
  else rows.push(iosRow('sp500','ETF S&P 500','Modulo demo'));
  root.innerHTML=rows.join('');
+ renderOverviewSummary();
+}
+function renderOverviewSummary(){
+ const totalEl=document.getElementById('totalAll');if(!totalEl)return;
+ const crypto=(dashboardData?.strategies||[]).filter(s=>s.active!==false),bc=typeof bluechipSnapshot!=='undefined'?bluechipSnapshot:null;
+ const parts=[];
+ if(crypto.length)parts.push({eq:crypto.reduce((a,s)=>a+(Number(s.equity)||0),0),start:crypto.reduce((a,s)=>a+(Number(s.initial_capital)||0),0)});
+ if(bc)parts.push({eq:Number(bc.equity_liquidation),start:Number(bc.capital)||200});
+ if(sp500Last)parts.push({eq:Number(sp500Last.equity_liquidation),start:Number(sp500Last.capital)||200});
+ if(!crypto.length){totalEl.textContent='—';document.getElementById('totalAllChange').innerHTML='<span>Caricamento dei conti…</span>'}
+ else{const eq=parts.reduce((a,x)=>a+x.eq,0),start=parts.reduce((a,x)=>a+x.start,0),d=eq-start,rate=start?d/start*100:0;
+  totalEl.textContent=euro(eq);
+  document.getElementById('totalAllChange').innerHTML='<b class="'+(Math.abs(d)<0.005?'muted':pnlClass(d))+'">'+(d>=0?'+':'')+euro(d)+' · '+(rate>=0?'+':'')+pct(rate)+'%</b><span>rispetto ai '+euro(start)+' di partenza</span>';
+  document.getElementById('totalAllNote').textContent=parts.length+(parts.length===1?' conto':' conti')+': Crypto'+(bc?', Azioni':'')+(sp500Last?', ETF S&P 500':'')+' · soldi virtuali, nessun ordine reale.'}
+ const today=document.getElementById('todayList');if(!today)return;
+ const rows=[];
+ if(dashboardData){const g=dashboardData.global_risk||{},open=crypto.reduce((a,s)=>a+(s.open_positions||0),0);
+  rows.push(iosRow('models','Crypto',(g.locked||g.manual_stop?'Freno d’emergenza scattato: nuovi ingressi bloccati':'Protezione attiva · calo 24 ore '+(Number.isFinite(g.drawdown_24h_pct)?pct(g.drawdown_24h_pct)+'%':'n/d')+(Number.isFinite(g.threshold_pct)?' (scatta al '+pct(g.threshold_pct)+'%)':''))+' · '+(open?open+(open===1?' posizione aperta':' posizioni aperte'):'nessuna posizione aperta')))}
+ if(bc&&typeof stockDryRun==='function'){const {sells,buys,by}=stockDryRun(bc),days=stockDaysTo(stockReviewDate(bc));
+  const when=days==null?'Prossima revisione n/d':days===0?'Revisione oggi':'Revisione tra '+days+(days===1?' giorno':' giorni');
+  rows.push(iosRow('azioni','Azioni',when+' · '+(sells.length||buys.length?'cambi previsti: '+[...sells.map(x=>'vende '+(by[x.s]?.name||x.s)),...buys.map(s=>'compra '+(by[s]?.name||s))].join(', '):'oggi nessun cambio previsto')))}
+ if(sp500Last){const v=sp500Last.risk_policy?.cost_viability;rows.push(iosRow('sp500','ETF S&P 500',v?.structurally_unfavorable?'Fermo: con 200 € le commissioni costano quanto il rischio':sp500Last.position?'Posizione aperta':'In attesa di un segnale'))}
+ if(trendV3Snapshot?.regime){const reg=Object.entries(trendV3Snapshot.regime),down=reg.filter(([,r])=>!r.trend_up);
+  const k=trendV3Snapshot.tiers?.kraken?.summary||{},vals=Object.values(k.net_pnl_eur_per_account||{}).filter(Number.isFinite),avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null,bh=k.buy_hold_pnl_eur_per_100;
+  const gaps=down.map(([s,r])=>squadMarketName(s)+' +'+pct((r.sma50/r.close-1)*100)+'%').join(', ');
+  rows.push(iosRow('v3','Test V3',(down.length===reg.length?'In contanti: per ripartire servono '+gaps:'Tendenza in salita: ingressi permessi')+(Number.isFinite(avg)&&Number.isFinite(bh)&&avg>bh?' · evitati '+euro(avg-bh)+' ogni 100 €':'')))}
+ today.innerHTML=rows.join('')||'<p class="lab-note" style="padding:14px 16px">Caricamento…</p>';
+}
+function initOverviewLayout(){
+ const main=document.querySelector('main.shell'),heading=document.querySelector('.workspace-heading'),accounts=document.getElementById('accountsOverview');
+ const total=document.createElement('section');total.id='overviewTotal';total.className='section';total.dataset.workspacePage='overview';
+ total.innerHTML='<div class="hero total-hero"><div class="eyebrow">Valore totale dei conti virtuali</div><div id="totalAll" class="hero-value">—</div><div id="totalAllChange" class="hero-change"></div><p id="totalAllNote" class="lab-note"></p></div>';
+ const today=document.createElement('section');today.id='overviewToday';today.className='section';today.dataset.workspacePage='overview';
+ today.innerHTML='<h2 class="ios-list-title">Da sapere oggi</h2><div id="todayList" class="ios-list"></div><p class="ios-list-note">Tocca una riga per aprire la pagina. Il dettaglio dei modelli crypto è nella pagina Crypto.</p>';
+ heading.after(total);total.after(accounts);accounts.after(today);
+ // Everything below is about the seven crypto models: it belongs on the Crypto page.
+ const toolbar=document.querySelector('.models-toolbar');
+ const crypto=[document.querySelector('.overview-layout'),document.getElementById('globalRiskBanner'),document.getElementById('equityHistoryPanel'),document.getElementById('workspacePortfolio')?.closest('section'),document.querySelector('#bestStrategy')?.closest('section'),document.getElementById('aggregateExposure')].filter(Boolean);
+ crypto.forEach(el=>{el.dataset.workspacePage='models';toolbar.before(el)});
+ renderAccounts();setWorkspacePage(workspacePage);
 }
 function renderBluechip(r,unreachable=false){
  renderBluechipOverview(r);renderStockOffice(r,unreachable);
@@ -2157,6 +2207,7 @@ async function refreshLaboratory(){
 
 initWorkspace();
 initObservability();
+initOverviewLayout();
 initLabDiary();
 startPolling(true);
 </script>
