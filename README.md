@@ -2,7 +2,7 @@
 
 Ricerca separata dai sette conti originali. Nessun ordine reale.
 
-Snapshot: 2026-11-25T08:00:54+00:00 · codice: `c9547aa427028b6991369ca61fdb63f2178c55e5`
+Snapshot: 2026-11-25T12:01:00+00:00 · codice: `29703087eb3e057c87103eabf2f46db753f651db`
 
 Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel laboratorio: **0**
 
@@ -10,7 +10,7 @@ Tentativi registrati: **128** · idonee storiche: **0** · qualificate nel labor
 |---|---|---|---:|---:|---|
 | `1:3f487aff9ef01dc2ab94` | breakout | Esplorativa non validata · Osservazione | 2 / €-7.15 | 1 / €-5.09 | `WAIT` |
 | `1:4e6820802727dd913e3f` | breakout | Esplorativa non validata · Osservazione | 5 / €-20.44 | 1 / €-6.10 | `WAIT` |
-| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 2 / €-19.22 | `PAPER_SELL_STOP` |
+| `1:c98b020c8230a5e06f11` | breakout | Esplorativa non validata · Osservazione | 4 / €-20.96 | 2 / €-19.22 | `WAIT` |
 
 ## Conto PAPER dello screening massivo
 
