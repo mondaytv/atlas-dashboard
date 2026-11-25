@@ -1607,7 +1607,7 @@ function renderBluechip(r,unreachable=false){
  const holdings=r.holdings.map(h=>'<article class="paired-arm"><h3>'+labEscape(h.name)+' <span class="lab-note">'+labEscape(h.symbol)+' · '+labEscape(h.sector)+'</span></h3><span class="lab-note">Valore se vendessi ora</span><strong>'+labMoney(h.value_eur)+'</strong><p class="lab-note '+pnlClass(h.pnl_eur)+'">'+labMoney(h.pnl_eur,true)+' · '+signedPct(h.pnl_pct)+'</p><p class="lab-note">Comprato il '+labEscape(h.entry_date)+' a '+usd(h.entry_price_usd)+' · ora '+usd(h.close_usd)+(Number.isFinite(h.stop_usd)?' · stop '+usd(h.stop_usd):'')+' · '+new Intl.NumberFormat('it-IT',{maximumFractionDigits:4}).format(h.qty)+' azioni (frazione)</p></article>').join('');
  const rows=r.universe.map(u=>{
   const state=u.held?'<b class="bc-tag held">IN PORTAFOGLIO</b>':u.eligible?'<b class="bc-tag ok">IDONEO</b>':'<b class="bc-tag">FUORI</b>';
-  const why=!u.profitable?'in perdita':u.sma200==null?'storico insufficiente':!u.above_trend?'sotto la media 200 giorni':u.momentum_pct<=0?'momentum negativo':'';
+  const why=!u.profitable?'in perdita':u.sma200==null?'storico insufficiente':!u.above_trend?'sotto la '+smaLabel()+'':u.momentum_pct<=0?'momentum negativo':'';
   return '<li class="bc-row"><span class="bc-rank">'+(u.rank??'–')+'</span><span class="bc-name"><b>'+labEscape(u.name)+'</b><small>'+labEscape(u.symbol)+' · '+labEscape(u.sector)+' · utili '+(u.profit_status==='PROFIT'?'sì':u.profit_status==='LOSS'?'no':'n/v')+(why?' · '+why:'')+'</small></span><span class="bc-mom '+(u.momentum_pct>0?'pos':'neg')+'">'+signedPct(u.momentum_pct)+'</span>'+state+'</li>';
  }).join('');
  const trades=(r.trades||[]).map(t=>'<li>'+labEscape(t.exit_date)+' · '+labEscape(t.symbol)+' · '+labEscape(reasons[t.reason]||t.reason)+' · <b class="'+pnlClass(t.pnl)+'">'+labMoney(t.pnl,true)+'</b></li>').join('');
@@ -1643,6 +1643,7 @@ const STOCK_ROLES=[['accountant','Contabile','Conti e pareggio'],['guard','Senti
 const STOCK_NAMES=Object.fromEntries(STOCK_ROLES.map(([role,name])=>[role,name]));
 const stockAsk={accountant:'Contabile, quanto manca al pareggio?',guard:'Sentinella, chi rischia di uscire?',analyst:'Analista, cosa farebbe la revisione oggi?',auditor:'Revisore, le aziende sono in utile?',judge:'Giudice, battiamo il compra e tieni?'};
 let stockKey='',stockReady=false,stockLast=null,stockCallTimer=null;
+function smaLabel(){const d=Number((typeof bluechipSnapshot!=='undefined'&&bluechipSnapshot||stockLast)?.policy?.trend_sma);return 'media '+(Number.isFinite(d)&&d>0?d:150)+' giorni'}
 function stockPctTxt(v){return Number.isFinite(v)?(v>0?'+':'')+pct(v)+'%':'n/d'}
 function stockReviewDate(r){const m=/^(\d{4})-(\d{2})$/.exec(r?.next_rebalance_month||'');if(!m)return null;const d=new Date(Date.UTC(+m[1],+m[2]-1,1));while([0,6].includes(d.getUTCDay()))d.setUTCDate(d.getUTCDate()+1);return d}
 function stockDaysTo(d){return d?Math.max(0,Math.ceil((d-Date.now())/86400000)):null}
@@ -1652,7 +1653,7 @@ function stockDryRun(r){
  const p=r.policy||{},max=p.max_positions||3,keep=p.keep_rank||6,cap=p.max_per_sector||2,by=Object.fromEntries(r.universe.map(u=>[u.symbol,u]));
  const held=r.holdings.map(h=>h.symbol),sells=[],stay=[];
  held.forEach(s=>{const u=by[s];if(!u||!Number.isFinite(u.close_usd)){stay.push(s);return}
-  const why=!u.profitable?'non più in utile':!u.eligible?(u.sma200!=null&&!u.above_trend?'sotto la media 200 giorni':'crescita a 6 mesi negativa'):u.rank>keep?'scesa al '+u.rank+'° posto':null;
+  const why=!u.profitable?'non più in utile':!u.eligible?(u.sma200!=null&&!u.above_trend?'sotto la '+smaLabel()+'':'crescita a 6 mesi negativa'):u.rank>keep?'scesa al '+u.rank+'° posto':null;
   if(why)sells.push({s,why});else stay.push(s)});
  const buys=[];
  r.universe.filter(u=>u.rank&&!held.includes(u.symbol)).sort((a,b)=>a.rank-b.rank).forEach(u=>{
@@ -1677,7 +1678,7 @@ function stockGuard(r){
  r.holdings.forEach(h=>{const u=by[h.symbol],gap=stockTrendGap(u),out=sells.find(x=>x.s===h.symbol);
   if(out){lines.push(h.name+': oggi verrebbe venduta ('+out.why+').');return}
   const near=(Number.isFinite(gap)&&gap<5)||(Number(u?.rank)>=keep-1);if(near)watch++;
-  lines.push(h.name+': '+(u?.rank?u.rank+'° in classifica (si resta fino al '+keep+'°)':'fuori classifica')+', '+(Number.isFinite(gap)?pct(Math.abs(gap))+'% '+(gap>=0?'sopra':'sotto')+' la media 200 giorni':'media n/d')+(near?'. Da tenere d’occhio.':'. Al sicuro.'))});
+  lines.push(h.name+': '+(u?.rank?u.rank+'° in classifica (si resta fino al '+keep+'°)':'fuori classifica')+', '+(Number.isFinite(gap)?pct(Math.abs(gap))+'% '+(gap>=0?'sopra':'sotto')+' la '+smaLabel()+'':'media n/d')+(near?'. Da tenere d’occhio.':'. Al sicuro.'))});
  const when=days==null?'alla prossima revisione':days===0?'alla revisione di oggi':'alla revisione tra '+days+(days===1?' giorno':' giorni');
  lines.unshift(!r.holdings.length?'Nessun titolo in portafoglio da sorvegliare.':sells.length?sells.length+(sells.length===1?' titolo verrebbe venduto ':' titoli verrebbero venduti ')+when+', se i prezzi restano questi.':watch?'Nessun titolo da vendere '+when+', ma '+watch+' da tenere d’occhio.':'Nessun titolo a rischio '+when+'.');
  lines.push('Prossima revisione '+(days==null?'n/d':days===0?'oggi':'tra '+days+(days===1?' giorno':' giorni'))+'. Si vende solo allora: non c’è uno stop automatico.');
@@ -1691,7 +1692,7 @@ function stockAnalyst(r){
  const bench=r.universe.filter(u=>u.rank&&!u.held&&!buys.includes(u.symbol)).sort((a,b)=>a.rank-b.rank)[0];
  const weakest=r.universe.filter(u=>u.held&&u.rank).sort((a,b)=>b.rank-a.rank)[0];
  if(bench)lines.push('Prima in panchina: '+bench.name+' ('+bench.rank+'°, '+stockPctTxt(bench.momentum_pct)+' in 6 mesi)'+(weakest?'. La più debole in portafoglio è '+weakest.name+' ('+weakest.rank+'°, '+stockPctTxt(weakest.momentum_pct)+')':'')+'.');
- lines.push('Idonee oggi: '+r.universe.filter(u=>u.eligible).length+' aziende su '+r.universe.length+' (in utile, sopra la media 200 giorni, in crescita a 6 mesi).');
+ lines.push('Idonee oggi: '+r.universe.filter(u=>u.eligible).length+' aziende su '+r.universe.length+' (in utile, sopra la '+smaLabel()+', in crescita a 6 mesi).');
  const changes=sells.length+buys.length;
  return{mood:changes?'wait':'ok',chip:changes?'Cambi in vista':'Nessun cambio',lines,at:r.generated_at};
 }
@@ -1726,10 +1727,10 @@ function stockFind(r,text){
 function stockAbout(r,u){
  const h=r.holdings.find(x=>x.symbol===u.symbol),gap=stockTrendGap(u),{sells,buys}=stockDryRun(r),lines=[];
  lines.push(u.name+' ('+u.symbol+', '+u.sector+'): ultima chiusura '+(Number.isFinite(u.close_usd)?usd(u.close_usd):'n/d')+'.');
- lines.push('Classifica '+(u.rank?u.rank+'°':'fuori')+' · crescita 6 mesi '+stockPctTxt(u.momentum_pct)+' · '+(Number.isFinite(gap)?pct(Math.abs(gap))+'% '+(gap>=0?'sopra':'sotto')+' la media 200 giorni':'media n/d')+' · utili '+(u.profit_status==='PROFIT'?'sì':u.profit_status==='LOSS'?'NO':'non verificati')+'.');
+ lines.push('Classifica '+(u.rank?u.rank+'°':'fuori')+' · crescita 6 mesi '+stockPctTxt(u.momentum_pct)+' · '+(Number.isFinite(gap)?pct(Math.abs(gap))+'% '+(gap>=0?'sopra':'sotto')+' la '+smaLabel()+'':'media n/d')+' · utili '+(u.profit_status==='PROFIT'?'sì':u.profit_status==='LOSS'?'NO':'non verificati')+'.');
  if(h)lines.push('In portafoglio dal '+h.entry_date+': '+new Intl.NumberFormat('it-IT',{maximumFractionDigits:4}).format(h.qty)+' azioni, valgono '+euro(h.value_eur)+' ('+labMoney(h.pnl_eur,true)+', '+stockPctTxt(h.pnl_pct)+').');
  const out=sells.find(x=>x.s===u.symbol);
- lines.push(out?'Se la revisione fosse oggi verrebbe venduta: '+out.why+'.':h?'Se la revisione fosse oggi resterebbe in portafoglio.':buys.includes(u.symbol)?'Se la revisione fosse oggi verrebbe comprata.':u.eligible?'È idonea ma non tra le prime: oggi resterebbe fuori.':'Oggi non è idonea: '+(!u.profitable?'non è in utile':u.sma200==null?'storico insufficiente':!u.above_trend?'è sotto la media 200 giorni':'la crescita a 6 mesi è negativa')+'.');
+ lines.push(out?'Se la revisione fosse oggi verrebbe venduta: '+out.why+'.':h?'Se la revisione fosse oggi resterebbe in portafoglio.':buys.includes(u.symbol)?'Se la revisione fosse oggi verrebbe comprata.':u.eligible?'È idonea ma non tra le prime: oggi resterebbe fuori.':'Oggi non è idonea: '+(!u.profitable?'non è in utile':u.sma200==null?'storico insufficiente':!u.above_trend?'è sotto la '+smaLabel()+'':'la crescita a 6 mesi è negativa')+'.');
  return lines;
 }
 function stockIntent(r,text){
