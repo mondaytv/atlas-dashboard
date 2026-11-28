@@ -24,7 +24,7 @@ jobs:
       BOT_REPOSITORY: mondaytv/atlas-bot
       BOT_WORKFLOW: atlas.yml
       PULSE_SECONDS: "1800"
-      TEST_UNTIL: "2026-12-03T08:00:00Z"
+      TEST_UNTIL: "2027-02-28T08:00:00Z"
       WINDOW_SECONDS: "14400"
     steps:
       - name: Dispatch ATLAS stop checks and candle-close cycles
@@ -88,7 +88,7 @@ jobs:
           while :; do
             now="$(date -u +%s)"
             if (( now >= end_epoch )); then
-              echo "Thirty-day test deadline reached; sending final cleanup cycle"
+              echo "Paper test deadline reached; sending final cleanup cycle"
               dispatch_atlas || failures=$((failures + 1))
               break
             fi
@@ -144,6 +144,6 @@ jobs:
             gh workflow run atlas-heartbeat.yml --repo "$GITHUB_REPOSITORY" --ref main
             echo "Next ATLAS relay window queued"
           else
-            echo "Thirty-day test finished; relay stopped"
+            echo "Paper test finished; relay stopped"
           fi
 
