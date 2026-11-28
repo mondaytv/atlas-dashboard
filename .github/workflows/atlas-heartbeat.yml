@@ -43,6 +43,36 @@ jobs:
           end_epoch="$(date -u -d "$TEST_UNTIL" +%s)"
           window_end="$(( $(date -u +%s) + WINDOW_SECONDS ))"
 
+          # The private engine spends Actions minutes on every start. Start it
+          # only when it has work: a new 4-hour candle since the last full cycle,
+          # or open positions that need 30-minute stop checks. Unreadable data
+          # fails open (dispatch), so a broken feed never silences the engine.
+          engine_has_work() {
+            python3 - <<'PY'
+          import datetime, json, time, urllib.request
+          now = time.time()
+          try:
+              request = urllib.request.Request(
+                  "https://raw.githubusercontent.com/mondaytv/atlas-dashboard/data/strategies.json?t=%d" % now,
+                  headers={"Cache-Control": "no-cache", "User-Agent": "ATLAS-heartbeat"})
+              data = json.load(urllib.request.urlopen(request, timeout=20))
+              open_positions = sum(int(row.get("open_positions") or 0) for row in data.get("strategies", []))
+              last = data.get("last_signal_cycle_at") or (data.get("generated_at") if data.get("cycle_mode") == "SIGNAL" else None)
+              last_ts = datetime.datetime.fromisoformat(last.replace("Z", "+00:00")).timestamp() if last else None
+          except Exception as error:
+              print(f"Dispatch: public data unreadable ({type(error).__name__})")
+              raise SystemExit(0)
+          if open_positions:
+              print(f"Dispatch: {open_positions} open position(s) need stop checks")
+              raise SystemExit(0)
+          if last_ts is None or last_ts < now // 14400 * 14400:
+              print("Dispatch: a new 4-hour candle cycle is due")
+              raise SystemExit(0)
+          print("Skip: books are flat and this 4-hour cycle is done")
+          raise SystemExit(1)
+          PY
+          }
+
           dispatch_atlas() {
             for attempt in 1 2 3; do
               if gh workflow run "$BOT_WORKFLOW" --repo "$BOT_REPOSITORY" --ref main; then
@@ -63,7 +93,9 @@ jobs:
               break
             fi
 
-            dispatch_atlas || failures=$((failures + 1))
+            if engine_has_work; then
+              dispatch_atlas || failures=$((failures + 1))
+            fi
             next_pulse="$((now + PULSE_SECONDS))"
             if (( next_pulse >= window_end )); then
               # Keep relay windows exactly four hours apart.  Exiting here

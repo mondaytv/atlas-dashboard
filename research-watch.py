@@ -54,7 +54,7 @@ def request_research():
         return False
 
 
-def observe(now, get_report, check_market, dispatch):
+def observe(now, get_report, check_market, dispatch, last_dispatch=None):
     with ThreadPoolExecutor(max_workers=len(PAIRS)) as pool:
         readings = dict(zip(PAIRS, pool.map(lambda pair: check_market(pair, now), PAIRS.values())))
     ready = sum(market["state"] == "READY" for market in readings.values())
@@ -71,14 +71,21 @@ def observe(now, get_report, check_market, dispatch):
             status = "RESEARCH_DATA_INCOMPLETE" if report.get("errors") else "UP_TO_DATE"
         elif not ready:
             status = "WAITING_FOR_MARKET"
+        elif last_dispatch is not None and last_dispatch // DECISION_SECONDS >= now // DECISION_SECONDS:
+            # One request per 4-hour window. Retrying every 30 minutes spent the
+            # private repository's Actions minutes whenever the run could not start.
+            status = "DISPATCH_PENDING"
         else:
             status = "DISPATCH_REQUESTED" if dispatch() else "DISPATCH_FAILED"
+            if status == "DISPATCH_REQUESTED":
+                last_dispatch = now
     return {
         "schema": 1, "mode": "PAPER_RESEARCH_MARKET_WATCH", "checked_at": iso(now),
         "check_interval_minutes": CHECK_SECONDS // 60, "stale_after_minutes": 75,
         "decision_interval_minutes": DECISION_SECONDS // 60, "status": status,
         "ready_markets": ready, "total_markets": len(PAIRS), "market": readings,
         "last_report_at": iso(report_at) if report_at is not None else None,
+        "last_dispatch_at": iso(last_dispatch) if last_dispatch is not None else None,
     }
 
 
@@ -87,13 +94,18 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     now = int(time.time())
+    last_dispatch = None
     if args.output.exists():
         previous = json.loads(args.output.read_text(encoding="utf-8"))
         previous_check = datetime.fromisoformat(previous["checked_at"]).timestamp()
         if previous_check // CHECK_SECONDS >= now // CHECK_SECONDS:
             print("Market check already recorded for this slot.")
             return
-    snapshot = observe(now, lambda: fetch(REPORT + "?t=" + str(now)), market_check, request_research)
+        if previous.get("last_dispatch_at"):
+            last_dispatch = datetime.fromisoformat(previous["last_dispatch_at"]).timestamp()
+        elif previous.get("status") == "DISPATCH_REQUESTED":
+            last_dispatch = previous_check
+    snapshot = observe(now, lambda: fetch(REPORT + "?t=" + str(now)), market_check, request_research, last_dispatch)
     pending = args.output.with_suffix(".tmp")
     pending.write_text(json.dumps(snapshot, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     pending.replace(args.output)

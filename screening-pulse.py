@@ -287,7 +287,7 @@ def dispatch_discovered(proposals, previous, now):
             return "ALREADY_TESTED", previous.get("last_admission_request")
         candidate = pending[0]["id"]
         last = previous.get("last_admission_request") or {}
-        if last.get("id") == candidate and now-last.get("at", 0) < 1800:
+        if last.get("id") == candidate and now-last.get("at", 0) < 4 * 3600:
             return "WAITING_FOR_PAPER_CONFIRMATION", last
         gh(["workflow", "run", WORKFLOW, "--repo", REPO, "--ref", "main"], 15)
         return "PAPER_VERIFICATION_REQUESTED", {"id": candidate, "at": now}
